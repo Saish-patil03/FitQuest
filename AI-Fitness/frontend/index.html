@@ -1,0 +1,3681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitQuest — Minimal Athletic AI Fitness Platform</title>
+  
+  <!-- Modern Typography (Inter & Space Grotesk) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- FitQuest Centralized API & Environment Configuration -->
+  <script src="config.js"></script>
+</head>
+<body>
+  <!-- FITQUEST PREMIUM PUBLIC LANDING PAGE -->
+  <section id="landingView" class="landing-view">
+    <!-- STICKY LANDING HEADER -->
+    <header class="landing-nav-header" id="landingNavHeader">
+      <div class="landing-nav-container">
+        <a href="#landingHero" class="landing-nav-brand">
+          <span class="brand-wordmark">FITQUEST</span>
+        </a>
+
+        <nav class="landing-nav-menu" id="landingNavMenu">
+          <a href="#landingPillars" class="landing-nav-link">Pillars</a>
+          <a href="#landingWho" class="landing-nav-link">Who We Help</a>
+          <a href="#landingIntelligence" class="landing-nav-link">Intelligence</a>
+          <a href="#landingShowcase" class="landing-nav-link">Showcase</a>
+          <a href="#landingDifference" class="landing-nav-link">Difference</a>
+          <a href="#landingCapabilities" class="landing-nav-link">Capabilities</a>
+        </nav>
+
+        <div class="landing-nav-actions">
+          <button class="btn-landing-signin btn-landing-enter" type="button" aria-label="Sign In to FitQuest">
+            Sign In
+          </button>
+          <button class="btn-landing-enter btn-nav-cta" type="button" aria-label="Start Your FitQuest Journey">
+            <span>Start Journey</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION 1: HERO -->
+    <div id="landingHero" class="landing-hero-section">
+      <div class="landing-hero-bg-glow"></div>
+      <div class="landing-hero-container">
+        <div class="landing-hero-badge-wrapper">
+          <div class="landing-badge">
+            <span class="badge-dot"></span>
+            <span>AI-POWERED BIOMECHANICAL INTELLIGENCE</span>
+          </div>
+        </div>
+
+        <h1 class="landing-hero-headline">
+          Your Body.<br>
+          Your Data.<br>
+          <span class="text-gradient-lime">Your Evolution.</span>
+        </h1>
+
+        <p class="landing-hero-sub">
+          AI-powered fitness that understands how you move, adapts how you train, and guides what you eat.
+        </p>
+
+        <div class="landing-hero-cta-group">
+          <button id="enterFitquestBtn" class="btn-landing-enter btn-hero-primary" type="button">
+            <span>Start Your Journey</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <a href="#landingShowcase" class="btn-hero-secondary">
+            <i class="fa-solid fa-play"></i>
+            <span>Explore FitQuest</span>
+          </a>
+        </div>
+
+        <!-- HERO CINEMATIC TELEMETRY SHOWCASE -->
+        <div class="landing-hero-visual-container">
+          <div class="hero-visual-card">
+            <div class="hero-visual-glass-header">
+              <div class="window-controls">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <div class="telemetry-session-tag">
+                <i class="fa-solid fa-satellite-dish"></i> LIVE COMPUTER VISION TELEMETRY
+              </div>
+              <div class="telemetry-fps-tag">
+                <span class="pulse-indicator"></span> 60 FPS · 33 KEYPOINTS
+              </div>
+            </div>
+
+            <div class="hero-visual-display">
+              <!-- AI POSE SKELETON & TELEMETRY HUD OVERLAY -->
+              <div class="pose-telemetry-hud-box">
+                <!-- Left HUD Panel -->
+                <div class="hud-telemetry-col left">
+                  <div class="hud-stat-pill">
+                    <span class="hud-stat-label">EXERCISE</span>
+                    <span class="hud-stat-val text-lime">BARBELL SQUAT</span>
+                  </div>
+                  <div class="hud-stat-pill">
+                    <span class="hud-stat-label">JOINT VELOCITY</span>
+                    <span class="hud-stat-val">0.82 m/s</span>
+                  </div>
+                  <div class="hud-stat-pill">
+                    <span class="hud-stat-label">HIP DEPTH</span>
+                    <span class="hud-stat-val text-lime">PARALLEL (118°)</span>
+                  </div>
+                </div>
+
+                <!-- Center Biometric Skeleton Graphic -->
+                <div class="hero-skeleton-center">
+                  <svg class="biomechanical-skeleton-svg" viewBox="0 0 360 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Grid background -->
+                    <defs>
+                      <linearGradient id="limeGlowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#65a30d"/>
+                        <stop offset="100%" stop-color="#0284c7"/>
+                      </linearGradient>
+                      <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#65a30d" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#65a30d" stop-opacity="0"/>
+                      </radialGradient>
+                    </defs>
+
+                    <!-- Coordinate Grid lines -->
+                    <line x1="30" y1="190" x2="330" y2="190" stroke="#e2e8f0" stroke-dasharray="4 4"/>
+                    <line x1="180" y1="30" x2="180" y2="350" stroke="#e2e8f0" stroke-dasharray="4 4"/>
+
+                    <!-- Range of Motion Arc -->
+                    <path d="M 120 180 A 60 60 0 0 1 180 120" stroke="rgba(101, 163, 13, 0.4)" stroke-width="2" stroke-dasharray="3 3"/>
+                    <text x="100" y="150" fill="#4d7c0f" font-size="11" font-family="'Space Grotesk', sans-serif" font-weight="700">θ = 112° (Optimal)</text>
+
+                    <!-- Skeleton Limbs (Kinematic Links) -->
+                    <!-- Spine & Torso -->
+                    <line x1="180" y1="80" x2="180" y2="190" stroke="url(#limeGlowGrad)" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Shoulders -->
+                    <line x1="130" y1="110" x2="230" y2="110" stroke="#65a30d" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Left Arm -->
+                    <line x1="130" y1="110" x2="95" y2="155" stroke="#65a30d" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="95" y1="155" x2="70" y2="120" stroke="#65a30d" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Right Arm -->
+                    <line x1="230" y1="110" x2="265" y2="155" stroke="#65a30d" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="265" y1="155" x2="290" y2="120" stroke="#65a30d" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Pelvis / Hips -->
+                    <line x1="145" y1="190" x2="215" y2="190" stroke="#65a30d" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Left Leg -->
+                    <line x1="145" y1="190" x2="125" y2="265" stroke="url(#limeGlowGrad)" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="125" y1="265" x2="120" y2="340" stroke="url(#limeGlowGrad)" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="120" y1="340" x2="100" y2="345" stroke="#65a30d" stroke-width="2" stroke-linecap="round"/>
+                    <!-- Right Leg -->
+                    <line x1="215" y1="190" x2="235" y2="265" stroke="url(#limeGlowGrad)" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="235" y1="265" x2="240" y2="340" stroke="url(#limeGlowGrad)" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="240" y1="340" x2="260" y2="345" stroke="#65a30d" stroke-width="2" stroke-linecap="round"/>
+
+                    <!-- Head & AI Tracker Ring -->
+                    <circle cx="180" cy="55" r="22" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="4 2"/>
+                    <circle cx="180" cy="55" r="16" fill="rgba(2, 132, 199, 0.08)" stroke="#65a30d" stroke-width="2"/>
+                    <circle cx="180" cy="55" r="4" fill="#65a30d"/>
+
+                    <!-- Keypoint Nodes (33 Biometric Landmarks Sample) -->
+                    <!-- Shoulders -->
+                    <circle cx="130" cy="110" r="5" fill="#65a30d"/>
+                    <circle cx="230" cy="110" r="5" fill="#65a30d"/>
+                    <!-- Elbows -->
+                    <circle cx="95" cy="155" r="4" fill="#0284c7"/>
+                    <circle cx="265" cy="155" r="4" fill="#0284c7"/>
+                    <!-- Wrists -->
+                    <circle cx="70" cy="120" r="4" fill="#65a30d"/>
+                    <circle cx="290" cy="120" r="4" fill="#65a30d"/>
+                    <!-- Hips -->
+                    <circle cx="145" cy="190" r="5" fill="#65a30d"/>
+                    <circle cx="215" cy="190" r="5" fill="#65a30d"/>
+                    <!-- Knees -->
+                    <circle cx="125" cy="265" r="6" fill="#65a30d"/>
+                    <circle cx="235" cy="265" r="6" fill="#65a30d"/>
+                    <!-- Ankles -->
+                    <circle cx="120" cy="340" r="4" fill="#0284c7"/>
+                    <circle cx="240" cy="340" r="4" fill="#0284c7"/>
+
+                    <!-- Angle Measurement Overlay Callout -->
+                    <rect x="245" y="245" width="85" height="24" rx="4" fill="#ffffff" stroke="#65a30d" stroke-width="1"/>
+                    <text x="252" y="261" fill="#0f172a" font-size="10" font-family="'Space Grotesk', sans-serif" font-weight="700">KNEE: 92° <tspan fill="#65a30d">✓</tspan></text>
+                  </svg>
+                </div>
+
+                <!-- Right HUD Panel -->
+                <div class="hud-telemetry-col right">
+                  <div class="hud-stat-pill">
+                    <span class="hud-stat-label">FORM ACCURACY</span>
+                    <span class="hud-stat-val text-lime">98.4%</span>
+                  </div>
+                  <div class="hud-stat-pill">
+                    <span class="hud-stat-label">REP TEMPO</span>
+                    <span class="hud-stat-val">3 - 1 - 2s</span>
+                  </div>
+                  <div class="hud-stat-pill">
+                    <span class="hud-stat-label">SYMMETRY BALANCE</span>
+                    <span class="hud-stat-val text-cyan">99.1% L/R</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Form Cue Floating Banner -->
+              <div class="hero-live-cue-pill">
+                <i class="fa-solid fa-circle-check text-lime"></i>
+                <span><strong>MOVEMENT COPILOT™:</strong> Excellent torso rigidity. Depth optimal.</span>
+                <span class="badge-confidence">CONFIDENCE 99.4%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: FOUR CORE PILLARS -->
+    <section id="landingPillars" class="landing-section-wrapper">
+      <div class="landing-container">
+        <div class="section-header-block text-center">
+          <div class="landing-badge">
+            <i class="fa-solid fa-cubes"></i>
+            <span>THE FOUNDATION</span>
+          </div>
+          <h2 class="section-title-lg">Four Pillars. One Continuous Feedback Loop.</h2>
+          <p class="section-subtitle-md">Engineered to understand your biology, guide every workout, and accelerate physical adaptation.</p>
+        </div>
+
+        <div class="pillars-grid">
+          <!-- Pillar 1: MOVE -->
+          <div class="pillar-card">
+            <div class="pillar-card-glow"></div>
+            <div class="pillar-header">
+              <div class="pillar-icon-wrap lime">
+                <i class="fa-solid fa-person-running"></i>
+              </div>
+              <span class="pillar-step-num">01</span>
+            </div>
+            <h3 class="pillar-title">MOVE</h3>
+            <p class="pillar-desc">Movement DNA™ understands how you move.</p>
+            <div class="pillar-telemetry-chip">
+              <i class="fa-solid fa-dna"></i> 33 Biometric Angles
+            </div>
+          </div>
+
+          <!-- Pillar 2: TRAIN -->
+          <div class="pillar-card">
+            <div class="pillar-card-glow"></div>
+            <div class="pillar-header">
+              <div class="pillar-icon-wrap cyan">
+                <i class="fa-solid fa-dumbbell"></i>
+              </div>
+              <span class="pillar-step-num">02</span>
+            </div>
+            <h3 class="pillar-title">TRAIN</h3>
+            <p class="pillar-desc">Adaptive AI adjusts how you train.</p>
+            <div class="pillar-telemetry-chip">
+              <i class="fa-solid fa-sliders"></i> Dynamic Load Balancing
+            </div>
+          </div>
+
+          <!-- Pillar 3: EAT -->
+          <div class="pillar-card">
+            <div class="pillar-card-glow"></div>
+            <div class="pillar-header">
+              <div class="pillar-icon-wrap amber">
+                <i class="fa-solid fa-utensils"></i>
+              </div>
+              <span class="pillar-step-num">03</span>
+            </div>
+            <h3 class="pillar-title">EAT</h3>
+            <p class="pillar-desc">FitQuest Nutrition™ helps personalize what fuels your progress.</p>
+            <div class="pillar-telemetry-chip">
+              <i class="fa-solid fa-chart-pie"></i> Output-Linked Macros
+            </div>
+          </div>
+
+          <!-- Pillar 4: EVOLVE -->
+          <div class="pillar-card">
+            <div class="pillar-card-glow"></div>
+            <div class="pillar-header">
+              <div class="pillar-icon-wrap purple">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+              <span class="pillar-step-num">04</span>
+            </div>
+            <h3 class="pillar-title">EVOLVE</h3>
+            <p class="pillar-desc">FitQuest continuously learns from your progress.</p>
+            <div class="pillar-telemetry-chip">
+              <i class="fa-solid fa-radar"></i> Biometric Milestones
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: WHO IS FITQUEST FOR? -->
+    <section id="landingWho" class="landing-section-wrapper bg-subtle-dark">
+      <div class="landing-container">
+        <div class="section-header-block text-center">
+          <div class="landing-badge">
+            <i class="fa-solid fa-user-check"></i>
+            <span>DESIGNED FOR YOU</span>
+          </div>
+          <h2 class="section-title-lg">Built for every stage of your fitness journey.</h2>
+          <p class="section-subtitle-md">Whether you are executing your very first squat or optimizing neuromuscular threshold.</p>
+        </div>
+
+        <div class="persona-cards-grid">
+          <!-- Persona 1 -->
+          <div class="persona-card">
+            <div class="persona-badge-tag">FOUNDATION & CONFIDENCE</div>
+            <div class="persona-icon-box">
+              <i class="fa-solid fa-seedling"></i>
+            </div>
+            <h3 class="persona-title">The Beginner</h3>
+            <p class="persona-sentence">Start with confidence through real-time form guidance and safe progression.</p>
+          </div>
+
+          <!-- Persona 2 -->
+          <div class="persona-card">
+            <div class="persona-badge-tag">PLATEAU BREAKTHROUGH</div>
+            <div class="persona-icon-box">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h3 class="persona-title">The Consistent Athlete</h3>
+            <p class="persona-sentence">Break through plateaus with precise telemetry and load balancing.</p>
+          </div>
+
+          <!-- Persona 3 -->
+          <div class="persona-card">
+            <div class="persona-badge-tag">HYPER-FOCUSED RESULTS</div>
+            <div class="persona-icon-box">
+              <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <h3 class="persona-title">The Goal Driven</h3>
+            <p class="persona-sentence">Achieve targets faster with personalized nutrition and adaptive sets.</p>
+          </div>
+
+          <!-- Persona 4 -->
+          <div class="persona-card">
+            <div class="persona-badge-tag">PEAK BIOMECHANICS</div>
+            <div class="persona-icon-box">
+              <i class="fa-solid fa-microchip"></i>
+            </div>
+            <h3 class="persona-title">The Optimizer</h3>
+            <p class="persona-sentence">Master biomechanics with Movement DNA™ and deep neuromuscular analytics.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: THE FITQUEST INTELLIGENCE SYSTEM -->
+    <section id="landingIntelligence" class="landing-section-wrapper">
+      <div class="landing-container">
+        <div class="section-header-block text-center">
+          <div class="landing-badge">
+            <i class="fa-solid fa-network-wired"></i>
+            <span>CONNECTED ECOSYSTEM</span>
+          </div>
+          <h2 class="section-title-lg">Your fitness isn't static. Neither is FitQuest.</h2>
+          <p class="section-subtitle-md">Every rep feeds the engine. Every recovery cycle recalibrates your pathway to peak performance.</p>
+        </div>
+
+        <!-- VISUAL INTELLIGENCE PIPELINE FLOW -->
+        <div class="intelligence-flow-container">
+          <div class="flow-step-card">
+            <div class="flow-step-number">01</div>
+            <div class="flow-step-icon"><i class="fa-solid fa-dna text-lime"></i></div>
+            <h4 class="flow-step-title">Movement DNA™</h4>
+            <p class="flow-step-desc">Captures your joint angles, symmetry balance, and mobility vectors in real time.</p>
+          </div>
+
+          <div class="flow-arrow-connector">
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+
+          <div class="flow-step-card">
+            <div class="flow-step-number">02</div>
+            <div class="flow-step-icon"><i class="fa-solid fa-brain-circuit text-cyan"></i></div>
+            <h4 class="flow-step-title">Adaptive AI</h4>
+            <p class="flow-step-desc">Auto-regulates sets, reps, and training volume based on acute load and readiness.</p>
+          </div>
+
+          <div class="flow-arrow-connector">
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+
+          <div class="flow-step-card">
+            <div class="flow-step-number">03</div>
+            <div class="flow-step-icon"><i class="fa-solid fa-wheat-awn text-amber"></i></div>
+            <h4 class="flow-step-title">Nutrition</h4>
+            <p class="flow-step-desc">Calibrates daily macronutrients and meals directly to your active mechanical expenditure.</p>
+          </div>
+
+          <div class="flow-arrow-connector">
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+
+          <div class="flow-step-card">
+            <div class="flow-step-number">04</div>
+            <div class="flow-step-icon"><i class="fa-solid fa-arrow-trend-up text-purple"></i></div>
+            <h4 class="flow-step-title">Evolution</h4>
+            <p class="flow-step-desc">Continuously models your strength adaptation curve, velocity gains, and physical mastery.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: SEE FITQUEST IN ACTION (INTERACTIVE SHOWCASE) -->
+    <section id="landingShowcase" class="landing-section-wrapper bg-subtle-dark">
+      <div class="landing-container">
+        <div class="section-header-block text-center">
+          <div class="landing-badge">
+            <i class="fa-solid fa-eye"></i>
+            <span>PRODUCT EXPERIENCE</span>
+          </div>
+          <h2 class="section-title-lg">See FitQuest in action.</h2>
+          <p class="section-subtitle-md">Intelligent computer vision, telemetry, and adaptive planning engineered into one seamless interface.</p>
+        </div>
+
+        <div class="showcase-tabs-container">
+          <!-- Showcase Tabs -->
+          <div class="showcase-tab-buttons" role="tablist">
+            <button class="showcase-tab-btn active" data-showcase="vision" role="tab" aria-selected="true">
+              <i class="fa-solid fa-camera"></i> Movement Analysis
+            </button>
+            <button class="showcase-tab-btn" data-showcase="adaptive" role="tab" aria-selected="false">
+              <i class="fa-solid fa-sliders"></i> Adaptive Training
+            </button>
+            <button class="showcase-tab-btn" data-showcase="nutrition" role="tab" aria-selected="false">
+              <i class="fa-solid fa-utensils"></i> Smart Nutrition
+            </button>
+            <button class="showcase-tab-btn" data-showcase="evolution" role="tab" aria-selected="false">
+              <i class="fa-solid fa-chart-radar"></i> Progress & Evolution
+            </button>
+          </div>
+
+          <!-- Showcase Display Viewport -->
+          <div class="showcase-viewport-frame">
+            <!-- PANEL 1: MOVEMENT VISION -->
+            <div class="showcase-panel active" id="showcasePanelVision">
+              <div class="showcase-panel-grid">
+                <div class="showcase-media-side">
+                  <div class="showcase-live-hud-mock">
+                    <div class="mock-telemetry-badge">
+                      <span class="pulse-indicator"></span> 33-POINT SKELETAL TRACKING
+                    </div>
+                    <div class="mock-crosshairs-canvas">
+                      <div class="mock-angle-box top-right">
+                        <span>ELBOW ANGLE</span>
+                        <strong>89.4° (Optimal)</strong>
+                      </div>
+                      <div class="mock-angle-box bottom-left">
+                        <span>HIP HINGE</span>
+                        <strong>122.1° (Stable)</strong>
+                      </div>
+                      <div class="mock-center-silhouette">
+                        <i class="fa-solid fa-person-walking-arrow-right"></i>
+                      </div>
+                    </div>
+                    <div class="mock-cue-banner">
+                      <i class="fa-solid fa-circle-check text-lime"></i>
+                      <span>Rep 8 complete · Form score 99% · Perfect tempo</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="showcase-info-side">
+                  <div class="showcase-feature-tag">REAL-TIME BIOMECHANICS</div>
+                  <h3 class="showcase-feature-title">Computer vision that tracks every milliradian.</h3>
+                  <p class="showcase-feature-desc">Zero wearable hardware required. Your camera calculates joint angles, rep velocity, and symmetry in real time.</p>
+                  <ul class="showcase-feature-bullets">
+                    <li><i class="fa-solid fa-check text-lime"></i> Sub-millisecond joint angle measurement</li>
+                    <li><i class="fa-solid fa-check text-lime"></i> Instant auditory & visual form corrections</li>
+                    <li><i class="fa-solid fa-check text-lime"></i> Zero-rep detection & cheat prevention</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 2: ADAPTIVE TRAINING -->
+            <div class="showcase-panel" id="showcasePanelAdaptive" style="display: none;">
+              <div class="showcase-panel-grid">
+                <div class="showcase-media-side">
+                  <div class="showcase-live-hud-mock">
+                    <div class="mock-telemetry-badge">
+                      <i class="fa-solid fa-heart-pulse text-cyan"></i> READINESS ENGINE: 88% (OPTIMAL)
+                    </div>
+                    <div class="mock-adaptive-meters">
+                      <div class="adaptive-meter-row">
+                        <span>Acute Training Load (7-Day)</span>
+                        <div class="mock-progress-bar"><div class="bar-fill cyan" style="width: 74%;"></div></div>
+                        <span class="meter-val">1,240 AU</span>
+                      </div>
+                      <div class="adaptive-meter-row">
+                        <span>Chronic Workload (28-Day)</span>
+                        <div class="mock-progress-bar"><div class="bar-fill lime" style="width: 68%;"></div></div>
+                        <span class="meter-val">1,120 AU</span>
+                      </div>
+                      <div class="adaptive-meter-row">
+                        <span>ACWR Sweet Spot Ratio</span>
+                        <div class="mock-progress-bar"><div class="bar-fill lime" style="width: 85%;"></div></div>
+                        <span class="meter-val">1.11 (Prime)</span>
+                      </div>
+                    </div>
+                    <div class="mock-cue-banner">
+                      <i class="fa-solid fa-wand-magic-sparkles text-cyan"></i>
+                      <span>Today's sets auto-regulated: +1 Rep added based on low velocity loss</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="showcase-info-side">
+                  <div class="showcase-feature-tag">DYNAMIC LOAD REGULATION</div>
+                  <h3 class="showcase-feature-title">Workouts that dynamically adapt to your biology.</h3>
+                  <p class="showcase-feature-desc">FitQuest calculates your Acute:Chronic Workload Ratio (ACWR) and readiness score to tune volume and intensity before fatigue sets in.</p>
+                  <ul class="showcase-feature-bullets">
+                    <li><i class="fa-solid fa-check text-cyan"></i> Real-time RPE and load modulation</li>
+                    <li><i class="fa-solid fa-check text-cyan"></i> Overreaching and fatigue prevention</li>
+                    <li><i class="fa-solid fa-check text-cyan"></i> Progression models tailored to recovery state</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 3: NUTRITION -->
+            <div class="showcase-panel" id="showcasePanelNutrition" style="display: none;">
+              <div class="showcase-panel-grid">
+                <div class="showcase-media-side">
+                  <div class="showcase-live-hud-mock">
+                    <div class="mock-telemetry-badge">
+                      <i class="fa-solid fa-fire text-amber"></i> METABOLIC TARGETS: 2,650 KCAL
+                    </div>
+                    <div class="mock-macro-rings">
+                      <div class="mock-macro-item">
+                        <span class="macro-circle protein">195g</span>
+                        <span class="macro-label">Protein</span>
+                      </div>
+                      <div class="mock-macro-item">
+                        <span class="macro-circle carbs">280g</span>
+                        <span class="macro-label">Carbs</span>
+                      </div>
+                      <div class="mock-macro-item">
+                        <span class="macro-circle fats">70g</span>
+                        <span class="macro-label">Fats</span>
+                      </div>
+                    </div>
+                    <div class="mock-cue-banner">
+                      <i class="fa-solid fa-bowl-food text-amber"></i>
+                      <span>AI Meal Planner: Post-workout protein target satisfied (42g achieved)</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="showcase-info-side">
+                  <div class="showcase-feature-tag">INTELLIGENT FUELING</div>
+                  <h3 class="showcase-feature-title">Personalized nutrition calibrated to output.</h3>
+                  <p class="showcase-feature-desc">FitQuest bridges workout telemetry directly with macronutrient targets, providing dynamic meal recommendations and instant food analysis.</p>
+                  <ul class="showcase-feature-bullets">
+                    <li><i class="fa-solid fa-check text-amber"></i> Dynamic BMR & TDEE metabolic calculation</li>
+                    <li><i class="fa-solid fa-check text-amber"></i> AI food analyzer with single-meal regeneration</li>
+                    <li><i class="fa-solid fa-check text-amber"></i> Goal-aligned protein, carb, and fat distributions</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 4: EVOLUTION -->
+            <div class="showcase-panel" id="showcasePanelEvolution" style="display: none;">
+              <div class="showcase-panel-grid">
+                <div class="showcase-media-side">
+                  <div class="showcase-live-hud-mock">
+                    <div class="mock-telemetry-badge">
+                      <i class="fa-solid fa-fingerprint text-purple"></i> MOVEMENT FINGERPRINT EVOLUTION
+                    </div>
+                    <div class="mock-radar-chart-box">
+                      <div class="radar-axes-visual">
+                        <span class="radar-label top">Power (94)</span>
+                        <span class="radar-label right">Stability (89)</span>
+                        <span class="radar-label bottom">Endurance (91)</span>
+                        <span class="radar-label left">Mobility (86)</span>
+                        <div class="radar-shape-fill"></div>
+                      </div>
+                    </div>
+                    <div class="mock-cue-banner">
+                      <i class="fa-solid fa-arrow-trend-up text-purple"></i>
+                      <span>Squat Stability Index up +14.2% over last 30 training sessions</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="showcase-info-side">
+                  <div class="showcase-feature-tag">NEUROMUSCULAR PROGRESSION</div>
+                  <h3 class="showcase-feature-title">Visualize how your movement patterns evolve.</h3>
+                  <p class="showcase-feature-desc">Go far beyond simple weight logs. Movement Evolution™ maps multi-dimensional improvements in mobility, symmetry, force production, and control.</p>
+                  <ul class="showcase-feature-bullets">
+                    <li><i class="fa-solid fa-check text-purple"></i> Multi-axis biometric radar visualization</li>
+                    <li><i class="fa-solid fa-check text-purple"></i> Long-term velocity and strength trajectory</li>
+                    <li><i class="fa-solid fa-check text-purple"></i> Milestone tracking and achievement unlocks</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: WHY FITQUEST IS DIFFERENT -->
+    <section id="landingDifference" class="landing-section-wrapper">
+      <div class="landing-container">
+        <div class="section-header-block text-center">
+          <div class="landing-badge">
+            <i class="fa-solid fa-scale-balanced"></i>
+            <span>THE PARADIGM SHIFT</span>
+          </div>
+          <h2 class="section-title-lg">
+            Most fitness apps tell you what to do.<br>
+            <span class="text-gradient-lime">FitQuest learns what you need next.</span>
+          </h2>
+          <p class="section-subtitle-md">See why static fitness plans are obsolete compared to real-time biomechanical intelligence.</p>
+        </div>
+
+        <div class="comparison-matrix-wrapper">
+          <div class="comparison-matrix-card">
+            <div class="comparison-col traditional">
+              <div class="col-header">
+                <span class="col-badge">LEGACY APPS</span>
+                <h3 class="col-title">Traditional Fitness Apps</h3>
+              </div>
+              <ul class="comparison-list">
+                <li class="comp-item negative">
+                  <i class="fa-solid fa-xmark"></i>
+                  <span>Generic workouts</span>
+                </li>
+                <li class="comp-item negative">
+                  <i class="fa-solid fa-xmark"></i>
+                  <span>Static plans</span>
+                </li>
+                <li class="comp-item negative">
+                  <i class="fa-solid fa-xmark"></i>
+                  <span>Basic tracking</span>
+                </li>
+                <li class="comp-item negative">
+                  <i class="fa-solid fa-xmark"></i>
+                  <span>Manual nutrition</span>
+                </li>
+                <li class="comp-item negative">
+                  <i class="fa-solid fa-xmark"></i>
+                  <span>Limited personalization</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="comparison-col fitquest">
+              <div class="fitquest-highlight-glow"></div>
+              <div class="col-header">
+                <span class="col-badge lime"><i class="fa-solid fa-bolt"></i> FITQUEST AI</span>
+                <h3 class="col-title text-lime">FitQuest Platform</h3>
+              </div>
+              <ul class="comparison-list">
+                <li class="comp-item positive">
+                  <i class="fa-solid fa-check text-lime"></i>
+                  <span><strong>Adaptive workouts</strong></span>
+                </li>
+                <li class="comp-item positive">
+                  <i class="fa-solid fa-check text-lime"></i>
+                  <span><strong>Movement intelligence</strong></span>
+                </li>
+                <li class="comp-item positive">
+                  <i class="fa-solid fa-check text-lime"></i>
+                  <span><strong>Continuous adaptation</strong></span>
+                </li>
+                <li class="comp-item positive">
+                  <i class="fa-solid fa-check text-lime"></i>
+                  <span><strong>Personalized nutrition</strong></span>
+                </li>
+                <li class="comp-item positive">
+                  <i class="fa-solid fa-check text-lime"></i>
+                  <span><strong>Data-driven progression</strong></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: PROOF / PRODUCT CAPABILITIES -->
+    <section id="landingCapabilities" class="landing-section-wrapper bg-subtle-dark">
+      <div class="landing-container">
+        <div class="section-header-block text-center">
+          <div class="landing-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>VERIFIED CAPABILITIES</span>
+          </div>
+          <h2 class="section-title-lg">Engineered for precision. Built for results.</h2>
+          <p class="section-subtitle-md">Grounded in verified biomechanical architecture and real-time computer vision capabilities.</p>
+        </div>
+
+        <div class="capabilities-stats-grid">
+          <!-- Stat 1 -->
+          <div class="capability-stat-card">
+            <div class="stat-number-box">
+              <span class="stat-number text-lime">20</span>
+              <span class="stat-unit">Exercises</span>
+            </div>
+            <h4 class="stat-title">Movement Intelligence</h4>
+            <p class="stat-desc">Full real-time tracking across upper body, lower body, core, and high-intensity cardio exercises.</p>
+          </div>
+
+          <!-- Stat 2 -->
+          <div class="capability-stat-card">
+            <div class="stat-number-box">
+              <span class="stat-number text-cyan">33</span>
+              <span class="stat-unit">Keypoints</span>
+            </div>
+            <h4 class="stat-title">Biometric Pose Telemetry</h4>
+            <p class="stat-desc">High-precision skeletal vector analysis mapping angles, symmetry balance, and joint trajectory.</p>
+          </div>
+
+          <!-- Stat 3 -->
+          <div class="capability-stat-card">
+            <div class="stat-number-box">
+              <span class="stat-number text-lime">100%</span>
+              <span class="stat-unit">Adaptive</span>
+            </div>
+            <h4 class="stat-title">Dynamic Workload Engine</h4>
+            <p class="stat-desc">Continuous ACWR calculation, readiness scoring, and automated training volume adjustments.</p>
+          </div>
+
+          <!-- Stat 4 -->
+          <div class="capability-stat-card">
+            <div class="stat-number-box">
+              <span class="stat-number text-amber">Active</span>
+              <span class="stat-unit">Fueling</span>
+            </div>
+            <h4 class="stat-title">Personalized Nutrition</h4>
+            <p class="stat-desc">Dynamic BMR/TDEE calculation and macro tracking aligned with daily mechanical output.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: FINAL CTA -->
+    <section id="landingFinalCTA" class="landing-section-wrapper landing-cta-closing-section">
+      <div class="landing-cta-ambient-glow"></div>
+      <div class="landing-container text-center">
+        <div class="landing-badge">
+          <i class="fa-solid fa-bolt text-lime"></i>
+          <span>YOUR EVOLUTION AWAITS</span>
+        </div>
+
+        <h2 class="landing-final-headline">
+          Your body is constantly changing.<br>
+          <span class="text-gradient-lime">Your training should too.</span>
+        </h2>
+
+        <p class="landing-final-sub">
+          Experience fitness powered by biomechanical intelligence, adaptive training, and personalized nutrition.
+        </p>
+
+        <div class="landing-final-btn-wrap">
+          <button id="enterFitquestBtn5" class="btn-landing-enter btn-hero-primary btn-final-cta" type="button">
+            <span>Start Your FitQuest Journey</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 9: CLEAN MINIMAL FOOTER -->
+    <footer class="landing-footer">
+      <div class="landing-container">
+        <div class="landing-footer-top">
+          <div class="footer-brand-col">
+            <div class="footer-brand-logo">
+              <span class="brand-wordmark">FITQUEST</span>
+            </div>
+            <p class="footer-brand-tagline">AI-powered biomechanical fitness intelligence and adaptive training ecosystem.</p>
+            <div class="footer-system-status">
+              <span class="status-pulse-dot"></span>
+              <span>AI Telemetry Engine Operational · 60 FPS</span>
+            </div>
+          </div>
+
+          <div class="footer-links-group">
+            <div class="footer-col">
+              <h5 class="footer-heading">Platform</h5>
+              <a href="#landingPillars" class="footer-link">Core Pillars</a>
+              <a href="#landingWho" class="footer-link">Who We Help</a>
+              <a href="#landingIntelligence" class="footer-link">Intelligence System</a>
+              <a href="#landingShowcase" class="footer-link">Live Showcase</a>
+            </div>
+
+            <div class="footer-col">
+              <h5 class="footer-heading">Capabilities</h5>
+              <a href="#landingDifference" class="footer-link">Why FitQuest</a>
+              <a href="#landingCapabilities" class="footer-link">Telemetry Specs</a>
+              <a href="#landingHero" class="footer-link">Movement DNA™</a>
+              <a href="#landingHero" class="footer-link">Movement Copilot™</a>
+            </div>
+
+            <div class="footer-col">
+              <h5 class="footer-heading">Access</h5>
+              <button class="footer-btn-link btn-landing-enter" type="button">Sign In</button>
+              <button class="footer-btn-link btn-landing-enter" type="button">Create Account</button>
+              <a href="#landingHero" class="footer-link">Back to Top ↑</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="landing-footer-bottom">
+          <p>© 2026 FitQuest AI Platform. All rights reserved. Precision Biomechanical Intelligence.</p>
+          <div class="footer-legal-links">
+            <span class="legal-badge"><i class="fa-solid fa-lock"></i> End-to-End Privacy</span>
+            <span class="legal-badge"><i class="fa-solid fa-video-slash"></i> Local Vision Processing</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </section>
+
+  <!-- AUTHENTICATION SCREEN VIEW -->
+  <section id="authView" class="auth-view-wrapper">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="auth-logo">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <h1>FitQuest <span class="brand-tag">AI</span></h1>
+        <p class="auth-subtitle">Minimal Athletic Performance Telemetry & AI Coaching</p>
+      </div>
+
+      <!-- Auth Error Alert Box -->
+      <div id="authAlertBox" class="auth-alert-box" style="display: none;"></div>
+
+      <!-- Auth Form Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" data-auth-form="login">
+          <i class="fa-solid fa-right-to-bracket"></i> Login
+        </button>
+        <button class="auth-tab-btn" data-auth-form="register">
+          <i class="fa-solid fa-user-plus"></i> Create Account
+        </button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginFormContainer" class="auth-form-container">
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">Email Address</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-envelope"></i>
+              <input type="email" id="loginEmail" placeholder="e.g. athlete@fitquest.ai" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
+            </div>
+          </div>
+
+          <div class="form-options" style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="remember-me" style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-secondary);">
+              <input type="checkbox" id="loginRemember" checked>
+              <span>Remember me</span>
+            </label>
+            <a href="#" id="forgotPassLink" class="auth-link">Forgot Password?</a>
+          </div>
+
+          <button type="submit" id="loginBtn" class="btn btn-primary btn-xl" style="margin-top: 20px;">
+            Login
+          </button>
+        </form>
+      </div>
+
+      <!-- FORGOT PASSWORD FORM -->
+      <div id="forgotPasswordFormContainer" class="auth-form-container" style="display: none;">
+        <div class="auth-form-header" style="margin-bottom: 20px;">
+          <h2><i class="fa-solid fa-key" style="color: var(--accent-lime);"></i> Forgot Your Password?</h2>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 6px;">
+            Enter the email associated with your FitQuest account and we'll send you instructions to reset your password.
+          </p>
+        </div>
+
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label for="forgotEmail">Email Address *</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-envelope"></i>
+              <input type="email" id="forgotEmail" placeholder="e.g. athlete@fitquest.ai" required autocomplete="email">
+            </div>
+          </div>
+
+          <button type="submit" id="forgotBtn" class="btn btn-primary btn-xl" style="margin-top: 16px;">
+            Send Reset Link
+          </button>
+
+          <div style="margin-top: 16px; text-align: center;">
+            <a href="#" class="auth-link back-to-login-link"><i class="fa-solid fa-arrow-left"></i> Back to Login</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- RESET PASSWORD FORM -->
+      <div id="resetPasswordFormContainer" class="auth-form-container" style="display: none;">
+        <div class="auth-form-header" style="margin-bottom: 20px;">
+          <h2><i class="fa-solid fa-lock" style="color: var(--accent-lime);"></i> Reset Your Password</h2>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 6px;">
+            Enter your new password below to regain access to your FitQuest account.
+          </p>
+        </div>
+
+        <form id="resetPasswordForm">
+          <input type="hidden" id="resetTokenInput">
+
+          <div class="form-group">
+            <label for="newPassword">New Password *</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="newPassword" placeholder="Minimum 6 characters" required minlength="6">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmNewPassword">Confirm New Password *</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="confirmNewPassword" placeholder="Re-enter new password" required minlength="6">
+            </div>
+          </div>
+
+          <button type="submit" id="resetBtn" class="btn btn-primary btn-xl" style="margin-top: 16px;">
+            Reset Password
+          </button>
+
+          <div style="margin-top: 16px; text-align: center;">
+            <a href="#" class="auth-link back-to-login-link"><i class="fa-solid fa-arrow-left"></i> Back to Login</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="registerFormContainer" class="auth-form-container" style="display: none;">
+        <form id="registerForm">
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label for="regName">Full Name *</label>
+              <input type="text" id="regName" placeholder="e.g. Alex Strength" required>
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label for="regEmail">Email Address *</label>
+              <input type="email" id="regEmail" placeholder="e.g. alex@example.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="regPassword">Password *</label>
+              <input type="password" id="regPassword" placeholder="Min 6 chars" required minlength="6">
+            </div>
+
+            <div class="form-group">
+              <label for="regConfirmPassword">Confirm Password *</label>
+              <input type="password" id="regConfirmPassword" placeholder="Re-enter" required minlength="6">
+            </div>
+
+            <div class="form-group">
+              <label for="regFitnessGoal">Fitness Goal *</label>
+              <select id="regFitnessGoal" required>
+                <option value="General Fitness">General Fitness</option>
+                <option value="Weight Loss">Weight Loss</option>
+                <option value="Muscle Gain">Muscle Gain</option>
+                <option value="Strength">Strength</option>
+                <option value="Endurance">Endurance</option>
+                <option value="Flexibility">Flexibility</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="regExperienceLevel">Experience Level *</label>
+              <select id="regExperienceLevel" required>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="regAge">Age (yrs)</label>
+              <input type="number" id="regAge" placeholder="e.g. 25" min="10" max="120">
+            </div>
+
+            <div class="form-group">
+              <label for="regHeight">Height (cm)</label>
+              <input type="number" id="regHeight" placeholder="e.g. 175" min="50" max="250">
+            </div>
+
+            <div class="form-group">
+              <label for="regWeight">Weight (kg)</label>
+              <input type="number" id="regWeight" placeholder="e.g. 70" min="20" max="300" step="0.1">
+            </div>
+
+            <div class="form-group">
+              <label for="regGender">Gender</label>
+              <select id="regGender">
+                <option value="">Select (Optional)</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Non-binary">Non-binary</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="registerBtn" class="btn btn-primary btn-xl" style="margin-top: 16px;">
+            Create Account
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- App Main Wrapper -->
+  <div id="appMainWrapper" class="app-wrapper" style="display: none;">
+    <!-- Top Navigation Bar -->
+    <nav class="app-nav">
+      <div class="nav-container">
+        <div class="nav-brand" onclick="switchTab('homeView')">
+          <span class="brand-wordmark">FITQUEST</span>
+          <span class="brand-app-tag">APP</span>
+        </div>
+
+        <div class="nav-menu">
+          <button class="nav-tab active" data-view="homeView" onclick="switchTab('homeView')">
+            <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+          </button>
+          <button class="nav-tab" data-view="workoutView" onclick="switchTab('workoutView')">
+            <i class="fa-solid fa-dumbbell"></i> <span>Workout</span>
+          </button>
+          <button class="nav-tab" data-view="nutritionView" id="navNutritionTab" onclick="switchTab('nutritionView')">
+            <i class="fa-solid fa-utensils"></i> <span>Nutrition</span>
+          </button>
+          <button class="nav-tab" data-view="movementDnaView" onclick="switchTab('movementDnaView')">
+            <i class="fa-solid fa-dna"></i> <span>Movement DNA™</span>
+          </button>
+          <button class="nav-tab" data-view="adaptiveTrainingView" onclick="switchTab('adaptiveTrainingView')">
+            <i class="fa-solid fa-brain"></i> <span>Adaptive AI</span>
+          </button>
+          <button class="nav-tab" data-view="evolutionView" onclick="switchTab('evolutionView')">
+            <i class="fa-solid fa-chart-line"></i> <span>Evolution</span>
+          </button>
+          <button class="nav-tab" data-view="progressView" onclick="switchTab('progressView')">
+            <i class="fa-solid fa-chart-pie"></i> <span>Analytics</span>
+          </button>
+          <button class="nav-tab" data-view="leaderboardView" id="navLeaderboardTab" onclick="switchTab('leaderboardView')">
+            <i class="fa-solid fa-trophy"></i> <span>Leaderboard</span>
+          </button>
+          <button class="nav-tab" data-view="aiCoachView" onclick="switchTab('aiCoachView')">
+            <i class="fa-solid fa-robot"></i> <span>AI Coach</span>
+          </button>
+          <button class="nav-tab" data-view="historyView" onclick="switchTab('historyView')">
+            <i class="fa-solid fa-clock-rotate-left"></i> <span>History</span>
+          </button>
+        </div>
+
+        <div id="userNavBadge" class="nav-user">
+          <div class="user-profile-trigger" title="User Profile">
+            <div class="profile-avatar-circle">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="profile-trigger-info">
+              <span class="profile-trigger-name">Account</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main View Container -->
+    <main class="main-content">
+      
+      <!-- VIEW 1: HOME DASHBOARD (TODAY EXPERIENCE) -->
+      <section id="homeView" class="view-panel active">
+        
+        <!-- DASHBOARD GREETING & DAILY CONTEXT -->
+        <div class="dash-greeting-header">
+          <div class="dash-greeting-badge">
+            <span class="badge-dot"></span>
+            <span>DAILY FITNESS COMMAND CENTER</span>
+          </div>
+          <h1 class="dash-greeting-title" id="dashGreetingTitle">Welcome to FitQuest.</h1>
+          <p class="dash-greeting-sub" id="dashGreetingSub">Here's what your body is ready for today.</p>
+        </div>
+
+        <!-- 1. DOMINANT PRIMARY RECOMMENDED ACTION HERO CARD -->
+        <div class="today-focus-card">
+          <div class="today-focus-content">
+            <div class="today-focus-badge">
+              <i class="fa-solid fa-crosshairs"></i> TODAY'S FOCUS
+            </div>
+            <h2 class="today-focus-title" id="readinessFocus">Full Body Strength & Movement Quality</h2>
+            <p class="today-focus-desc" id="dashSuggestedSessionText">
+              Recommended session: <strong id="readinessSuggestedExercise">Squat</strong> · <span id="readinessIntensity">Moderate Intensity (28 min)</span>
+            </p>
+            <div class="today-focus-actions">
+              <button id="startRecommendedBtn" class="btn btn-primary btn-xl today-primary-cta" onclick="startRecommendedWorkout()">
+                <i class="fa-solid fa-play"></i> START WORKOUT
+                <span id="recommendedExNameBtn" style="display: none;">Squat</span>
+              </button>
+              <button class="btn btn-secondary btn-xl" onclick="switchTab('aiCoachView')">
+                <i class="fa-solid fa-comments"></i> Ask AI Coach
+              </button>
+            </div>
+          </div>
+
+          <div class="today-focus-readiness-badge">
+            <div class="focus-readiness-circle">
+              <div class="focus-readiness-num" id="readinessScoreVal">--</div>
+              <div class="focus-readiness-lbl">Readiness</div>
+            </div>
+            <div class="focus-readiness-status" id="readinessStatusText">Analyzing Readiness...</div>
+            <i class="fa-solid fa-gauge-high readiness-score-icon" id="readinessGaugeIcon" style="display: none;"></i>
+          </div>
+        </div>
+
+        <!-- 2. CONCISE READINESS & STATUS SUMMARY WIDGET -->
+        <div id="readinessCard" class="readiness-widget-card">
+          <div class="readiness-header-row">
+            <div class="readiness-section-tag">
+              <i class="fa-solid fa-heart-pulse"></i> Biomechanical Readiness & Recovery
+            </div>
+            <button type="button" id="readinessDetailsToggle" class="readiness-details-toggle-btn" onclick="toggleReadinessDetails()" aria-expanded="false">
+              <span id="readinessToggleText">View Details</span> <i id="readinessToggleIcon" class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <!-- 4 Scannable Indicator Metrics -->
+          <div class="readiness-primary-grid">
+            <div class="readiness-primary-item">
+              <div class="readiness-item-label"><i class="fa-solid fa-gauge-high"></i> Readiness Status</div>
+              <div class="readiness-item-value highlight-cyan" id="dashReadinessHumanStatus">Ready to Train</div>
+            </div>
+            <div class="readiness-primary-item">
+              <div class="readiness-item-label"><i class="fa-solid fa-battery-three-quarters"></i> Recovery Level</div>
+              <div class="readiness-item-value" id="dashRecoveryStatus">Optimal Recovery</div>
+            </div>
+            <div class="readiness-primary-item">
+              <div class="readiness-item-label"><i class="fa-solid fa-fire"></i> Active Streak</div>
+              <div class="readiness-item-value highlight-lime" id="dashStreakSummary">Active</div>
+            </div>
+            <div class="readiness-primary-item">
+              <div class="readiness-item-label"><i class="fa-solid fa-calendar-check"></i> Weekly Consistency</div>
+              <div class="readiness-item-value" id="readinessConsistency">--</div>
+            </div>
+          </div>
+
+          <!-- Progressive Disclosure Container: Detailed Biometric Breakdown -->
+          <div id="readinessDetailsContent" class="readiness-details-content" style="display: none;">
+            <div class="readiness-secondary-grid">
+              <div class="readiness-secondary-item">
+                <div class="readiness-sub-label">Recent Form Trend</div>
+                <div class="readiness-sub-val" id="readinessFormTrend">--</div>
+              </div>
+              <div class="readiness-secondary-item">
+                <div class="readiness-sub-label">Average Form Score</div>
+                <div class="readiness-sub-val" id="readinessAvgForm">--</div>
+              </div>
+              <div class="readiness-secondary-item">
+                <div class="readiness-sub-label">Last Session Rest Gap</div>
+                <div class="readiness-sub-val" id="readinessRestGap">--</div>
+              </div>
+            </div>
+
+            <div class="readiness-explanation-callout" id="readinessExplanation">
+              Analyzing your recent FitQuest workout history...
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. THREE-COLUMN INTELLIGENCE SECTION: YOUR PROGRESS | WHAT'S CHANGED | YOUR NEXT STEP -->
+        <div class="dash-intelligence-grid">
+          <!-- Card 1: Your Progress -->
+          <div class="dash-intel-card" id="dashProgressCard">
+            <div class="intel-card-header">
+              <span class="intel-badge"><i class="fa-solid fa-chart-line"></i> YOUR PROGRESS</span>
+              <h3>Recent Snapshot</h3>
+            </div>
+            <div class="dash-progress-stats">
+              <div class="dash-prog-stat-item">
+                <span class="dash-prog-val" id="dashWorkoutsCount">--</span>
+                <span class="dash-prog-lbl">Workouts Completed</span>
+              </div>
+              <div class="dash-prog-stat-item">
+                <span class="dash-prog-val" id="dashRepsCount">--</span>
+                <span class="dash-prog-lbl">Reps Tracked</span>
+              </div>
+              <div class="dash-prog-stat-item">
+                <span class="dash-prog-val highlight-lime" id="dashAvgFormVal">--%</span>
+                <span class="dash-prog-lbl">Avg Form Score</span>
+              </div>
+            </div>
+            <button class="dash-card-text-link" onclick="switchTab('progressView')">
+              View Analytics & PRs <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+          <!-- Card 2: What's Changed -->
+          <div class="dash-intel-card" id="dashWhatsChangedCard">
+            <div class="intel-card-header">
+              <span class="intel-badge cyan"><i class="fa-solid fa-bolt"></i> WHAT'S CHANGED</span>
+              <h3>Recent Adaptation</h3>
+            </div>
+            <p class="dash-intel-body" id="dashWhatsChangedBody">
+              Your movement stability and tempo consistency have adapted positively based on your recent verified workout sessions.
+            </p>
+            <button class="dash-card-text-link" onclick="switchTab('movementDnaView')">
+              Explore Movement DNA™ <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+          <!-- Card 3: Your Next Step -->
+          <div class="dash-intel-card" id="dashNextStepCard">
+            <div class="intel-card-header">
+              <span class="intel-badge amber"><i class="fa-solid fa-bullseye"></i> YOUR NEXT STEP</span>
+              <h3>Action Recommendation</h3>
+            </div>
+            <p class="dash-intel-body" id="dashNextStepBody">
+              Complete today's strength session, log your post-workout meal, and keep your form accuracy above 90%.
+            </p>
+            <button class="dash-card-text-link" onclick="switchTab('adaptiveTrainingView')">
+              View Adaptive Plan <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. TODAY'S NUTRITION FUELING WIDGET -->
+        <div id="homeNutritionWidget" class="home-nutrition-widget-card" onclick="switchTab('nutritionView')" style="cursor: pointer;">
+          <div class="home-nutrition-header">
+            <div class="home-nutrition-badge">
+              <i class="fa-solid fa-utensils"></i> Fuel Today's Goal
+            </div>
+            <span class="home-nutrition-cta">Open Nutrition Hub <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+          <div class="home-nutrition-grid">
+            <div class="home-nutrition-item">
+              <span class="home-nutrition-val" id="homeNutrCalVal">-- / -- kcal</span>
+              <span class="home-nutrition-lbl">Calories Logged / Target</span>
+            </div>
+            <div class="home-nutrition-item">
+              <span class="home-nutrition-val" id="homeNutrProteinVal">-- / -- g</span>
+              <span class="home-nutrition-lbl">Protein Target</span>
+            </div>
+            <div class="home-nutrition-item">
+              <span class="home-nutrition-val" id="homeNutrMealsVal">-- / --</span>
+              <span class="home-nutrition-lbl">Meals Logged</span>
+            </div>
+          </div>
+          <div class="home-nutrition-progress-track">
+            <div id="homeNutrProgressBar" class="home-nutrition-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- 5. THREE CORE ACTION MODULES -->
+        <div class="dashboard-grid">
+          <div class="dash-card" onclick="switchTab('workoutView')">
+            <div>
+              <div class="dash-card-icon"><i class="fa-solid fa-dumbbell"></i></div>
+              <h3>20 Exercise Trackers</h3>
+              <p>Squat, Push-up, Bicep Curl, Lunges, Shoulder Press, Plank, and 14 more exercises.</p>
+            </div>
+            <span class="dash-card-link">Launch Selection <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+
+          <div class="dash-card" onclick="switchTab('aiCoachView')">
+            <div>
+              <div class="dash-card-icon"><i class="fa-solid fa-brain"></i></div>
+              <h3>FitQuest AI Coach</h3>
+              <p>Instant personalized feedback, biomechanics form breakdown, and workout recommendations.</p>
+            </div>
+            <span class="dash-card-link">Open Assistant <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+
+          <div class="dash-card" onclick="switchTab('historyView')">
+            <div>
+              <div class="dash-card-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+              <h3>Workout History</h3>
+              <p>Review past workout telemetry sessions, form scores, and AI coaching summaries.</p>
+            </div>
+            <span class="dash-card-link">View Journal <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </div>
+
+        <!-- COMPACT HOME STREAK WIDGET -->
+        <div id="homeStreakWidget" class="home-streak-widget-wrapper"></div>
+      </section>
+
+      <!-- VIEW 2: WORKOUT EXPERIENCE -->
+      <section id="workoutView" class="view-panel">
+        
+        <!-- STEP A: EXERCISE SELECTION SCREEN -->
+        <div id="workoutSelectionStep" class="workout-step active">
+          <div class="section-header">
+            <h2>Select Exercise</h2>
+            <p>Choose from 20 real-time pose tracking exercises to begin your session.</p>
+          </div>
+          
+          <div class="workout-mode-tabs" style="display: flex; gap: 8px; margin-bottom: 24px;">
+            <button id="modeQuickBtn" class="btn btn-secondary active-mode" onclick="switchWorkoutMode('quick')" style="flex: 1; justify-content: center; gap: 8px;">
+              <i class="fa-solid fa-bolt" style="color: var(--accent-lime);"></i> Single Exercise
+            </button>
+            <button id="modeStructuredBtn" class="btn btn-secondary" onclick="switchWorkoutMode('structured')" style="flex: 1; justify-content: center; gap: 8px;">
+              <i class="fa-solid fa-layer-group"></i> Structured Routines
+            </button>
+            <button id="modeAdaptiveBtn" class="btn btn-secondary" onclick="switchTab('adaptiveTrainingView')" style="flex: 1; justify-content: center; gap: 8px; border: 1px solid rgba(2, 132, 199, 0.3); background: rgba(2, 132, 199, 0.06);">
+              <i class="fa-solid fa-brain" style="color: var(--accent-cyan);"></i> Adaptive AI Session
+            </button>
+          </div>
+
+          <div id="exerciseGrid" class="exercise-grid">
+            <!-- Dynamically populated from GET /api/v1/exercises -->
+            <div class="loading-spinner">
+              <i class="fa-solid fa-circle-notch fa-spin"></i> Loading exercise catalogue from backend...
+            </div>
+          </div>
+
+          <div id="structuredPlanGrid" class="exercise-grid" style="display: none;">
+            <!-- Dynamically populated from GET /api/v1/structured-workouts/templates -->
+          </div>
+        </div>
+
+
+        <!-- STAGE 1: LEARN — EXERCISE LEARNING & TECHNIQUE BREAKDOWN -->
+        <div id="workoutSetupStep" class="workout-step">
+          <div class="learn-stage-container">
+            <div class="learn-stage-nav">
+              <button class="btn-back" onclick="goToStep('workoutSelectionStep')">
+                <i class="fa-solid fa-chevron-left"></i> Back to Exercises
+              </button>
+              <div class="learn-flow-indicator">
+                <span class="flow-pill active"><i class="fa-solid fa-graduation-cap"></i> 1. LEARN</span>
+                <span class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                <span class="flow-pill"><i class="fa-solid fa-camera"></i> 2. PREPARE</span>
+                <span class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                <span class="flow-pill"><i class="fa-solid fa-bolt"></i> 3. PERFORM</span>
+                <span class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                <span class="flow-pill"><i class="fa-solid fa-chart-simple"></i> 4. REVIEW</span>
+              </div>
+            </div>
+
+            <div class="learn-header-card">
+              <div class="learn-header-main">
+                <div class="learn-badges-row">
+                  <span class="setup-badge" id="setupCategoryBadge">Compound</span>
+                  <span class="learn-difficulty-badge" id="setupDifficulty">Intermediate</span>
+                  <span class="learn-muscle-badge" id="setupMuscleGroup">Legs & Core</span>
+                </div>
+                <h1 class="learn-exercise-title" id="setupExerciseName">Squat</h1>
+                <p class="learn-exercise-desc" id="setupExerciseDesc">Build lower-body power and core stability with balanced hip and knee mechanics.</p>
+
+                <!-- COMPACT WORKOUT PRESCRIPTION & AI RECOMMENDATION -->
+                <div class="learn-prescription-wrap">
+                  <div class="learn-prescription-card">
+                    <div class="prescription-header">
+                      <span class="prescription-badge"><i class="fa-solid fa-layer-group"></i> WORKOUT PLAN</span>
+                      <span class="prescription-tempo-tag" id="learnPrescriptionTempo"><i class="fa-solid fa-stopwatch"></i> TEMPO 2-0-2</span>
+                    </div>
+                    <div class="prescription-stats-row">
+                      <div class="rx-stat-item">
+                        <span class="rx-stat-num" id="learnPrescriptionSets">3</span>
+                        <span class="rx-stat-lbl">SETS</span>
+                      </div>
+                      <span class="rx-stat-sep">×</span>
+                      <div class="rx-stat-item">
+                        <span class="rx-stat-num" id="learnPrescriptionReps">10</span>
+                        <span class="rx-stat-lbl">REPS</span>
+                      </div>
+                      <span class="rx-stat-sep">·</span>
+                      <div class="rx-stat-item">
+                        <span class="rx-stat-num" id="learnPrescriptionRest">60s</span>
+                        <span class="rx-stat-lbl">REST</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="learn-ai-recommendation-card">
+                    <div class="ai-rec-header">
+                      <i class="fa-solid fa-wand-magic-sparkles"></i>
+                      <span>AI RECOMMENDATION</span>
+                    </div>
+                    <p class="ai-rec-text" id="learnAiRecommendationText">
+                      Your current readiness supports 3 sets today. Complete each set with strict form.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="learn-workspace-grid">
+              <!-- Left Column: Interactive Technique Guide Avatar -->
+              <div class="learn-col-demo">
+                <div class="demo-avatar-card learn-avatar-card" id="learnDemoAvatarCard">
+                  <div class="demo-card-header">
+                    <div class="demo-title-group">
+                      <span class="demo-badge"><i class="fa-solid fa-person-running"></i> TECHNIQUE GUIDE</span>
+                      <h3 id="learnDemoTitle">Visual Technique</h3>
+                    </div>
+                    <div id="learnDemoPhaseBadge" class="demo-phase-pill phase-eccentric">PREPARE</div>
+                  </div>
+
+                  <div class="demo-canvas-wrapper">
+                    <canvas id="learnDemoAvatarCanvas"></canvas>
+                  </div>
+
+                  <div class="demo-cue-bar">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span id="learnDemoCueText">Break at hips and knees simultaneously. Keep chest proud.</span>
+                  </div>
+
+                  <div class="demo-card-footer">
+                    <div class="demo-meta-tags">
+                      <span class="demo-meta-tag" title="Target Muscle Group">
+                        <i class="fa-solid fa-bullseye"></i> <span id="learnDemoMuscleTag">Quadriceps, Glutes</span>
+                      </span>
+                      <span class="demo-meta-tag" title="Primary Joint Action">
+                        <i class="fa-solid fa-arrows-spin"></i> <span id="learnDemoJointTag">Knee & Hip Flexion</span>
+                      </span>
+                    </div>
+
+                    <div class="demo-playback-controls">
+                      <button id="learnDemoPlayPauseBtn" class="demo-ctrl-btn" onclick="toggleDemoPlayPause()" title="Play / Pause Demo">
+                        <i class="fa-solid fa-pause"></i>
+                      </button>
+                      <button id="learnDemoResetBtn" class="demo-ctrl-btn" onclick="resetDemoAvatar()" title="Replay / Reset Demo">
+                        <i class="fa-solid fa-rotate-left"></i>
+                      </button>
+                      <div class="demo-speed-group">
+                        <button class="demo-speed-btn" data-speed="0.5" onclick="setDemoSpeed(0.5)">0.5x</button>
+                        <button class="demo-speed-btn active" data-speed="1.0" onclick="setDemoSpeed(1.0)">1.0x</button>
+                        <button class="demo-speed-btn" data-speed="1.5" onclick="setDemoSpeed(1.5)">1.5x</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Step-by-Step, Start/End Positions, Cues & Mistakes -->
+              <div class="learn-col-guide">
+                <!-- Section 1: How to Perform (Steps) -->
+                <div class="learn-guide-card">
+                  <div class="guide-card-header">
+                    <i class="fa-solid fa-list-check"></i>
+                    <h3>How to Perform</h3>
+                  </div>
+                  <div class="learn-steps-list" id="learnStepsList">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+
+                <!-- Section 2: Start vs End Position + Movement Path -->
+                <div class="learn-guide-card">
+                  <div class="guide-card-header">
+                    <i class="fa-solid fa-arrows-left-right"></i>
+                    <h3>Start & Finish Positions</h3>
+                  </div>
+                  <div class="start-end-grid">
+                    <div class="posture-box start-box">
+                      <span class="posture-tag"><i class="fa-solid fa-play"></i> START POSITION</span>
+                      <p id="learnStartPosition">Feet shoulder-width apart, arms extended, chest proud.</p>
+                    </div>
+                    <div class="posture-box end-box">
+                      <span class="posture-tag"><i class="fa-solid fa-flag-checkered"></i> END POSITION</span>
+                      <p id="learnEndPosition">Thighs parallel to floor, weight on heels, back neutral.</p>
+                    </div>
+                  </div>
+                  <div class="movement-path-track" id="learnMovementPath">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+
+                <!-- Section 3: Key Form Cues vs Common Mistakes to Avoid -->
+                <div class="cues-mistakes-grid">
+                  <div class="cues-card">
+                    <div class="cue-card-header cue-good">
+                      <i class="fa-solid fa-circle-check"></i>
+                      <h4>Key Form Cues</h4>
+                    </div>
+                    <ul class="cues-list" id="learnKeyCuesList">
+                      <!-- Populated dynamically -->
+                    </ul>
+                  </div>
+                  <div class="mistakes-card">
+                    <div class="cue-card-header cue-avoid">
+                      <i class="fa-solid fa-circle-xmark"></i>
+                      <h4>Common Mistakes</h4>
+                    </div>
+                    <ul class="mistakes-list" id="learnMistakesList">
+                      <!-- Populated dynamically -->
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Section 4: Camera Positioning Guidance -->
+                <div class="camera-tip-box" id="learnCameraTipBox">
+                  <i class="fa-solid fa-camera"></i>
+                  <div>
+                    <strong>Camera Placement:</strong>
+                    <span id="learnCameraTip">Position camera at chest-to-waist height and stand 6–8 feet away.</span>
+                  </div>
+                </div>
+
+                <!-- Stage 1 CTA -->
+                <div class="learn-actions-footer">
+                  <button id="learnReadyBtn" class="btn btn-primary btn-xl" onclick="goToPrepareStage()">
+                    <span>I'm Ready</span> <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 2: PREPARE — POSITIONING & CAMERA CALIBRATION -->
+        <div id="workoutPrepareStep" class="workout-step">
+          <div class="prepare-stage-container">
+            <div class="prepare-stage-nav">
+              <button class="btn-back" onclick="backToLearnStage()">
+                <i class="fa-solid fa-chevron-left"></i> Review Exercise Guide
+              </button>
+              <div class="learn-flow-indicator">
+                <span class="flow-pill"><i class="fa-solid fa-graduation-cap"></i> 1. LEARN</span>
+                <span class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                <span class="flow-pill active"><i class="fa-solid fa-camera"></i> 2. PREPARE</span>
+                <span class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                <span class="flow-pill"><i class="fa-solid fa-bolt"></i> 3. PERFORM</span>
+                <span class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                <span class="flow-pill"><i class="fa-solid fa-chart-simple"></i> 4. REVIEW</span>
+              </div>
+            </div>
+
+            <div class="prepare-header">
+              <h2>Let's Get Your Position Right</h2>
+              <p>Step back into full view so your AI coach can track your joint mechanics and count reps with accuracy.</p>
+              <div class="prepare-plan-pill" id="preparePlanPill">
+                <i class="fa-solid fa-layer-group"></i> <strong>Today's Plan:</strong> <span id="preparePlanText">Set 1 of 3 · 10 reps · 60s rest</span>
+              </div>
+            </div>
+
+            <div class="prepare-camera-wrapper">
+              <!-- Shared Camera Container with Framing Guide -->
+              <div class="camera-container prepare-camera-container" id="prepareCameraContainer">
+                <div class="camera-live-badge">
+                  <span class="pulse-dot"></span> CALIBRATION
+                </div>
+                
+                <video id="prepareWebcamFeed" class="camera-video" autoplay playsinline muted></video>
+                
+                <!-- Subtle Framing Guide Overlay -->
+                <div class="prepare-framing-guide" id="prepareFramingGuide">
+                  <div class="framing-box">
+                    <div class="framing-corner tl"></div>
+                    <div class="framing-corner tr"></div>
+                    <div class="framing-corner bl"></div>
+                    <div class="framing-corner br"></div>
+                    <div class="framing-silhouette-hint">
+                      <i class="fa-solid fa-user"></i>
+                    </div>
+                  </div>
+                  <div class="framing-instruction" id="prepareFramingInstruction">
+                    Keep your body centered inside the frame
+                  </div>
+                </div>
+
+                <!-- Countdown Overlay (3 -> 2 -> 1 -> GO) -->
+                <div class="countdown-overlay" id="workoutCountdownOverlay" style="display: none;">
+                  <div class="countdown-circle">
+                    <span class="countdown-number" id="countdownNumber">3</span>
+                  </div>
+                  <div class="countdown-subtext">GET READY</div>
+                </div>
+              </div>
+
+              <!-- Calibration Status Indicator & Actions -->
+              <div class="prepare-control-card">
+                <div class="calibration-status-box" id="prepareCalibrationStatus">
+                  <div class="status-indicator-icon icon-calibrating" id="prepareStatusIcon">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                  </div>
+                  <div class="status-indicator-text">
+                    <h4 id="prepareStatusTitle">Calibrating Camera Position...</h4>
+                    <p id="prepareStatusDesc">Move into camera view so your full body and joints are visible.</p>
+                  </div>
+                </div>
+
+                <div class="prepare-actions">
+                  <button id="prepareStartBtn" class="btn btn-primary btn-xl" onclick="startCountdownAndPerform()">
+                    <i class="fa-solid fa-play"></i> Start Workout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP C: ACTIVE WORKOUT SCREEN -->
+        <div id="workoutActiveStep" class="workout-step">
+          <!-- Structured Workout HUD Top Banner -->
+          <div id="structuredHudBanner" style="display: none; background: var(--bg-surface-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px 18px; margin-bottom: 16px; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="active-session-tag"><i class="fa-solid fa-layer-group"></i> ROUTINE IN PROGRESS</span>
+              <span id="structuredRoutineTitle" style="font-weight: 700; color: var(--text-primary); font-size: 1rem;">Full Body Routine</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="text-align: right;">
+                <span id="structuredExProgress" style="font-size: 0.8rem; color: var(--text-secondary); display: block;">Exercise 1 of 4: Push-ups</span>
+                <span id="structuredSetProgress" style="font-weight: 700; color: var(--accent-lime); font-size: 0.9rem;">Set 1 of 3 (Target: 12 Reps)</span>
+              </div>
+              <button id="structuredCompleteSetBtn" class="btn btn-primary" onclick="completeCurrentSet()" style="padding: 8px 16px; font-size: 0.85rem;">
+                <i class="fa-solid fa-check"></i> Complete Set
+              </button>
+            </div>
+          </div>
+
+          <div class="active-workout-header">
+            <div class="active-workout-left">
+              <div class="workout-title-area">
+                <h2 id="activeExerciseTitle">Squat</h2>
+                <div class="active-workout-meta-row">
+                  <span class="active-session-tag"><span class="pulse-dot"></span> LIVE COACHING</span>
+                  <div class="workout-timer-pill">
+                    <i class="fa-regular fa-clock"></i> <span id="hudDuration">00:00</span>
+                  </div>
+                  <!-- MOVEMENT COPILOT COMPACT LIVE BADGE -->
+                  <div class="copilot-status-badge status-monitoring" id="copilotStatusBadge">
+                    <span id="copilotStatusText"><span class="copilot-pulse-dot"></span> COACH ACTIVE</span>
+                  </div>
+                  <!-- SET PROGRESS PILL -->
+                  <div class="workout-set-pill" id="hudSetProgressPill">
+                    <i class="fa-solid fa-layer-group"></i> <span id="hudSetProgress">SET 1 / 3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- HERO REPETITION COUNTER & PROGRESS -->
+            <div class="workout-hero-rep-center">
+              <div class="hero-rep-display" id="heroRepDisplay">
+                <span class="hero-rep-number" id="hudRepCount">0</span>
+                <span class="hero-rep-target" id="hudRepTarget">/ 10 REPS</span>
+              </div>
+              <div class="hero-rep-progress-track">
+                <div class="hero-rep-progress-fill" id="hudRepProgressFill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- RIGHT CONTROLS & FORM SCORE -->
+            <div class="active-workout-right">
+              <div class="trainer-form-pill" id="hudFormScorePill">
+                <span class="form-pill-dot"></span>
+                <span id="hudFormScore">100% Form</span>
+              </div>
+
+              <!-- Viewport Mode Switcher Buttons -->
+              <div class="viewport-compact-switcher" id="viewportMobileSwitcher">
+                <button class="vp-switch-btn" data-view="dual" onclick="switchWorkoutViewport('dual')" title="Split View: Camera + Demo">
+                  <i class="fa-solid fa-table-columns"></i>
+                </button>
+                <button class="vp-switch-btn active" data-view="camera" onclick="switchWorkoutViewport('camera')" title="Camera Focus Mode">
+                  <i class="fa-solid fa-video"></i>
+                </button>
+                <button class="vp-switch-btn" data-view="demo" onclick="switchWorkoutViewport('demo')" title="Demo Only">
+                  <i class="fa-solid fa-person-running"></i>
+                </button>
+              </div>
+
+              <button id="hudCompleteSetBtn" class="btn btn-secondary btn-sm" onclick="handleManualSetComplete()" title="Finish current set and proceed to rest">
+                <i class="fa-solid fa-forward-step"></i> Complete Set
+              </button>
+
+              <button class="btn btn-danger btn-sm" onclick="endWorkoutSession()">
+                <i class="fa-solid fa-stop"></i> End
+              </button>
+            </div>
+          </div>
+
+          <div class="workout-workspace">
+            <div class="workout-viewports-column">
+              <div class="workout-viewports-grid view-camera-only" id="workoutViewportsGrid">
+                
+                <!-- Exercise Demo Avatar Card (Secondary / Toggleable) -->
+                <div class="demo-avatar-card" id="demoAvatarCard">
+                  <div class="demo-card-header">
+                    <div class="demo-title-group">
+                      <span class="demo-badge"><i class="fa-solid fa-person-running"></i> TECHNIQUE GUIDE</span>
+                      <h3 id="demoExerciseTitle">Squat</h3>
+                    </div>
+                    <div id="demoPhaseBadge" class="demo-phase-pill phase-eccentric">PREPARE</div>
+                  </div>
+
+                  <div class="demo-canvas-wrapper">
+                    <canvas id="demoAvatarCanvas"></canvas>
+                  </div>
+
+                  <div class="demo-cue-bar">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span id="demoCueText">Break at hips and knees simultaneously. Keep chest proud.</span>
+                  </div>
+
+                  <div class="demo-card-footer">
+                    <div class="demo-meta-tags">
+                      <span class="demo-meta-tag" title="Target Muscle Group">
+                        <i class="fa-solid fa-bullseye"></i> <span id="demoMuscleTag">Quadriceps, Glutes</span>
+                      </span>
+                      <span class="demo-meta-tag" title="Primary Joint Action">
+                        <i class="fa-solid fa-arrows-spin"></i> <span id="demoJointTag">Knee & Hip Flexion</span>
+                      </span>
+                    </div>
+
+                    <div class="demo-playback-controls">
+                      <button id="demoPlayPauseBtn" class="demo-ctrl-btn" onclick="toggleDemoPlayPause()" title="Play / Pause Demo">
+                        <i class="fa-solid fa-pause"></i>
+                      </button>
+                      <button id="demoResetBtn" class="demo-ctrl-btn" onclick="resetDemoAvatar()" title="Replay / Reset Demo">
+                        <i class="fa-solid fa-rotate-left"></i>
+                      </button>
+                      <div class="demo-speed-group">
+                        <button class="demo-speed-btn" data-speed="0.5" onclick="setDemoSpeed(0.5)">0.5x</button>
+                        <button class="demo-speed-btn active" data-speed="1.0" onclick="setDemoSpeed(1.0)">1.0x</button>
+                        <button class="demo-speed-btn" data-speed="1.5" onclick="setDemoSpeed(1.5)">1.5x</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Primary Camera Workspace -->
+                <div class="camera-container" id="liveCameraContainer">
+                  <div class="camera-live-badge">
+                    <span class="pulse-dot"></span> LIVE CAMERA
+                  </div>
+                  <video id="webcamFeed" class="camera-video" autoplay playsinline muted></video>
+                  <img id="overlayImage" class="camera-overlay" alt="YOLO Pose Skeleton Overlay" style="display: none;">
+                  <canvas id="frameCanvas" style="display: none;"></canvas>
+                  
+                  <div id="cameraPlaceholder" class="camera-placeholder">
+                    <div class="camera-icon-wrapper">
+                      <i class="fa-solid fa-video"></i>
+                    </div>
+                    <h3>Live Camera & CV Pose Stream</h3>
+                    <p class="camera-notice" id="cameraNoticeText">
+                      <i class="fa-solid fa-info-circle"></i> 
+                      Click "Start Session" to connect webcam to YOLO Pose Engine.
+                    </p>
+                    <div style="margin-top: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                      <button type="button" class="btn-primary" style="padding: 7px 16px; font-size: 0.85rem; border-radius: 8px; cursor: pointer;" onclick="document.getElementById('videoUploadInput').click()">
+                        <i class="fa-solid fa-file-video"></i> No Webcam? Test with Video File
+                      </button>
+                      <input type="file" id="videoUploadInput" accept="video/*" style="display: none;" onchange="handleWorkoutVideoUpload(event)">
+                    </div>
+                  </div>
+
+                  <!-- FLOATING PERSONAL TRAINER COACHING BANNER -->
+                  <div class="trainer-coaching-banner" id="trainerCoachingBanner">
+                    <div class="trainer-coaching-icon" id="trainerCoachIcon">
+                      <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="trainer-coaching-body">
+                      <div class="trainer-coaching-msg" id="hudFeedback">
+                        Position yourself in camera view to begin.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Collapsible Secondary Diagnostics & Movement Copilot (Hidden by default during movement) -->
+            <div class="workout-hud-panel" id="workoutSecondaryHudPanel" style="display: none;">
+              <!-- MOVEMENT COPILOT™ LIVE HUD CARD -->
+              <div class="hud-card copilot-hud-card" id="movementCopilotCard" style="display: flex;">
+                <div class="copilot-hud-header">
+                  <div class="copilot-brand">
+                    <i class="fa-solid fa-microchip" style="color: var(--accent-cyan);"></i>
+                    <span>MOVEMENT COPILOT™</span>
+                  </div>
+                </div>
+
+                <div class="copilot-main-dimension">
+                  <div class="copilot-dim-row">
+                    <span class="copilot-dim-name" id="copilotDimName">Movement Stability</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span class="copilot-delta-pill" id="copilotDeltaBadge" style="display: none;">--</span>
+                      <span class="copilot-dim-score" id="copilotDimScore">80 / 100</span>
+                    </div>
+                  </div>
+                  <div class="copilot-dim-bar-wrap">
+                    <div class="copilot-dim-bar-fill" id="copilotDimBar" style="width: 80%;"></div>
+                  </div>
+                </div>
+
+                <div class="copilot-cue-box">
+                  <div class="copilot-cue-header">
+                    <span class="copilot-cue-label"><i class="fa-solid fa-robot"></i> AI COACH CUE</span>
+                    <span class="copilot-phase-pill" id="copilotPhasePill">STEADY</span>
+                  </div>
+                  <div class="copilot-cue-text" id="copilotCueText">Maintain steady cadence and control.</div>
+                </div>
+
+                <!-- Mini Metric Progress Bars -->
+                <div class="copilot-mini-metrics">
+                  <div class="copilot-mini-item">
+                    <span class="copilot-mini-label">STAB</span>
+                    <div class="copilot-mini-bar-wrap"><div class="copilot-mini-bar" id="copilotMiniStabBar" style="width: 80%;"></div></div>
+                    <span class="copilot-mini-val" id="copilotMiniStabVal">80</span>
+                  </div>
+                  <div class="copilot-mini-item">
+                    <span class="copilot-mini-label">TEMPO</span>
+                    <div class="copilot-mini-bar-wrap"><div class="copilot-mini-bar" id="copilotMiniTempoBar" style="width: 80%;"></div></div>
+                    <span class="copilot-mini-val" id="copilotMiniTempoVal">80</span>
+                  </div>
+                  <div class="copilot-mini-item">
+                    <span class="copilot-mini-label">ROM</span>
+                    <div class="copilot-mini-bar-wrap"><div class="copilot-mini-bar" id="copilotMiniRomBar" style="width: 80%;"></div></div>
+                    <span class="copilot-mini-val" id="copilotMiniRomVal">80</span>
+                  </div>
+                  <div class="copilot-mini-item">
+                    <span class="copilot-mini-label">CONS</span>
+                    <div class="copilot-mini-bar-wrap"><div class="copilot-mini-bar" id="copilotMiniConsBar" style="width: 80%;"></div></div>
+                    <span class="copilot-mini-val" id="copilotMiniConsVal">80</span>
+                  </div>
+                </div>
+
+                <!-- Event Timeline Stream -->
+                <div class="copilot-timeline-stream" id="copilotTimelineStream"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP D: WORKOUT RESULT SCREEN -->
+        <div id="workoutResultStep" class="workout-step">
+          <div class="results-container">
+            <div class="results-card">
+              <div class="results-header">
+                <h2>Workout Complete</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Your telemetry data has been saved and analyzed by AI Coach.</p>
+              </div>
+
+              <!-- WORKOUT PLAN COMPLETION SUMMARY -->
+              <div class="workout-completion-summary" id="workoutPlanSummaryCard" style="display: none;">
+                <div class="completion-summary-badge"><i class="fa-solid fa-circle-check"></i> WORKOUT PLAN COMPLETED</div>
+                <div class="completion-summary-stats">
+                  <span id="resSetsSummary">3 / 3 SETS</span>
+                  <span class="summary-sep">·</span>
+                  <span id="resTargetRepsSummary">30 / 30 TARGET REPS</span>
+                  <span class="summary-sep">·</span>
+                  <span id="resRestSummary">RESTED AS PLANNED</span>
+                </div>
+              </div>
+
+              <div class="results-stats-grid">
+                <div class="result-stat-box">
+                  <div class="stat-num" id="resRepCount">--</div>
+                  <div class="stat-lbl">Total Reps</div>
+                </div>
+                <div class="result-stat-box">
+                  <div class="stat-num" id="resDuration" style="color: var(--text-primary);">00:00</div>
+                  <div class="stat-lbl">Duration</div>
+                </div>
+                <div class="result-stat-box">
+                  <div class="stat-num" id="resFormScore" style="color: var(--status-success);">N/A</div>
+                  <div class="stat-lbl">Form Score</div>
+                </div>
+              </div>
+
+              <!-- MOVEMENT INTELLIGENCE SECTION -->
+              <div class="movement-intelligence-section" id="movementIntelligenceSection">
+                <div class="movement-intel-header">
+                  <div class="intel-title-wrap">
+                    <span class="intel-glow-pill"><i class="fa-solid fa-fingerprint"></i> MOVEMENT INTELLIGENCE</span>
+                    <h3>Movement Fingerprint & Biomechanical Profile</h3>
+                  </div>
+                  <div class="movement-quality-pill" id="movementQualityBadge">
+                    <div class="quality-score-wrap">
+                      <span class="quality-label">OVERALL QUALITY</span>
+                      <div class="quality-val-row">
+                        <span class="quality-num" id="resMovementQuality">--</span>
+                        <span class="quality-max">/100</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="movement-intel-grid">
+                  <!-- LEFT: Custom Canvas Movement Fingerprint Radar -->
+                  <div class="fingerprint-visual-box">
+                    <div class="fingerprint-box-header">
+                      <span class="fp-tag"><i class="fa-solid fa-chart-pie"></i> MOVEMENT FINGERPRINT</span>
+                      <span class="fp-sub">Biomechanical Signature</span>
+                    </div>
+                    <div class="fingerprint-canvas-wrap">
+                      <canvas id="movementFingerprintCanvas" width="280" height="280"></canvas>
+                    </div>
+                  </div>
+
+                  <!-- RIGHT: Movement Profile Metric Progress Bars -->
+                  <div class="movement-profile-bars-box">
+                    <div class="profile-box-header">
+                      <span class="fp-tag"><i class="fa-solid fa-sliders"></i> MOVEMENT PROFILE</span>
+                      <span class="fp-sub">Telemetry Breakdown</span>
+                    </div>
+
+                    <div class="movement-metrics-list" id="movementMetricsList">
+                      <!-- Dynamically rendered metric progress bars: ROM, Stability, Tempo, Consistency, Symmetry -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Biomechanical Detail Notes Drawer -->
+                <div class="movement-intel-footer" id="movementIntelFooter">
+                  <div class="intel-footnote" id="movementFootnoteText">
+                    <i class="fa-solid fa-circle-info"></i> Derived from live keypoint kinematics & temporal trajectory telemetry.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phase 2: Historical Movement Quality Comparison -->
+              <div class="results-comparison-card" id="historyComparisonCard" style="display: none;">
+                <div class="comparison-header">
+                  <span class="comp-title-badge"><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-cyan);"></i> COMPARE WITH YOUR HISTORY</span>
+                  <span class="comparison-trend-badge" id="resComparisonTrendBadge">--</span>
+                </div>
+                <div class="comparison-stats-grid">
+                  <div class="comp-stat-col">
+                    <div class="comp-label">THIS SESSION</div>
+                    <div class="comp-value highlight" id="resCompThisSession">--</div>
+                  </div>
+                  <div class="comp-stat-col">
+                    <div class="comp-label">PREVIOUS AVG</div>
+                    <div class="comp-value" id="resCompPrevAvg">--</div>
+                  </div>
+                  <div class="comp-stat-col">
+                    <div class="comp-label">CHANGE</div>
+                    <div class="comp-value" id="resCompChange">--</div>
+                  </div>
+                </div>
+                <div class="comparison-note" id="resComparisonMessage">
+                  Tracking longitudinal biomechanical adaptation.
+                </div>
+              </div>
+
+              <!-- MOVEMENT DNA™ SUMMARY IMPACT CARD (PHASE 4) -->
+              <div class="results-dna-impact-card" id="resMovementDnaCard" style="display: none;">
+                <div class="dna-impact-header">
+                  <div class="dna-impact-badge"><i class="fa-solid fa-dna"></i> MOVEMENT DNA™ IMPACT</div>
+                  <span class="dna-impact-score-text">Session Quality: <strong id="resDnaSessionQuality">--</strong>/100</span>
+                </div>
+                <div class="dna-impact-stats-row">
+                  <div class="dna-stat-col">
+                    <span class="dna-stat-label">DNA CHANGE</span>
+                    <span class="dna-stat-val" id="resDnaChangeVal">--</span>
+                  </div>
+                  <div class="dna-stat-col">
+                    <span class="dna-stat-label">STRONGEST TRAIT</span>
+                    <span class="dna-stat-val highlight-green" id="resDnaStrongestVal">--</span>
+                  </div>
+                  <div class="dna-stat-col">
+                    <span class="dna-stat-label">PRIMARY LIMITER</span>
+                    <span class="dna-stat-val highlight-red" id="resDnaLimiterVal">--</span>
+                  </div>
+                </div>
+                <p class="dna-impact-msg" id="resDnaImpactMsg"></p>
+                <div class="dna-impact-actions">
+                  <button class="btn btn-secondary" onclick="switchTab('movementDnaView')" style="gap: 8px;">
+                    <i class="fa-solid fa-dna" style="color: var(--accent-cyan);"></i> View Movement DNA™
+                  </button>
+                  <button class="btn btn-primary" onclick="generateMovementDNAWorkout()" style="gap: 8px;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Adaptive Workout
+                  </button>
+                </div>
+              </div>
+
+              <!-- MOVEMENT COPILOT SESSION INTELLIGENCE CARD -->
+              <div class="copilot-summary-card" id="resMovementCopilotCard" style="display: none;">
+                <div class="copilot-sum-header">
+                  <div class="copilot-sum-title-row">
+                    <span class="intel-glow-pill"><i class="fa-solid fa-microchip"></i> COPILOT™ INTELLIGENCE</span>
+                    <h3>Session Coaching & Closed-Loop Recovery</h3>
+                  </div>
+                </div>
+
+                <div class="copilot-sum-stats-grid">
+                  <div class="copilot-sum-stat-item">
+                    <span class="copilot-stat-num" id="resCopilotInterventions">0</span>
+                    <span class="copilot-stat-lbl">Interventions</span>
+                  </div>
+                  <div class="copilot-sum-stat-item">
+                    <span class="copilot-stat-num" id="resCopilotCorrections" style="color: var(--status-success);">0</span>
+                    <span class="copilot-stat-lbl">Successful Corrections</span>
+                  </div>
+                  <div class="copilot-sum-stat-item">
+                    <span class="copilot-stat-num" id="resCopilotRecoveryRate" style="color: var(--accent-cyan);">100%</span>
+                    <span class="copilot-stat-lbl">Recovery Rate</span>
+                  </div>
+                </div>
+
+                <div class="copilot-sum-details-row">
+                  <div class="copilot-sum-detail-box">
+                    <span class="copilot-detail-lbl"><i class="fa-solid fa-arrow-trend-up"></i> Biggest Recovery</span>
+                    <span class="copilot-detail-val" id="resCopilotBiggestRecovery">Movement Stability (+15.2 pts)</span>
+                  </div>
+                  <div class="copilot-sum-detail-box">
+                    <span class="copilot-detail-lbl"><i class="fa-solid fa-triangle-exclamation"></i> Most Frequent Limiter</span>
+                    <span class="copilot-detail-val" id="resCopilotMostFreqLimiter">Tempo Control (2x)</span>
+                  </div>
+                </div>
+
+                <div class="copilot-verdict-box">
+                  <span class="copilot-verdict-title"><i class="fa-solid fa-check-double"></i> Copilot Session Verdict</span>
+                  <p id="resCopilotVerdict">You responded promptly to live stability cues. Excellent eccentric control under fatigue.</p>
+                </div>
+              </div>
+
+              <!-- AI COACH INSIGHTS -->
+              <div class="results-ai-box">
+                <h3><i class="fa-solid fa-brain"></i> AI Coach Insights</h3>
+                <div class="ai-results-content" id="resAICoaching">
+                  Loading personalized AI coaching analysis...
+                </div>
+              </div>
+
+              <div class="results-actions">
+                <button class="btn btn-primary" onclick="goToStep('workoutSelectionStep')">
+                  <i class="fa-solid fa-rotate-left"></i> Start Another Exercise
+                </button>
+                <button class="btn btn-secondary" onclick="switchTab('historyView')">
+                  <i class="fa-solid fa-clock-rotate-left"></i> View History
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- VIEW: NUTRITION & DIET PLAN -->
+      <section id="nutritionView" class="view-panel">
+        
+        <!-- Nutrition Page Header -->
+        <div class="nutrition-header-banner">
+          <div class="nutrition-header-content">
+            <div class="nutrition-header-tag">
+              <i class="fa-solid fa-utensils"></i> Personalized Nutrition Engine
+            </div>
+            <h1 class="nutrition-title">Fuel Your Fitness Goals</h1>
+            <p class="nutrition-subtitle">Simple, AI-personalized nutrition recommendations and daily meal tracking.</p>
+          </div>
+          <div class="nutrition-header-actions">
+            <button class="btn btn-secondary" onclick="openNutritionPreferencesModal()">
+              <i class="fa-solid fa-sliders"></i> Preferences
+            </button>
+            <button class="btn btn-secondary" onclick="openFoodAnalyzerModal()">
+              <i class="fa-solid fa-camera"></i> Food Analyzer
+            </button>
+            <button class="btn btn-primary" onclick="generateOrRefreshMealPlan(true)">
+              <i class="fa-solid fa-arrows-rotate"></i> Regenerate 7-Day Plan
+            </button>
+          </div>
+        </div>
+
+        <!-- SECTION A: TODAY'S NUTRITION (HERO SUMMARY) -->
+        <div class="nutrition-today-card" id="nutritionTodayHero">
+          <div class="nutrition-card-top">
+            <div class="nutrition-section-label">
+              <i class="fa-solid fa-fire-flame-curved" style="color: #ff9800;"></i> Today's Nutrition
+            </div>
+            <div class="nutrition-goal-pill" id="nutritionGoalBadge">
+              <i class="fa-solid fa-bullseye"></i> Goal: <span id="nutritionGoalText">General Fitness</span>
+            </div>
+          </div>
+
+          <!-- Primary Scannable 4-Column Metric Grid -->
+          <div class="nutrition-metrics-grid">
+            <div class="nutrition-metric-card">
+              <div class="nutrition-metric-header">
+                <span class="nutrition-metric-label">Daily Calories</span>
+                <i class="fa-solid fa-fire nutrition-metric-icon" style="color: #ff7043;"></i>
+              </div>
+              <div class="nutrition-metric-val" id="nutritionCalorieVal">-- <small>kcal</small></div>
+              <div class="nutrition-metric-sub" id="nutritionCalorieSub">0 / -- kcal logged</div>
+              <div class="nutrition-progress-bar-bg">
+                <div class="nutrition-progress-bar-fill" id="nutritionCalorieBar" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="nutrition-metric-card">
+              <div class="nutrition-metric-header">
+                <span class="nutrition-metric-label">Protein Target</span>
+                <i class="fa-solid fa-drumstick-bite nutrition-metric-icon" style="color: #00f2fe;"></i>
+              </div>
+              <div class="nutrition-metric-val" id="nutritionProteinVal">-- <small>g</small></div>
+              <div class="nutrition-metric-sub" id="nutritionProteinSub">0 / -- g logged</div>
+              <div class="nutrition-progress-bar-bg">
+                <div class="nutrition-progress-bar-fill protein" id="nutritionProteinBar" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="nutrition-metric-card">
+              <div class="nutrition-metric-header">
+                <span class="nutrition-metric-label">Meals Logged</span>
+                <i class="fa-solid fa-bowl-food nutrition-metric-icon" style="color: #10b981;"></i>
+              </div>
+              <div class="nutrition-metric-val" id="nutritionMealsCountVal">0 / 4</div>
+              <div class="nutrition-metric-sub" id="nutritionMealsRemainingSub">4 meals remaining</div>
+              <div class="nutrition-meal-dots" id="nutritionMealDotsContainer">
+                <span class="nutrition-meal-dot" title="Breakfast">B</span>
+                <span class="nutrition-meal-dot" title="Lunch">L</span>
+                <span class="nutrition-meal-dot" title="Snack">S</span>
+                <span class="nutrition-meal-dot" title="Dinner">D</span>
+              </div>
+            </div>
+
+            <div class="nutrition-metric-card action-card">
+              <div class="nutrition-metric-header">
+                <span class="nutrition-metric-label">Quick Action</span>
+                <i class="fa-solid fa-plus-circle nutrition-metric-icon" style="color: var(--accent-lime);"></i>
+              </div>
+              <p class="nutrition-action-desc">Track what you ate in seconds to keep your progress updated.</p>
+              <button class="btn btn-primary btn-sm" onclick="scrollToMealLogger()">
+                <i class="fa-solid fa-pen-to-square"></i> Log Meal
+              </button>
+            </div>
+          </div>
+
+          <!-- Progressive Disclosure Toggle -->
+          <div class="nutrition-disclosure-bar">
+            <button type="button" class="nutrition-details-toggle-btn" id="nutritionDetailsToggle" onclick="toggleNutritionDetails()" aria-expanded="false">
+              <span id="nutritionDetailsToggleText">View Target Calculation Details</span>
+              <i id="nutritionDetailsToggleIcon" class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <!-- Hidden Progressive Details Drawer -->
+          <div id="nutritionDetailsContent" class="nutrition-details-drawer" style="display: none;">
+            <div class="nutrition-details-grid">
+              <div class="nutrition-detail-item">
+                <div class="nutrition-detail-lbl">Estimated BMR</div>
+                <div class="nutrition-detail-num" id="nutritionBmrVal">-- kcal</div>
+                <div class="nutrition-detail-caption">Basal Metabolic Rate (Mifflin-St Jeor)</div>
+              </div>
+              <div class="nutrition-detail-item">
+                <div class="nutrition-detail-lbl">Estimated TDEE</div>
+                <div class="nutrition-detail-num" id="nutritionTdeeVal">-- kcal</div>
+                <div class="nutrition-detail-caption">Total Daily Energy Expenditure</div>
+              </div>
+              <div class="nutrition-detail-item">
+                <div class="nutrition-detail-lbl">Target Carbs</div>
+                <div class="nutrition-detail-num" id="nutritionCarbsTargetVal">-- g</div>
+                <div class="nutrition-detail-caption">Energy for workout output</div>
+              </div>
+              <div class="nutrition-detail-item">
+                <div class="nutrition-detail-lbl">Target Healthy Fats</div>
+                <div class="nutrition-detail-num" id="nutritionFatTargetVal">-- g</div>
+                <div class="nutrition-detail-caption">Hormonal & cellular health</div>
+              </div>
+            </div>
+            <div class="nutrition-disclaimer-callout">
+              <i class="fa-solid fa-circle-info"></i>
+              <span><strong>Note:</strong> Calorie and macronutrient targets are estimates calculated from your biometric profile, fitness goal, and training history. They are guidelines to support athletic performance, not medical prescriptions.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION B: PERSONALIZED 7-DAY MEAL PLAN -->
+        <div class="nutrition-plan-section">
+          <div class="nutrition-section-header">
+            <div>
+              <h2>Your 7-Day Meal Plan</h2>
+              <p>Personalized meals designed for your goals. Click any meal to view ingredients and recipe steps.</p>
+            </div>
+            <div class="nutrition-plan-meta">
+              <span class="nutrition-plan-source" id="nutritionPlanSourceBadge"><i class="fa-solid fa-sparkles"></i> AI Personalized</span>
+            </div>
+          </div>
+
+          <!-- Day Selector Pills -->
+          <div class="nutrition-day-tabs" id="nutritionDayTabsContainer">
+            <button class="nutrition-day-btn active" data-day="1" onclick="selectNutritionDay(1)">Day 1 <span>(Mon)</span></button>
+            <button class="nutrition-day-btn" data-day="2" onclick="selectNutritionDay(2)">Day 2 <span>(Tue)</span></button>
+            <button class="nutrition-day-btn" data-day="3" onclick="selectNutritionDay(3)">Day 3 <span>(Wed)</span></button>
+            <button class="nutrition-day-btn" data-day="4" onclick="selectNutritionDay(4)">Day 4 <span>(Thu)</span></button>
+            <button class="nutrition-day-btn" data-day="5" onclick="selectNutritionDay(5)">Day 5 <span>(Fri)</span></button>
+            <button class="nutrition-day-btn" data-day="6" onclick="selectNutritionDay(6)">Day 6 <span>(Sat)</span></button>
+            <button class="nutrition-day-btn" data-day="7" onclick="selectNutritionDay(7)">Day 7 <span>(Sun)</span></button>
+          </div>
+
+          <!-- Day Meals Container -->
+          <div id="nutritionMealsContainer" class="nutrition-meals-grid">
+            <div class="loading-spinner">
+              <i class="fa-solid fa-circle-notch fa-spin"></i> Loading your personalized meal plan...
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION C: LOG WHAT YOU ATE -->
+        <div class="nutrition-logger-section" id="nutritionLoggerSection">
+          <div class="nutrition-section-header">
+            <div>
+              <h2>Log What You Ate</h2>
+              <p>Quickly record your meals to keep your daily calorie and protein tracking accurate.</p>
+            </div>
+          </div>
+
+          <div class="nutrition-logger-card">
+            <form id="nutritionMealLogForm" class="nutrition-log-form" onsubmit="handleMealLogSubmit(event)">
+              <div class="nutrition-form-row">
+                <div class="nutrition-form-group" style="flex: 1;">
+                  <label for="logMealType"><i class="fa-solid fa-clock"></i> Meal Type</label>
+                  <select id="logMealType" class="nutrition-input" required>
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch" selected>Lunch</option>
+                    <option value="snack">Snack</option>
+                    <option value="dinner">Dinner</option>
+                  </select>
+                </div>
+                <div class="nutrition-form-group" style="flex: 2.5;">
+                  <label for="logFoodName"><i class="fa-solid fa-utensils"></i> What did you eat?</label>
+                  <input type="text" id="logFoodName" class="nutrition-input" placeholder="e.g., Paneer + 2 Rotis with salad, or Grilled Chicken Rice" required />
+                </div>
+              </div>
+
+              <!-- Quick Food Suggestion Chips -->
+              <div class="nutrition-quick-chips">
+                <span class="nutrition-chip-label">Quick suggestions:</span>
+                <button type="button" class="nutrition-chip-btn" onclick="populateLogFood('Oatmeal with banana & whey protein')">Oats & Banana</button>
+                <button type="button" class="nutrition-chip-btn" onclick="populateLogFood('2 Rotis + Dal + Paneer Bhurji')">Paneer & Roti</button>
+                <button type="button" class="nutrition-chip-btn" onclick="populateLogFood('Grilled Chicken Breast with Brown Rice')">Chicken & Rice</button>
+                <button type="button" class="nutrition-chip-btn" onclick="populateLogFood('3 Boiled Eggs + Multigrain Toast')">Eggs & Toast</button>
+                <button type="button" class="nutrition-chip-btn" onclick="populateLogFood('Whey Protein Shake with Almond Milk')">Protein Shake</button>
+                <button type="button" class="nutrition-chip-btn" onclick="populateLogFood('Greek Yogurt with Berries')">Greek Yogurt</button>
+              </div>
+
+              <div class="nutrition-form-row optional-macros">
+                <div class="nutrition-form-group">
+                  <label for="logCalories"><i class="fa-solid fa-fire"></i> Calories <small>(optional)</small></label>
+                  <input type="number" id="logCalories" class="nutrition-input" placeholder="Auto-estimated" min="0" />
+                </div>
+                <div class="nutrition-form-group">
+                  <label for="logProtein"><i class="fa-solid fa-drumstick-bite"></i> Protein (g) <small>(optional)</small></label>
+                  <input type="number" id="logProtein" class="nutrition-input" placeholder="Auto-estimated" min="0" step="0.5" />
+                </div>
+                <div class="nutrition-form-group">
+                  <label for="logCarbs"><i class="fa-solid fa-wheat-awn"></i> Carbs (g) <small>(optional)</small></label>
+                  <input type="number" id="logCarbs" class="nutrition-input" placeholder="Auto-estimated" min="0" step="0.5" />
+                </div>
+                <div class="nutrition-form-group">
+                  <label for="logFat"><i class="fa-solid fa-droplet"></i> Fat (g) <small>(optional)</small></label>
+                  <input type="number" id="logFat" class="nutrition-input" placeholder="Auto-estimated" min="0" step="0.5" />
+                </div>
+              </div>
+
+              <div class="nutrition-form-actions">
+                <button type="submit" id="logMealSubmitBtn" class="btn btn-primary">
+                  <i class="fa-solid fa-plus"></i> Log Meal
+                </button>
+              </div>
+            </form>
+
+            <!-- Today's Logged Meals List -->
+            <div class="nutrition-logged-meals-container">
+              <h3 class="nutrition-subheading"><i class="fa-solid fa-list-check"></i> Today's Logged Meals</h3>
+              <div id="nutritionLoggedMealsList" class="nutrition-logged-list">
+                <div class="nutrition-empty-logs">No meals logged yet today. Enter what you ate above to begin!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- VIEW 3: AI COACH CHATBOT -->
+      <section id="aiCoachView" class="view-panel">
+        <div class="chat-container">
+          <!-- Chat Header -->
+          <header class="chat-header">
+            <div class="header-brand">
+              <div class="logo-badge">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div class="header-titles">
+                <h1>Your FitQuest Coach</h1>
+                <p class="subtitle">
+                  <span class="status-dot"></span>
+                  Ask about your training, movement, nutrition, or progress.
+                </p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <button id="clearChatBtn" class="action-btn" title="Clear Chat History">
+                <i class="fa-solid fa-rotate-right"></i>
+              </button>
+            </div>
+          </header>
+
+          <!-- Quick Question Chips Bar -->
+          <div class="quick-questions-container">
+            <div class="quick-questions-label">Suggested:</div>
+            <div class="quick-questions-scroll">
+              <button type="button" class="chip-btn" data-question="Why was today's workout changed?">
+                Why was today's workout changed?
+              </button>
+              <button type="button" class="chip-btn" data-question="How can I improve my squat?">
+                How can I improve my squat?
+              </button>
+              <button type="button" class="chip-btn" data-question="What should I eat after training?">
+                What should I eat after training?
+              </button>
+              <button type="button" class="chip-btn" data-question="How am I progressing this week?">
+                How am I progressing this week?
+              </button>
+            </div>
+          </div>
+
+          <!-- Chat Messages Area -->
+          <main id="chatMessages" class="chat-messages">
+            <div class="message-wrapper ai-wrapper">
+              <div class="avatar ai-avatar">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div class="message-bubble ai-bubble">
+                <div class="message-content">
+                  Welcome to <strong>FitQuest AI Coach</strong>.<br>
+                  Ask any question regarding form, training load, recovery, or nutrition.
+                </div>
+                <div class="message-time">Just now</div>
+              </div>
+            </div>
+          </main>
+
+          <!-- Typing Indicator -->
+          <div id="typingIndicator" class="typing-indicator-wrapper hidden">
+            <div class="avatar ai-avatar">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="typing-bubble">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="typing-text">AI Coach is thinking...</span>
+            </div>
+          </div>
+
+          <!-- Input Bar -->
+          <footer class="chat-input-container">
+            <form id="chatForm" class="input-form">
+              <input 
+                type="text" 
+                id="userInput" 
+                class="chat-input" 
+                placeholder="Ask your fitness coach anything..." 
+                autocomplete="off"
+                required
+              >
+              <button type="submit" id="sendBtn" class="send-btn" title="Send Message">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </form>
+          </footer>
+        </div>
+      </section>
+
+      <!-- VIEW: PROGRESS & ANALYTICS DASHBOARD -->
+      <section id="progressView" class="view-panel">
+        <div class="progress-dashboard-container">
+          <div class="section-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h2>Fitness Progress & Analytics</h2>
+              <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 2px;">
+                Comprehensive telemetry breakdown of verified completed workouts, form trends, and volume over time.
+              </p>
+            </div>
+            <div class="filter-chips-group">
+              <button class="chip-filter active" onclick="setAnalyticsTimeRange('all', event)">All Time</button>
+              <button class="chip-filter" onclick="setAnalyticsTimeRange('90d', event)">90 Days</button>
+              <button class="chip-filter" onclick="setAnalyticsTimeRange('30d', event)">30 Days</button>
+              <button class="chip-filter" onclick="setAnalyticsTimeRange('7d', event)">7 Days</button>
+            </div>
+          </div>
+
+          <!-- OVERVIEW METRICS GRID -->
+          <div id="progressOverviewGrid" class="profile-metrics-grid" style="margin-bottom: 32px;">
+            <div class="prof-metric-box">
+              <div class="prof-metric-lbl"><i class="fa-solid fa-dumbbell"></i> Valid Workouts</div>
+              <div class="prof-metric-val highlight" id="progTotalWorkouts">0</div>
+            </div>
+            <div class="prof-metric-box">
+              <div class="prof-metric-lbl"><i class="fa-solid fa-repeat"></i> Total Repetitions</div>
+              <div class="prof-metric-val highlight" id="progTotalReps">0</div>
+            </div>
+            <div class="prof-metric-box">
+              <div class="prof-metric-lbl"><i class="fa-solid fa-chart-pie"></i> Avg Form Score</div>
+              <div class="prof-metric-val highlight" id="progAvgForm">0.0%</div>
+            </div>
+            <div class="prof-metric-box">
+              <div class="prof-metric-lbl"><i class="fa-solid fa-fire"></i> Current Streak</div>
+              <div class="prof-metric-val" id="progCurrentStreak">0 Days</div>
+            </div>
+            <div class="prof-metric-box">
+              <div class="prof-metric-lbl"><i class="fa-solid fa-award"></i> Best Form Score</div>
+              <div class="prof-metric-val" id="progBestForm">0.0%</div>
+            </div>
+            <div class="prof-metric-box">
+              <div class="prof-metric-lbl"><i class="fa-solid fa-trophy"></i> Max Reps (Set)</div>
+              <div class="prof-metric-val" id="progMaxReps">0</div>
+            </div>
+          </div>
+
+          <!-- PERSONALIZED GOALS & TARGETS SECTION -->
+          <div class="goals-section" style="margin-bottom: 36px;">
+            <div class="prof-section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3><i class="fa-solid fa-bullseye"></i> Fitness Goals & Targets</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem;">Track live progress toward personal fitness milestones</p>
+              </div>
+              <button class="btn btn-primary" onclick="openCreateGoalModal()" style="font-size: 0.85rem;">
+                <i class="fa-solid fa-plus"></i> Set New Goal
+              </button>
+            </div>
+            <div id="userGoalsGrid" class="goals-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px;">
+              <!-- Dynamic Goal Cards inserted by goals.js -->
+            </div>
+          </div>
+
+          <!-- RECOVERY & TRAINING LOAD INSIGHTS SECTION -->
+          <div class="training-load-section" style="margin-bottom: 36px;">
+            <div class="prof-section-title" style="margin-bottom: 16px;">
+              <h3><i class="fa-solid fa-bolt"></i> Recovery & Training Load Insights</h3>
+              <p style="color: var(--text-secondary); font-size: 0.85rem;">Acute/chronic workload ratio and estimated recovery status</p>
+            </div>
+
+            <div id="trainingLoadCard" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                <!-- RECOVERY SCORE BOX -->
+                <div style="background: var(--bg-surface-secondary); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Recovery Score</div>
+                  <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px;">
+                    <span style="font-size: 2rem; font-weight: 800; color: var(--accent-lime);" id="loadRecoveryScore">--</span>
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);" id="loadRecoveryStatus">INSUFFICIENT DATA</span>
+                  </div>
+                </div>
+
+                <!-- TRAINING LOAD RATIO BOX -->
+                <div style="background: var(--bg-surface-secondary); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Training Load Ratio (ATL/CTL)</div>
+                  <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px;">
+                    <span style="font-size: 2rem; font-weight: 800; color: var(--text-primary);" id="loadRatioVal">--</span>
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);" id="loadZoneBadge">INSUFFICIENT DATA</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- METRICS GRID -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; background: var(--bg-surface-secondary); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Acute Load (7d)</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);" id="loadAcuteVal">0.0 pts</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Chronic Load (28d)</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);" id="loadChronicVal">0.0 pts</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Recent Form Avg</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: var(--status-success);" id="loadAvgForm">--</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Rest Gap</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-lime);" id="loadRestGap">--</div>
+                </div>
+              </div>
+
+              <!-- EXPLANATION BOX -->
+              <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; background: var(--bg-surface-secondary); border-left: 3px solid var(--accent-lime); padding: 12px 16px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;" id="loadExplanation">
+                Complete your first valid workout to unlock Recovery & Training Load Insights.
+              </div>
+            </div>
+          </div>
+
+          <!-- PROGRESS TREND CHARTS -->
+          <div class="analytics-charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; margin-bottom: 32px;">
+            <div class="chart-card-wrapper" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px;">
+              <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-chart-line" style="color: var(--accent-lime);"></i> Form Accuracy Score Trend (%)
+              </h3>
+              <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="formTrendChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card-wrapper" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px;">
+              <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-chart-column" style="color: var(--accent-lime);"></i> Repetition Volume Trend
+              </h3>
+              <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="repTrendChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- PERSONAL RECORDS (PR) WALL -->
+          <div class="prof-section-divider"></div>
+          <div class="pr-section" style="margin-bottom: 32px;">
+            <div class="prof-section-title" style="margin-bottom: 16px;">
+              <h3><i class="fa-solid fa-crown"></i> Personal Records (PR) Wall</h3>
+              <p style="color: var(--text-secondary); font-size: 0.85rem;">Highest repetition accomplishments per exercise</p>
+            </div>
+            <div id="personalRecordsGrid" class="pr-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;"></div>
+          </div>
+
+          <!-- EXERCISE PERFORMANCE BREAKDOWN -->
+          <div class="prof-section-divider"></div>
+          <div class="ex-perf-section" style="margin-bottom: 32px;">
+            <div class="prof-section-title" style="margin-bottom: 16px;">
+              <h3><i class="fa-solid fa-layer-group"></i> Exercise Performance Breakdown</h3>
+            </div>
+            <div id="exercisePerformanceContainer" class="ex-perf-list"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW: MOVEMENT DNA™ DASHBOARD (PHASE 4) -->
+      <section id="movementDnaView" class="view-panel">
+        <div class="dna-container" id="movementDnaContainer">
+          
+          <!-- Top Bar with Exercise Filter -->
+          <div class="dna-top-bar">
+            <div>
+              <div class="dna-badge"><i class="fa-solid fa-dna"></i> MOVEMENT DNA™</div>
+              <h2 style="margin-top: 6px; font-size: 2.1rem; font-weight: 800; font-family: 'Outfit', sans-serif;">
+                How Your Body Moves
+              </h2>
+              <p class="dna-subtitle">Your personal biomechanical movement profile decoded from your workout sessions.</p>
+            </div>
+            
+            <div class="dna-top-controls">
+              <div class="dna-select-wrap">
+                <label for="dnaExerciseSelect" class="dna-select-label">FILTER EXERCISE</label>
+                <select id="dnaExerciseSelect" class="dna-select-input" onchange="loadMovementDNA(this.value ? parseInt(this.value) : null)">
+                  <option value="">All Exercises (Overall Movement DNA)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Hero Scannable Summary Card -->
+          <div class="dna-hero-card">
+            <div class="dna-hero-main-row">
+              <div class="dna-hero-score-box">
+                <span class="dna-score-label">MOVEMENT DNA SCORE</span>
+                <div class="dna-score-display">
+                  <span class="dna-score-number" id="dnaOverallScore">--</span>
+                  <span class="dna-score-max">/ 100</span>
+                </div>
+                <div class="dna-trend-row">
+                  <span class="dna-trend-pill trend-improving" id="dnaTrendBadge"><i class="fa-solid fa-arrow-trend-up"></i> IMPROVING</span>
+                  <span class="dna-trend-delta" id="dnaTrendDelta">+0.0 pts (+0.0%)</span>
+                </div>
+              </div>
+
+              <div class="dna-hero-key-metrics">
+                <div class="dna-trait-col">
+                  <span class="dna-trait-tag"><i class="fa-solid fa-crown" style="color: #fbbf24;"></i> STRONGEST TRAIT</span>
+                  <h4 class="dna-trait-val highlight-green" id="dnaStrongestTrait">--</h4>
+                  <span class="dna-trait-score" id="dnaStrongestScore">-- / 100</span>
+                </div>
+
+                <div class="dna-trait-col">
+                  <span class="dna-trait-tag"><i class="fa-solid fa-crosshairs" style="color: #ef4444;"></i> NEEDS ATTENTION</span>
+                  <h4 class="dna-trait-val highlight-red" id="dnaPrimaryLimiter">--</h4>
+                  <span class="dna-trait-score" id="dnaLimiterScore">-- / 100</span>
+                </div>
+
+                <div class="dna-trait-col">
+                  <span class="dna-trait-tag"><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-cyan);"></i> DATA HISTORY</span>
+                  <h4 class="dna-trait-val" id="dnaSessionsCount" style="font-size: 1.1rem;">-- Sessions</h4>
+                  <span class="dna-conf-pill conf-high" id="dnaConfidencePill" style="margin-top: 4px; display: inline-flex;"><i class="fa-solid fa-shield-halved"></i> HIGH CONFIDENCE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Compact 5-Dimension Movement Profile -->
+          <div class="dna-profile-card">
+            <div class="dna-section-header" style="margin-bottom: 14px;">
+              <h3><i class="fa-solid fa-cubes-stacked" style="color: var(--accent-cyan);"></i> YOUR MOVEMENT PROFILE</h3>
+            </div>
+            <div class="dna-dimension-grid" id="dnaDimensionGrid">
+              <!-- Dynamically populated 5 compact dimension rows -->
+            </div>
+          </div>
+
+          <!-- Action Bar: Primary CTA & Details Toggle -->
+          <div class="section-action-bar">
+            <button id="dnaGenerateBtn" class="btn btn-primary btn-lg" onclick="generateMovementDNAWorkout()">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Adaptive Workout
+            </button>
+            <button type="button" id="dnaDetailsToggle" class="section-details-toggle-btn" onclick="toggleDNADetails()" aria-expanded="false">
+              <span id="dnaToggleText">View Full Analysis & Visualizations</span> <i id="dnaToggleIcon" class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <!-- Progressive Disclosure Container (Secondary Details & Charts) -->
+          <div id="dnaDetailsContent" class="section-details-content" style="display: none;">
+            <!-- Radar Canvas Card -->
+            <div class="dna-radar-card">
+              <div class="dna-card-header">
+                <div class="header-left">
+                  <i class="fa-solid fa-chart-pie" style="color: var(--accent-cyan);"></i>
+                  <h4>5-AXIS MOVEMENT DNA RADAR</h4>
+                </div>
+                <div class="radar-legend">
+                  <span class="legend-item"><span class="legend-dot dot-cyan"></span> Recent Profile</span>
+                  <span class="legend-item"><span class="legend-dot dot-amber"></span> Baseline</span>
+                </div>
+              </div>
+              <div class="dna-radar-canvas-wrap">
+                <canvas id="dnaRadarCanvas" width="340" height="340"></canvas>
+              </div>
+            </div>
+
+            <!-- Multi-Metric Evolution Timeline Spline Canvas -->
+            <div class="dna-timeline-card">
+              <div class="dna-timeline-header">
+                <div class="timeline-header-titles">
+                  <i class="fa-solid fa-chart-line" style="color: var(--accent-cyan);"></i>
+                  <h4>MOVEMENT TIMELINE PROGRESSION</h4>
+                </div>
+                <div class="dna-timeline-filters" id="dnaTimelineFilters">
+                  <button class="dna-filter-btn active" data-filter="all" onclick="setDNATimelineFilter('all')">All</button>
+                  <button class="dna-filter-btn" data-filter="overall" onclick="setDNATimelineFilter('overall')">Overall</button>
+                  <button class="dna-filter-btn" data-filter="range_of_motion" onclick="setDNATimelineFilter('range_of_motion')">ROM</button>
+                  <button class="dna-filter-btn" data-filter="movement_stability" onclick="setDNATimelineFilter('movement_stability')">Stability</button>
+                  <button class="dna-filter-btn" data-filter="tempo_control" onclick="setDNATimelineFilter('tempo_control')">Tempo</button>
+                  <button class="dna-filter-btn" data-filter="repetition_consistency" onclick="setDNATimelineFilter('repetition_consistency')">Consistency</button>
+                  <button class="dna-filter-btn" data-filter="bilateral_symmetry" onclick="setDNATimelineFilter('bilateral_symmetry')">Symmetry</button>
+                </div>
+              </div>
+              <div class="dna-timeline-canvas-wrap">
+                <canvas id="dnaTimelineCanvas" width="720" height="260"></canvas>
+              </div>
+            </div>
+
+            <!-- AI Movement Limiter & "Why This Matters" Card -->
+            <div class="dna-limiter-card" id="dnaLimiterCard">
+              <!-- Dynamically populated limiter insight -->
+            </div>
+
+            <!-- Explainable AI Movement Report -->
+            <div class="dna-report-card">
+              <div class="dna-card-header">
+                <i class="fa-solid fa-file-waveform" style="color: var(--accent-lime);"></i>
+                <h4>FITQUEST AI MOVEMENT REPORT</h4>
+              </div>
+              <div class="dna-report-grid" id="dnaReportGrid">
+                <!-- Dynamically populated 5 structured report items -->
+              </div>
+            </div>
+
+            <div class="dna-telemetry-box">
+              <span class="dna-velocity-text" id="dnaVelocityText">Velocity: +0.00 pts/session</span>
+              <p class="dna-confidence-reason" id="dnaConfidenceReason" style="margin: 0;">Decoded from longitudinal kinematic telemetry.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+
+      <!-- VIEW: ADAPTIVE AI TRAINING ENGINE (PHASE 3) -->
+      <section id="adaptiveTrainingView" class="view-panel">
+        <div class="adaptive-container" id="adaptiveContainer">
+          
+          <!-- Hero Section -->
+          <div class="adaptive-top-bar">
+            <div>
+              <div class="adaptive-badge"><i class="fa-solid fa-brain"></i> ADAPTIVE AI</div>
+              <h2 style="margin-top: 6px; font-size: 2.1rem; font-weight: 800; font-family: 'Outfit', sans-serif;">
+                Your Workout, Adapted to You
+              </h2>
+              <p class="adaptive-subtitle">FitQuest uses your workout history and movement data to adjust future training.</p>
+            </div>
+            <div class="adaptive-status-badge-box">
+              <div class="adapt-conf-pill conf-high" id="adaptConfidencePill">
+                <i class="fa-solid fa-shield-halved" style="color: var(--accent-lime);"></i> HIGH CONFIDENCE
+              </div>
+              <span class="adapt-sessions-counter" id="adaptSessionsCount">-- Sessions Analyzed</span>
+            </div>
+          </div>
+
+          <!-- Adaptive Limiters & Focus Hero Card -->
+          <div class="adaptive-hero-card">
+            <div class="adapt-hero-col">
+              <span class="adapt-col-tag"><i class="fa-solid fa-crosshairs" style="color: var(--accent-cyan);"></i> PRIMARY FOCUS</span>
+              <h3 class="adapt-focus-title" id="adaptPrimaryFocus">MOVEMENT STABILITY</h3>
+              <p class="adapt-focus-desc">Joint stability and core control during active repetitions.</p>
+            </div>
+
+            <div class="adapt-hero-divider"></div>
+
+            <div class="adapt-hero-col">
+              <span class="adapt-col-tag"><i class="fa-solid fa-stopwatch" style="color: var(--accent-lime);"></i> SECONDARY FOCUS</span>
+              <h3 class="adapt-focus-title" id="adaptSecondaryFocus">TEMPO CONTROL</h3>
+              <p class="adapt-focus-desc">Pacing regularity and smooth eccentric control.</p>
+            </div>
+
+            <div class="adapt-hero-divider"></div>
+
+            <div class="adapt-hero-col">
+              <span class="adapt-col-tag"><i class="fa-solid fa-circle-check" style="color: #818cf8;"></i> CONFIDENCE BASIS</span>
+              <p class="adapt-confidence-text" id="adaptConfidenceReason">Derived from your recent movement history.</p>
+            </div>
+          </div>
+
+          <!-- Biomechanical Dimension Status Meters -->
+          <div class="adaptive-profile-card">
+            <div class="adaptive-section-header" style="margin-bottom: 14px;">
+              <h3><i class="fa-solid fa-cubes-stacked" style="color: var(--accent-cyan);"></i> YOUR MOVEMENT METRICS</h3>
+            </div>
+            <div class="adaptive-dimension-grid" id="adaptiveDimensionGrid">
+              <!-- Dynamically populated 5 dimension cards -->
+            </div>
+          </div>
+
+          <!-- AI Movement Intelligence Insights Grid -->
+          <div class="adaptive-insights-row">
+            <div class="adaptive-insight-card">
+              <div class="adapt-card-header">
+                <i class="fa-solid fa-dna" style="color: var(--accent-cyan);"></i>
+                <h4>YOUR MOVEMENT STATUS</h4>
+              </div>
+              <p class="adapt-card-body" id="adaptInsightBody">
+                Observing movement patterns and stability across your workout sessions...
+              </p>
+            </div>
+
+            <div class="adaptive-insight-card highlight-cyan">
+              <div class="adapt-card-header">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-lime);"></i>
+                <h4>ADAPTIVE TRAINING PLAN</h4>
+              </div>
+              <p class="adapt-card-body" id="adaptResponseBody">
+                Synthesizing weakness-targeted exercises with customized pacing cues.
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Bar: Generate Adaptive Workout -->
+          <div class="adaptive-action-hero">
+            <div class="action-hero-text">
+              <h4>Ready for your adaptive workout?</h4>
+              <p>FitQuest will generate a personalized workout calibrated to your movement profile.</p>
+            </div>
+            <button id="generateAdaptiveBtn" class="btn btn-primary btn-xl" onclick="generateAdaptiveWorkout()" style="padding: 14px 28px; font-size: 1.05rem; letter-spacing: 0.06em; white-space: nowrap;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> GENERATE ADAPTIVE WORKOUT
+            </button>
+          </div>
+
+          <!-- Generated Adaptive Plan Container -->
+          <div id="adaptivePlanContainer">
+            <!-- Dynamically populated generated adaptive workout -->
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW: MOVEMENT EVOLUTION DASHBOARD (PHASE 2) -->
+      <section id="evolutionView" class="view-panel">
+        <div class="evolution-container">
+          
+          <!-- Header and Exercise Selector -->
+          <div class="evolution-top-bar">
+            <div>
+              <div class="evo-tag"><i class="fa-solid fa-dna"></i> EVOLUTION</div>
+              <h2 id="evoExerciseTitle" style="margin-top: 4px; font-size: 2.1rem; font-weight: 800;">Your Progress Over Time</h2>
+              <p class="evo-subtitle">Track how your movement quality and consistency improve over workout sessions.</p>
+            </div>
+            <div class="evo-controls">
+              <label for="evolutionExerciseSelect" class="evo-select-label">SELECT EXERCISE</label>
+              <div class="evo-select-wrapper">
+                <select id="evolutionExerciseSelect" class="evo-select">
+                  <option value="2">Squat</option>
+                </select>
+                <i class="fa-solid fa-chevron-down evo-select-icon"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overall Quality Score Hero Card -->
+          <div class="evo-hero-card">
+            <div class="evo-hero-left">
+              <div class="evo-hero-label"><i class="fa-solid fa-bolt" style="color: var(--accent-cyan);"></i> OVERALL MOVEMENT QUALITY</div>
+              <div class="evo-score-row">
+                <span class="evo-big-score" id="evoCurrentQualityScore">--</span>
+                <span class="evo-score-max">/ 100</span>
+                <div class="evo-change-pill pill-neutral" id="evoQualityChangePill">
+                  <span>Calculating...</span>
+                </div>
+              </div>
+              <div class="evo-sessions-badge" id="evoSessionsCount">-- Sessions Analyzed</div>
+              <p class="evo-hero-desc" id="evoAIInsightText">
+                Longitudinal movement quality evaluating range of motion, stability, tempo pacing, rep consistency, and symmetry.
+              </p>
+            </div>
+          </div>
+
+          <!-- Biomechanical Metric Trend Cards Grid -->
+          <div class="evo-metrics-card">
+            <div class="evo-section-header" style="margin-bottom: 14px;">
+              <h3><i class="fa-solid fa-cubes-stacked" style="color: var(--accent-lime);"></i> KEY PROGRESS INDICATORS</h3>
+            </div>
+            <div class="evo-metric-grid" id="evolutionMetricCardsGrid">
+              <!-- Dynamically populated ROM, Stability, Tempo, Consistency, Symmetry cards -->
+            </div>
+          </div>
+
+          <!-- Actionable Recommendations Card -->
+          <div class="evo-insight-card" style="margin-bottom: 8px;">
+            <div class="evo-insight-header">
+              <i class="fa-solid fa-bullseye" style="color: var(--accent-lime);"></i>
+              <h4>ACTIONABLE RECOMMENDATIONS</h4>
+            </div>
+            <div class="evo-recs-list" id="evoRecommendationsList">
+              <!-- Dynamically populated deterministic recommendations -->
+            </div>
+          </div>
+
+          <!-- Action Bar: Details Toggle -->
+          <div class="section-action-bar" style="justify-content: flex-end;">
+            <button type="button" id="evolutionDetailsToggle" class="section-details-toggle-btn" onclick="toggleEvolutionDetails()" aria-expanded="false">
+              <span id="evoToggleText">View Full History & Visualizations</span> <i id="evoToggleIcon" class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <!-- Progressive Disclosure Container (Radar Fingerprint & History Trajectory Canvas) -->
+          <div id="evolutionDetailsContent" class="section-details-content" style="display: none;">
+            <div class="evo-radar-card">
+              <div class="evo-radar-header">
+                <span class="evo-radar-title"><i class="fa-solid fa-fingerprint" style="color: var(--accent-cyan);"></i> MOVEMENT FINGERPRINT COMPARISON</span>
+                <div class="evo-radar-legend">
+                  <span class="legend-item"><span class="legend-dot baseline"></span> Baseline</span>
+                  <span class="legend-item"><span class="legend-dot current"></span> Current</span>
+                </div>
+              </div>
+              <div class="evo-radar-canvas-box">
+                <canvas id="evolutionRadarCanvas" width="320" height="320"></canvas>
+              </div>
+            </div>
+
+            <!-- Longitudinal Quality Trajectory Spline Chart -->
+            <div class="evo-chart-card">
+              <div class="evo-card-title-row">
+                <h3><i class="fa-solid fa-chart-line" style="color: var(--accent-cyan);"></i> MOVEMENT QUALITY TRAJECTORY</h3>
+                <span class="evo-chart-tag">Multi-Session Score (0 - 100)</span>
+              </div>
+              <div class="evo-canvas-container">
+                <canvas id="evolutionHistoryCanvas" width="480" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW: LEADERBOARD -->
+      <section id="leaderboardView" class="view-panel">
+        <div class="leaderboard-container">
+          <!-- Page Header -->
+          <div class="leaderboard-header">
+            <div class="lb-header-titles">
+              <h2><span class="header-trophy-icon">🏆</span> LEADERBOARD</h2>
+              <p class="lb-header-subtitle">Compete. Stay consistent. Keep evolving.</p>
+            </div>
+            <!-- Period Mode Switcher -->
+            <div class="leaderboard-period-pills" role="tablist" aria-label="Leaderboard Period">
+              <button class="leaderboard-period-btn active" data-period="weekly" id="lbPeriodWeekly">WEEKLY</button>
+              <button class="leaderboard-period-btn" data-period="monthly" id="lbPeriodMonthly">MONTHLY</button>
+              <button class="leaderboard-period-btn" data-period="all_time" id="lbPeriodAllTime">ALL-TIME</button>
+            </div>
+          </div>
+
+          <!-- Loading Skeleton -->
+          <div id="leaderboardLoadingSkeleton" class="leaderboard-skeleton" style="display: none;">
+            <div class="skeleton-card skeleton-standing-card"></div>
+            <div class="skeleton-card skeleton-list-item"></div>
+            <div class="skeleton-card skeleton-list-item"></div>
+            <div class="skeleton-card skeleton-list-item"></div>
+          </div>
+
+          <!-- Error State -->
+          <div id="leaderboardErrorState" class="leaderboard-error-state" style="display: none;">
+            <i class="fa-solid fa-triangle-exclamation error-icon"></i>
+            <h3>Unable to load Leaderboard</h3>
+            <p id="leaderboardErrorMessage">Something went wrong while connecting to the leaderboard server.</p>
+            <button class="btn btn-primary" onclick="loadLeaderboardView()"><i class="fa-solid fa-rotate-right"></i> Retry</button>
+          </div>
+
+          <!-- Main Content Area -->
+          <div id="leaderboardContentArea" class="leaderboard-content-area">
+            <!-- User Standing Card -->
+            <div id="userStandingCard" class="user-standing-card">
+              <div class="standing-top-row">
+                <div class="standing-label-group">
+                  <span class="standing-eyebrow">YOUR STANDING</span>
+                  <div class="standing-athlete-row">
+                    <span id="myStandingRank" class="standing-rank-badge">#--</span>
+                    <span id="myStandingName" class="standing-athlete-name">Athlete</span>
+                  </div>
+                </div>
+                <div class="standing-score-group">
+                  <span id="myStandingScore" class="standing-fitscore">-- FitScore</span>
+                  <span id="myStandingStreak" class="standing-streak">🔥 -- day streak</span>
+                </div>
+              </div>
+
+              <!-- Movement & Points to Next Rank -->
+              <div class="standing-meta-row">
+                <span id="myStandingRankChange" class="standing-movement-pill movement-up" style="display: none;"></span>
+                <span id="myStandingPointsToNext" class="standing-points-pill" style="display: none;"></span>
+              </div>
+
+              <!-- Optional Contextual Message -->
+              <div id="myStandingMessage" class="standing-message-banner" style="display: none;"></div>
+            </div>
+
+            <!-- Single Athlete Community Banner (shown if user is the only one in leaderboard) -->
+            <div id="leaderboardSingleAthleteNotice" class="lb-single-athlete-banner" style="display: none;">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Keep training — more athletes will appear as the FitQuest community grows.</span>
+            </div>
+
+            <!-- Leaderboard List Section -->
+            <div class="leaderboard-list-section">
+              <div class="lb-section-title">
+                <h3>TOP ATHLETES</h3>
+              </div>
+              <div id="leaderboardListContainer" class="leaderboard-list-container">
+                <!-- Dynamically populated rows -->
+              </div>
+              <!-- Empty State -->
+              <div id="leaderboardEmptyState" class="leaderboard-empty-state" style="display: none;">
+                <div class="empty-icon-wrap">
+                  <i class="fa-solid fa-ranking-star"></i>
+                </div>
+                <h3>No Rankings Yet</h3>
+                <p id="leaderboardEmptyMessage">No workout activity recorded yet for this period. Be the first to train and claim the #1 spot!</p>
+                <button class="btn btn-primary" onclick="switchTab('workoutView')">
+                  <i class="fa-solid fa-dumbbell"></i> Start a Workout
+                </button>
+              </div>
+            </div>
+
+            <!-- How FitQuest Score Works Section -->
+            <div class="how-fitquest-score-works-card">
+              <div class="how-score-header">
+                <h3><i class="fa-solid fa-circle-info"></i> How FitQuest Score Works</h3>
+                <p>Your score rewards balanced progress — not just doing more reps.</p>
+              </div>
+              <div class="score-components-grid">
+                <div class="score-component-pill">
+                  <span class="comp-icon">🏋️</span>
+                  <div class="comp-info">
+                    <span class="comp-title">Performance</span>
+                    <span class="comp-weight">30%</span>
+                  </div>
+                  <span class="comp-desc">Completed sessions, reps &amp; duration with anti-farming caps</span>
+                </div>
+                <div class="score-component-pill">
+                  <span class="comp-icon">🔥</span>
+                  <div class="comp-info">
+                    <span class="comp-title">Consistency</span>
+                    <span class="comp-weight">25%</span>
+                  </div>
+                  <span class="comp-desc">Active workout days and consecutive streak</span>
+                </div>
+                <div class="score-component-pill">
+                  <span class="comp-icon">🎯</span>
+                  <div class="comp-info">
+                    <span class="comp-title">Form Quality</span>
+                    <span class="comp-weight">20%</span>
+                  </div>
+                  <span class="comp-desc">Real-time computer-vision movement accuracy</span>
+                </div>
+                <div class="score-component-pill">
+                  <span class="comp-icon">📈</span>
+                  <div class="comp-info">
+                    <span class="comp-title">Improvement</span>
+                    <span class="comp-weight">15%</span>
+                  </div>
+                  <span class="comp-desc">Measurable progression over previous training baseline</span>
+                </div>
+                <div class="score-component-pill">
+                  <span class="comp-icon">⚡</span>
+                  <div class="comp-info">
+                    <span class="comp-title">Training Readiness</span>
+                    <span class="comp-weight">10%</span>
+                  </div>
+                  <span class="comp-desc">Workload balancing and healthy recovery rest gaps</span>
+                </div>
+              </div>
+              <div class="how-score-footer">
+                <span>Keep training. Keep improving. Keep moving up.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: WORKOUT HISTORY -->
+      <section id="historyView" class="view-panel">
+        <div class="history-container">
+          <div class="section-header">
+            <h2>Workout History</h2>
+            <p>Review past workout telemetry sessions recorded in your profile.</p>
+          </div>
+
+          <div id="historyList" class="history-list">
+            <div class="loading-spinner">
+              <i class="fa-solid fa-circle-notch fa-spin"></i> Loading workout history from backend...
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: MY PROFILE VIEW -->
+      <section id="profileView" class="view-panel">
+        <div class="profile-container">
+          <div class="section-header">
+            <h2>Athlete Profile</h2>
+            <p>Manage account settings, fitness goals, experience level, and body metrics.</p>
+          </div>
+
+          <div class="profile-card">
+            <div class="profile-header-area">
+              <div class="profile-avatar-large" id="profAvatarInitial">A</div>
+              <div class="profile-user-info">
+                <h2 id="profName">Athlete Name</h2>
+                <span class="profile-email" id="profEmail">athlete@fitquest.ai</span>
+              </div>
+              <button class="btn btn-secondary" onclick="toggleEditProfileModal(true)">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+              </button>
+            </div>
+
+            <div class="profile-metrics-grid">
+              <div class="prof-metric-box">
+                <div class="prof-metric-lbl">Fitness Goal</div>
+                <div class="prof-metric-val highlight" id="profGoal">General Fitness</div>
+              </div>
+              <div class="prof-metric-box">
+                <div class="prof-metric-lbl">Experience Level</div>
+                <div class="prof-metric-val highlight" id="profExperience">Beginner</div>
+              </div>
+              <div class="prof-metric-box">
+                <div class="prof-metric-lbl">Age</div>
+                <div class="prof-metric-val" id="profAge">Not specified</div>
+              </div>
+              <div class="prof-metric-box">
+                <div class="prof-metric-lbl">Height</div>
+                <div class="prof-metric-val" id="profHeight">Not specified</div>
+              </div>
+              <div class="prof-metric-box">
+                <div class="prof-metric-lbl">Weight</div>
+                <div class="prof-metric-val" id="profWeight">Not specified</div>
+              </div>
+              <div class="prof-metric-box">
+                <div class="prof-metric-lbl">Gender</div>
+                <div class="prof-metric-val" id="profGender">Not specified</div>
+              </div>
+            </div>
+
+            <!-- BODY METRICS & BMI SECTION -->
+            <div class="prof-section-divider"></div>
+            <div class="prof-body-metrics-section" id="profBodyMetricsSection">
+              <div class="prof-section-title">
+                <h3><i class="fa-solid fa-weight-scale"></i> Body Metrics</h3>
+              </div>
+              <div class="prof-body-metrics-card" id="profBodyMetricsCard">
+                <div class="prof-body-metrics-row">
+                  <div class="prof-bm-stat">
+                    <span class="prof-bm-label">Weight</span>
+                    <span class="prof-bm-value" id="profBmWeight">-- kg</span>
+                  </div>
+                  <div class="prof-bm-stat">
+                    <span class="prof-bm-label">Height</span>
+                    <span class="prof-bm-value" id="profBmHeight">-- cm</span>
+                  </div>
+                  <div class="prof-bm-stat highlight">
+                    <span class="prof-bm-label">Body Mass Index (BMI)</span>
+                    <div class="prof-bm-val-group">
+                      <span class="prof-bm-value highlight-lime" id="profBmBmi">--</span>
+                      <span class="prof-bmi-badge" id="profBmCategory">--</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="prof-body-metrics-explanation" id="profBmExplanation">
+                  <i class="fa-solid fa-circle-info"></i>
+                  <span>Your BMI gives FitQuest additional body-metric context for your fitness journey.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- GAMIFICATION: STREAKS & ACTIVITY SECTION -->
+            <div class="prof-section-divider"></div>
+            <div class="prof-gamification-section">
+              <div class="prof-section-title">
+                <h3><i class="fa-solid fa-fire"></i> Workout Streak & Activity</h3>
+              </div>
+              <div id="profStreakStatsContainer" class="profile-metrics-grid"></div>
+              <div id="profCalendarContainer" class="calendar-wrapper-box" style="margin-top: 16px;"></div>
+            </div>
+
+            <!-- GAMIFICATION: ACHIEVEMENTS & BADGES SECTION -->
+            <div class="prof-section-divider"></div>
+            <div class="prof-gamification-section">
+              <div class="prof-section-title">
+                <h3><i class="fa-solid fa-trophy"></i> Achievements & Badges</h3>
+              </div>
+              <div id="profAchievementsGrid" class="achievements-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;"></div>
+            </div>
+
+            <!-- PROGRESS REPORTS SECTION -->
+            <div class="prof-section-divider"></div>
+            <div class="prof-reports-section" id="profReportsSection">
+              <div class="prof-section-title">
+                <h3><i class="fa-solid fa-file-waveform"></i> Your Progress Reports</h3>
+                <span class="prof-section-subtitle" style="display: block; font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">Downloadable progress reports tracking your consistency, form, recovery, and achievements over time.</span>
+              </div>
+              <div id="profReportsGrid" class="reports-grid" style="margin-top: 16px;"></div>
+            </div>
+
+            <!-- PRIVACY & LEADERBOARD VISIBILITY SECTION -->
+            <div class="prof-section-divider"></div>
+            <div class="prof-gamification-section" id="profLeaderboardPrivacySection">
+              <div class="prof-section-title">
+                <h3><i class="fa-solid fa-shield-halved"></i> Leaderboard Privacy</h3>
+                <span class="prof-section-subtitle" style="display: block; font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">Control your public visibility on the FitQuest community leaderboard.</span>
+              </div>
+              <div class="prof-privacy-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 20px; margin-top: 14px;">
+                <label class="lb-checkbox-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.95rem; font-weight: 500;">
+                  <input type="checkbox" id="profLeaderboardCheckbox" onchange="toggleLeaderboardPrivacy(this.checked)" checked>
+                  <span>Show me on the leaderboard</span>
+                </label>
+                <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 8px 0 0 26px; line-height: 1.4;">
+                  When enabled, other athletes can see your display name, FitScore, streak, and unlocked badges. Your private health metrics, body stats, and workout details are never shared.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- EDIT PROFILE MODAL OVERLAY -->
+  <div id="editProfileModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-pen"></i> Edit Fitness Profile</h3>
+        <button class="modal-close" onclick="toggleEditProfileModal(false)">&times;</button>
+      </div>
+      <form id="profileEditForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editName">Full Name</label>
+            <input type="text" id="editName" required>
+          </div>
+
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="editFitnessGoal">Fitness Goal</label>
+              <select id="editFitnessGoal">
+                <option value="General Fitness">General Fitness</option>
+                <option value="Weight Loss">Weight Loss</option>
+                <option value="Muscle Gain">Muscle Gain</option>
+                <option value="Strength">Strength</option>
+                <option value="Endurance">Endurance</option>
+                <option value="Flexibility">Flexibility</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="editExperienceLevel">Experience Level</label>
+              <select id="editExperienceLevel">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="editAge">Age (yrs)</label>
+              <input type="number" id="editAge" placeholder="e.g. 25">
+            </div>
+
+            <div class="form-group">
+              <label for="editHeight">Height (cm)</label>
+              <input type="number" id="editHeight" placeholder="e.g. 175">
+            </div>
+
+            <div class="form-group">
+              <label for="editWeight">Weight (kg)</label>
+              <input type="number" id="editWeight" placeholder="e.g. 70" step="0.1">
+            </div>
+
+            <div class="form-group">
+              <label for="editGender">Gender</label>
+              <select id="editGender">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Non-binary">Non-binary</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+            <label class="lb-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500;">
+              <input type="checkbox" id="editLeaderboardVisible" checked>
+              <span>Show me on the public leaderboard</span>
+            </label>
+            <span style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-top: 4px; margin-left: 24px;">
+              Uncheck to make your profile and scores private from community rankings.
+            </span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="toggleEditProfileModal(false)">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CREATE GOAL MODAL OVERLAY -->
+  <div id="createGoalModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card" style="max-width: 480px;">
+      <header class="modal-header">
+        <h3><i class="fa-solid fa-bullseye" style="color: var(--accent-lime);"></i> Set Personal Fitness Goal</h3>
+        <button class="modal-close-btn" onclick="closeCreateGoalModal()"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+
+      <form id="createGoalForm" onsubmit="handleCreateGoalSubmit(event)">
+        <div class="modal-body" style="padding: 10px 0;">
+          <div class="form-group">
+            <label class="form-label">Goal Type</label>
+            <select id="goalTypeSelect" class="form-control" onchange="handleGoalTypeChange()" required>
+              <option value="REPETITION">Total Repetitions (e.g. 100 Squats)</option>
+              <option value="FREQUENCY">Workout Frequency (e.g. 4 days / week)</option>
+              <option value="FORM_SCORE">Form Score Accuracy (e.g. 90% Avg Form)</option>
+              <option value="EXERCISE_PR">Exercise PR (e.g. 20 Push-ups in 1 set)</option>
+            </select>
+          </div>
+
+          <div id="goalExerciseGroup" class="form-group">
+            <label class="form-label">Select Exercise</label>
+            <select id="goalExerciseSelect" class="form-control">
+              <option value="">-- Any / All Exercises --</option>
+              <option value="2">Squat</option>
+              <option value="1">Bicep Curl</option>
+              <option value="3">Push-up</option>
+              <option value="4">Lunge</option>
+              <option value="5">Jumping Jack</option>
+              <option value="6">Plank</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="goalTargetLabel" class="form-label">Target Repetitions</label>
+            <input type="number" id="goalTargetInput" class="form-control" placeholder="e.g. 100" min="1" step="any" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Timeframe</label>
+            <select id="goalTimeframeSelect" class="form-control" required>
+              <option value="WEEKLY">Weekly (Resets every Monday)</option>
+              <option value="MONTHLY">Monthly (Resets 1st of month)</option>
+              <option value="ALL_TIME">All-Time Milestone</option>
+            </select>
+          </div>
+
+          <div id="goalErrorBox" class="auth-alert-box" style="display: none;"></div>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeCreateGoalModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Goal</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: STRUCTURED ROUTINE PREVIEW -->
+  <div id="structuredPlanModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card" style="max-width: 600px;">
+      <header class="modal-header">
+        <div>
+          <span id="planModalCategory" class="setup-badge">Full Body</span>
+          <h2 id="planModalTitle" style="font-size: 1.4rem; font-weight: 800; margin-top: 4px;">Full Body Workout</h2>
+        </div>
+        <button class="modal-close-btn" onclick="closeStructuredPlanModal()"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+
+      <div class="modal-body">
+        <p id="planModalDesc" style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.88rem;">Complete routine targeting major muscle groups with YOLO pose tracking.</p>
+        
+        <div style="font-weight: 700; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">Exercise Sequence</div>
+        <div id="planModalExerciseList" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeStructuredPlanModal()">Cancel</button>
+        <button type="button" id="startStructuredPlanBtn" class="btn btn-primary">
+          <i class="fa-solid fa-play"></i> Start Routine
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- MODAL: REST TIMER BETWEEN SETS -->
+  <div id="restTimerModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card" style="max-width: 440px; text-align: center;">
+      <div id="restModalHeaderBadge" style="font-size: 0.82rem; font-weight: 700; color: var(--accent-lime); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="fa-solid fa-circle-check"></i> <span id="restModalSetCompleteText">SET 1 COMPLETE</span>
+      </div>
+      <div id="restModalSubtext" style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 8px;">
+        Great work! Rest & recover before the next set.
+      </div>
+      <div id="restTimerDisplay" style="font-size: 3.5rem; font-weight: 800; color: var(--text-primary); font-family: monospace; margin: 6px 0;">00:45</div>
+      
+      <div style="background: var(--bg-surface-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin: 14px 0;">
+        <span style="font-size: 0.72rem; color: var(--text-muted); display: block; text-transform: uppercase; font-weight: 700;">Upcoming Next</span>
+        <span id="restNextExerciseLabel" style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">Push-ups — Set 2 (12 Reps)</span>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+        <button class="btn btn-secondary" onclick="addRestTime(15)"><i class="fa-solid fa-plus"></i> 15s Rest</button>
+        <button id="restSkipBtn" class="btn btn-primary" onclick="skipRestTimer()">
+          <i class="fa-solid fa-play"></i> <span id="restSkipBtnText">Start Next Set</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       FITQUEST GUIDE™ — FLOATING IN-APP HELP CHATBOT
+       ========================================================================== -->
+  <div id="fitquestGuideContainer" class="fitquest-guide-container" aria-label="FitQuest Guide">
+    <!-- Collapsed Floating Launcher Button -->
+    <button 
+      id="fitquestGuideLauncher" 
+      class="fitquest-guide-launcher" 
+      type="button"
+      title="Open FitQuest Guide™"
+      aria-haspopup="dialog"
+    >
+      <div class="fitquest-guide-launcher-icon">
+        <i class="fa-solid fa-circle-question"></i>
+      </div>
+      <span class="fitquest-guide-launcher-label">Guide</span>
+      <span class="fitquest-guide-launcher-badge">AI</span>
+    </button>
+
+    <!-- Floating Chat Panel -->
+    <section 
+      id="fitquestGuidePanel" 
+      class="fitquest-guide-panel fitquest-guide-hidden" 
+      role="dialog" 
+      aria-label="FitQuest Guide Help Assistant"
+      aria-hidden="true"
+    >
+      <!-- Panel Header -->
+      <header class="fitquest-guide-header">
+        <div class="fitquest-guide-brand">
+          <div class="fitquest-guide-avatar">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+          <div class="fitquest-guide-titles">
+            <h3 class="fitquest-guide-title">FitQuest Guide™</h3>
+            <span class="fitquest-guide-subtitle">
+              <span class="fitquest-guide-status-dot"></span> App Help & Navigation
+            </span>
+          </div>
+        </div>
+        <div class="fitquest-guide-controls">
+          <button id="fitquestGuideMinimizeBtn" class="fitquest-guide-ctrl-btn" type="button" title="Minimize Guide">
+            <i class="fa-solid fa-minus"></i>
+          </button>
+          <button id="fitquestGuideCloseBtn" class="fitquest-guide-ctrl-btn" type="button" title="Close Guide">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Panel Body / Messages -->
+      <div class="fitquest-guide-body">
+        <!-- Welcome banner -->
+        <div class="fitquest-guide-welcome-card">
+          <div class="fitquest-guide-welcome-text">
+            👋 Hi! I'm <strong>FitQuest Guide™</strong>. I can explain any feature on the platform and help you navigate around!
+          </div>
+          <div class="fitquest-guide-quick-label">Try asking:</div>
+          <div class="fitquest-guide-quick-grid">
+            <button type="button" class="fitquest-guide-chip" data-question="What can FitQuest do?">
+              What can FitQuest do?
+            </button>
+            <button type="button" class="fitquest-guide-chip" data-question="What is Movement DNA™?">
+              What is Movement DNA™?
+            </button>
+            <button type="button" class="fitquest-guide-chip" data-question="What is BODY SIM™?">
+              What is BODY SIM™?
+            </button>
+            <button type="button" class="fitquest-guide-chip" data-question="How do I start a workout?">
+              How do I start a workout?
+            </button>
+            <button type="button" class="fitquest-guide-chip" data-question="Where can I see my history?">
+              Where can I see my history?
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Message History -->
+        <div id="fitquestGuideMessages" class="fitquest-guide-messages"></div>
+
+        <!-- Typing Indicator -->
+        <div id="fitquestGuideTypingIndicator" class="fitquest-guide-typing fitquest-guide-hidden">
+          <span class="fitquest-guide-typing-dot"></span>
+          <span class="fitquest-guide-typing-dot"></span>
+          <span class="fitquest-guide-typing-dot"></span>
+          <span class="fitquest-guide-typing-text">Guide is thinking...</span>
+        </div>
+      </div>
+
+      <!-- Panel Footer / Input Form -->
+      <footer class="fitquest-guide-footer">
+        <form id="fitquestGuideForm" class="fitquest-guide-form">
+          <input 
+            type="text" 
+            id="fitquestGuideInput" 
+            class="fitquest-guide-input" 
+            placeholder="Ask about FitQuest features or navigation..." 
+            autocomplete="off" 
+            required
+          />
+          <button type="submit" id="fitquestGuideSendBtn" class="fitquest-guide-send-btn" title="Send message">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      </footer>
+    </section>
+  </div>
+
+  <!-- NUTRITION PREFERENCES MODAL -->
+  <div id="nutritionPreferencesModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card nutrition-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sliders"></i> Nutrition Preferences</h3>
+        <button class="modal-close" onclick="closeNutritionPreferencesModal()">&times;</button>
+      </div>
+      <form id="nutritionPreferencesForm" onsubmit="handleNutritionPreferencesSubmit(event)">
+        <div class="modal-body">
+          <div class="nutrition-pref-group">
+            <label class="nutrition-pref-label"><i class="fa-solid fa-leaf"></i> Diet Style</label>
+            <div class="nutrition-diet-selector" id="nutritionDietSelector">
+              <label class="nutrition-diet-option">
+                <input type="radio" name="dietType" value="Non-Vegetarian" checked />
+                <span>Non-Vegetarian</span>
+              </label>
+              <label class="nutrition-diet-option">
+                <input type="radio" name="dietType" value="Vegetarian" />
+                <span>Vegetarian</span>
+              </label>
+              <label class="nutrition-diet-option">
+                <input type="radio" name="dietType" value="Vegan" />
+                <span>Vegan</span>
+              </label>
+              <label class="nutrition-diet-option">
+                <input type="radio" name="dietType" value="Pescatarian" />
+                <span>Pescatarian</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="nutrition-pref-group">
+            <label class="nutrition-pref-label"><i class="fa-solid fa-shield-halved"></i> Allergies & Intolerances <small>(Strict Exclusions)</small></label>
+            <div class="nutrition-tag-selector" id="nutritionAllergiesSelector">
+              <button type="button" class="nutrition-select-tag" data-val="Nuts" onclick="toggleSelectionTag(this)">Nuts</button>
+              <button type="button" class="nutrition-select-tag" data-val="Dairy" onclick="toggleSelectionTag(this)">Dairy / Lactose</button>
+              <button type="button" class="nutrition-select-tag" data-val="Gluten" onclick="toggleSelectionTag(this)">Gluten / Wheat</button>
+              <button type="button" class="nutrition-select-tag" data-val="Soy" onclick="toggleSelectionTag(this)">Soy</button>
+              <button type="button" class="nutrition-select-tag" data-val="Eggs" onclick="toggleSelectionTag(this)">Eggs</button>
+              <button type="button" class="nutrition-select-tag" data-val="Shellfish" onclick="toggleSelectionTag(this)">Shellfish</button>
+              <button type="button" class="nutrition-select-tag" data-val="Peanuts" onclick="toggleSelectionTag(this)">Peanuts</button>
+            </div>
+            <div style="margin-top: 8px;">
+              <input type="text" id="customAllergyInput" class="nutrition-input" placeholder="Add other allergy (e.g. Sesame, Mustard)" />
+            </div>
+          </div>
+
+          <div class="nutrition-pref-group">
+            <label class="nutrition-pref-label"><i class="fa-solid fa-globe"></i> Preferred Cuisines</label>
+            <div class="nutrition-tag-selector" id="nutritionCuisinesSelector">
+              <button type="button" class="nutrition-select-tag selected" data-val="Indian" onclick="toggleSelectionTag(this)">Indian</button>
+              <button type="button" class="nutrition-select-tag selected" data-val="Mediterranean" onclick="toggleSelectionTag(this)">Mediterranean</button>
+              <button type="button" class="nutrition-select-tag" data-val="Asian" onclick="toggleSelectionTag(this)">Asian</button>
+              <button type="button" class="nutrition-select-tag" data-val="Continental" onclick="toggleSelectionTag(this)">Continental</button>
+              <button type="button" class="nutrition-select-tag" data-val="Mexican" onclick="toggleSelectionTag(this)">Mexican</button>
+            </div>
+          </div>
+
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="nutritionBudgetSelect">Budget Tier</label>
+              <select id="nutritionBudgetSelect" class="nutrition-input">
+                <option value="Low">Economical / Low</option>
+                <option value="Moderate" selected>Moderate</option>
+                <option value="Premium">Premium Whole Foods</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="nutritionMealsPerDaySelect">Meals Per Day</label>
+              <select id="nutritionMealsPerDaySelect" class="nutrition-input">
+                <option value="3">3 Meals (Breakfast, Lunch, Dinner)</option>
+                <option value="4" selected>4 Meals (Breakfast, Lunch, Snack, Dinner)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeNutritionPreferencesModal()">Cancel</button>
+          <button type="submit" id="saveNutritionPrefBtn" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i> Save & Recalculate
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOD ANALYZER MODAL -->
+  <div id="nutritionFoodAnalyzerModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card nutrition-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-camera"></i> AI Food & Meal Analyzer</h3>
+        <button class="modal-close" onclick="closeFoodAnalyzerModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="nutrition-analyzer-desc">Upload a food photo or enter a meal description to estimate calories, macros, and allergen warnings.</p>
+        
+        <!-- Image Upload Dropzone -->
+        <div class="nutrition-dropzone" id="nutritionDropzone" onclick="document.getElementById('foodPhotoFileInput').click()">
+          <input type="file" id="foodPhotoFileInput" accept="image/*" style="display: none;" onchange="handleFoodPhotoSelected(event)" />
+          <i class="fa-solid fa-cloud-arrow-up nutrition-dropzone-icon"></i>
+          <span id="nutritionDropzoneText">Click or drag & drop a food photo (JPEG/PNG)</span>
+          <img id="foodPhotoPreviewImg" class="food-preview-img" style="display: none;" alt="Food Preview" />
+        </div>
+
+        <!-- Sample Meals Quick Selector -->
+        <div class="nutrition-quick-samples">
+          <span>Or try sample:</span>
+          <button type="button" class="sample-btn" onclick="analyzeSampleFood('Grilled Salmon with Asparagus and Sweet Potato')">Salmon & Asparagus</button>
+          <button type="button" class="sample-btn" onclick="analyzeSampleFood('Paneer Tikka with Mint Chutney and Roti')">Paneer Tikka</button>
+          <button type="button" class="sample-btn" onclick="analyzeSampleFood('Greek Yogurt Berry Parfait with Chia Seeds')">Yogurt Parfait</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 12px;">
+          <label for="foodDescriptionInput">Meal Description <small>(optional details)</small></label>
+          <input type="text" id="foodDescriptionInput" class="nutrition-input" placeholder="e.g., 200g grilled chicken, 1 cup white rice, steamed broccoli" />
+        </div>
+
+        <button type="button" id="analyzeFoodBtn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 12px;" onclick="runFoodAnalysis()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Food
+        </button>
+
+        <!-- Analysis Results Box -->
+        <div id="foodAnalysisResultsBox" class="food-analysis-results" style="display: none;">
+          <div class="analysis-header-row">
+            <h4 id="analyzedFoodTitle">Identified Meal</h4>
+            <span class="analysis-provider-badge" id="analyzedProviderBadge">Gemini Vision AI</span>
+          </div>
+
+          <div class="analysis-macro-grid">
+            <div class="analysis-macro-item">
+              <span class="val" id="analyzedCalVal">0</span>
+              <span class="lbl">Calories (kcal)</span>
+            </div>
+            <div class="analysis-macro-item">
+              <span class="val" id="analyzedProteinVal">0g</span>
+              <span class="lbl">Protein</span>
+            </div>
+            <div class="analysis-macro-item">
+              <span class="val" id="analyzedCarbsVal">0g</span>
+              <span class="lbl">Carbs</span>
+            </div>
+            <div class="analysis-macro-item">
+              <span class="val" id="analyzedFatVal">0g</span>
+              <span class="lbl">Fat</span>
+            </div>
+          </div>
+
+          <div id="analyzedAllergensAlert" class="analyzed-allergens-box" style="display: none;"></div>
+          <div id="analyzedRecommendation" class="analyzed-rec-box"></div>
+
+          <button type="button" id="logAnalyzedMealBtn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 14px;" onclick="logAnalyzedMealToToday()">
+            <i class="fa-solid fa-plus"></i> Log This Meal to Today's Tracker
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORT PREVIEW MODAL OVERLAY -->
+  <div id="reportPreviewModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card report-preview-modal-card">
+      <div class="modal-header">
+        <h3 id="reportPreviewTitle"><i class="fa-solid fa-file-waveform"></i> Progress Report</h3>
+        <button class="modal-close" onclick="closeReportPreview()">&times;</button>
+      </div>
+      <div class="modal-body report-preview-body" id="reportPreviewContent"></div>
+      <div class="modal-footer report-preview-footer">
+        <button class="btn btn-secondary" onclick="closeReportPreview()">Close</button>
+        <button class="btn btn-primary" id="reportDownloadPdfBtn" onclick="downloadCurrentReportPdf()">
+          <i class="fa-solid fa-file-pdf"></i> Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js Library for Progress Analytics Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- FitQuest Centralized API & Environment Configuration -->
+  <script src="config.js"></script>
+
+  <script src="landing.js"></script>
+  <script src="auth.js"></script>
+  <script src="gamification.js"></script>
+  <script src="progress.js"></script>
+  <script src="goals.js"></script>
+  <script src="readiness.js"></script>
+  <script src="training_load.js"></script>
+  <script src="app.js"></script>
+  <script src="exercise_demo.js"></script>
+  <script src="movement_evolution.js"></script>
+  <script src="adaptive_training.js"></script>
+  <script src="movement_dna.js"></script>
+  <script src="movement_copilot.js"></script>
+  <script src="workout.js"></script>
+  <script src="nutrition.js"></script>
+  <script src="fitquest_guide.js"></script>
+  <script src="reports.js"></script>
+  <script src="leaderboard.js"></script>
+</body>
+</html>
