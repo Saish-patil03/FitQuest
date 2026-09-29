@@ -8,7 +8,10 @@ image = (
 
 app = modal.App("fitquest-backend")
 
-@app.function(image=image)
+@app.function(
+    image=image,
+    secrets=[modal.Secret.from_name("fitquest-secrets")]
+)
 @modal.asgi_app()
 def serve():
     from backend.main import app as web_app

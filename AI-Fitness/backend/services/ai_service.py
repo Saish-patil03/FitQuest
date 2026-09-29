@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 from backend.config import settings
-from assistant import AIFitnessAssistant, WorkoutSessionData, UserProfile
+from backend.assistant import AIFitnessAssistant, WorkoutSessionData, UserProfile
 
 class AIService:
     """
