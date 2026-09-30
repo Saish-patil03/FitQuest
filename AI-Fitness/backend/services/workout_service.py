@@ -118,7 +118,26 @@ class WorkoutService:
     # --- Exercise Catalogue Operations ---
     @staticmethod
     def get_exercises(db: Session) -> List[ExerciseModel]:
-        return db.query(ExerciseModel).all()
+        try:
+            exercises = db.query(ExerciseModel).all()
+            if exercises:
+                return exercises
+        except Exception as e:
+            logger.warning(f"Database query failed in get_exercises, using fallback catalogue: {e}")
+
+        from backend.database import DEFAULT_EXERCISES
+        fallback_list = []
+        for key, name in DEFAULT_EXERCISES:
+            fallback_list.append(
+                ExerciseModel(
+                    id=int(key),
+                    name=name,
+                    description=f"{name} tracker with AI pose estimation",
+                    muscle_group="Full Body",
+                    difficulty="Beginner"
+                )
+            )
+        return fallback_list
 
     @staticmethod
     def get_exercise(db: Session, exercise_id: int) -> Optional[ExerciseModel]:

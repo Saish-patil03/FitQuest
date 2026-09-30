@@ -180,11 +180,32 @@ def execute_with_retry(
 def init_db(max_retries: int = 5, initial_delay: float = 2.0, backoff_factor: float = 2.0, sleep_fn=time.sleep):
     """
     Creates database tables and triggers idempotent seed routines with bounded exponential backoff retry.
+    Falls back gracefully to local SQLite database if primary PostgreSQL is unreachable.
     """
+    global engine, SessionLocal, is_sqlite
+
     def _do_init():
+        global engine, is_sqlite
         # Test basic connectivity first
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+        except Exception as exc:
+            if not is_sqlite:
+                msg = f"Primary PostgreSQL connection failed ({exc}). Falling back to local SQLite database."
+                logger.warning(msg)
+                print(f"[WARN] {msg}")
+                is_sqlite = True
+                engine = create_engine(
+                    "sqlite:///./ai_fitness.db",
+                    connect_args={"check_same_thread": False},
+                    echo=False
+                )
+                SessionLocal.configure(bind=engine)
+                with engine.connect() as conn:
+                    conn.execute(text("SELECT 1"))
+            else:
+                raise
 
         # Import all models to ensure they are registered with Base metadata
         import backend.models  # noqa: F401
@@ -198,16 +219,30 @@ def init_db(max_retries: int = 5, initial_delay: float = 2.0, backoff_factor: fl
         finally:
             db.close()
 
-    if max_retries > 1:
-        execute_with_retry(
-            _do_init,
-            max_retries=max_retries,
-            initial_delay=initial_delay,
-            backoff_factor=backoff_factor,
-            sleep_fn=sleep_fn
-        )
-    else:
-        _do_init()
+    try:
+        if max_retries > 1:
+            execute_with_retry(
+                _do_init,
+                max_retries=max_retries,
+                initial_delay=initial_delay,
+                backoff_factor=backoff_factor,
+                sleep_fn=sleep_fn
+            )
+        else:
+            _do_init()
+    except Exception as exc:
+        if not is_sqlite:
+            print(f"[WARN] Retries exhausted for PostgreSQL. Switching to SQLite.")
+            is_sqlite = True
+            engine = create_engine(
+                "sqlite:///./ai_fitness.db",
+                connect_args={"check_same_thread": False},
+                echo=False
+            )
+            SessionLocal.configure(bind=engine)
+            _do_init()
+        else:
+            raise
 
 def init_db_with_retry(max_retries: int = 5, initial_delay: float = 2.0, backoff_factor: float = 2.0, sleep_fn=time.sleep):
     """

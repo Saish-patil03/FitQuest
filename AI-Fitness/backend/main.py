@@ -1,6 +1,7 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -30,7 +31,10 @@ from backend.api.leaderboard import router as leaderboard_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize DB tables and seed exercises on startup with bounded retry
-    init_db_with_retry()
+    try:
+        init_db_with_retry()
+    except Exception as exc:
+        print(f"[WARN] Database initialization during startup encountered an issue: {exc}")
     yield
 
 app = FastAPI(
@@ -41,20 +45,43 @@ app = FastAPI(
 )
 
 # Configure CORS for development & frontend clients
+explicit_cors_origins = [
+    "https://fitquest-frontend-one.vercel.app",
+    "https://frontend-nine-rho-41.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+]
+if hasattr(settings, "CORS_ORIGINS") and settings.CORS_ORIGINS:
+    for origin in settings.CORS_ORIGINS:
+        if origin not in explicit_cors_origins:
+            explicit_cors_origins.append(origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://fitquest-frontend-one.vercel.app",
-        "http://localhost:5500",
-        "http://127.0.0.1:5500",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-    ],
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origins=explicit_cors_origins,
+    allow_origin_regex=r"^https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+# Global exception handler ensures CORS headers are returned even on unhandled errors
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"[ERROR] Unhandled exception on {request.method} {request.url.path}: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error", "error": str(exc)},
+    )
 # Health check endpoint
 @app.get("/health")
 def health_check():

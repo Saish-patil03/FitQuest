@@ -15,6 +15,8 @@ DEFAULT_CORS_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:8080",
+    "https://fitquest-frontend-one.vercel.app",
+    "https://frontend-nine-rho-41.vercel.app",
     "https://ai-fitness-i18hx47gt-ai-fitness2.vercel.app",
     "https://ai-fitness2.vercel.app",
     "https://ai-fitness-ai-fitness2.vercel.app",

@@ -1,9 +1,22 @@
+import sys
+from pathlib import Path
 import modal
+
+ROOT_DIR = Path(__file__).resolve().parent
+REQUIREMENTS_PATH = ROOT_DIR / "requirements.txt"
 
 image = (
     modal.Image.debian_slim(python_version="3.12")
-    .pip_install_from_requirements("requirements.txt")
-    .add_local_dir("backend", remote_path="/root/backend")
+    .apt_install("libgl1", "libglib2.0-0")
+    .pip_install_from_requirements(str(REQUIREMENTS_PATH))
+    .add_local_dir(str(ROOT_DIR / "backend"), remote_path="/root/backend")
+    .add_local_dir(str(ROOT_DIR / "assistant"), remote_path="/root/assistant")
+    .add_local_dir(str(ROOT_DIR / "assistant"), remote_path="/root/backend/assistant")
+    .add_local_dir(str(ROOT_DIR / "exercises"), remote_path="/root/exercises")
+    .add_local_dir(str(ROOT_DIR / "utils"), remote_path="/root/utils")
+    .add_local_dir(str(ROOT_DIR / "models"), remote_path="/root/models")
+    .add_local_file(str(ROOT_DIR / "pose.py"), remote_path="/root/pose.py")
+    .add_local_file(str(ROOT_DIR / "exercise.py"), remote_path="/root/exercise.py")
 )
 
 app = modal.App("fitquest-backend")
@@ -14,5 +27,10 @@ app = modal.App("fitquest-backend")
 )
 @modal.asgi_app()
 def serve():
+    import sys
+    root_path = "/root"
+    if root_path not in sys.path:
+        sys.path.insert(0, root_path)
+
     from backend.main import app as web_app
     return web_app
