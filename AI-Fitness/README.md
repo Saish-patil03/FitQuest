@@ -2,6 +2,16 @@
 
 A modular, real-time exercise tracking and posture analysis system built using Python, OpenCV, and Ultralytics YOLO Pose.
 
+---
+
+### 🌐 Live Deployment Links
+- **Web App (Vercel):** [https://fitquest-frontend-one.vercel.app](https://fitquest-frontend-one.vercel.app)
+- **FastAPI Backend (Modal):** [https://saish-patil03--fitquest-backend-serve.modal.run](https://saish-patil03--fitquest-backend-serve.modal.run)
+- **Interactive Swagger Docs:** [https://saish-patil03--fitquest-backend-serve.modal.run/docs](https://saish-patil03--fitquest-backend-serve.modal.run/docs)
+- **Modal ML Engine:** [https://nihartambe20--fitquest-ml-fastapi-app.modal.run](https://nihartambe20--fitquest-ml-fastapi-app.modal.run)
+
+---
+
 ## 🚀 Supported Exercises (20 Total)
 
 1. **Bicep Curl** (`exercises/bicep_curl.py`)
