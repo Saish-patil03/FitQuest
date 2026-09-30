@@ -22,10 +22,10 @@ class SquatTracker(BaseExerciseTracker):
     """
     def __init__(
         self,
-        standing_angle: float = 150.0,
-        squat_angle: float = 110.0,
-        debounce_sec: float = 0.4,
-        min_displacement_px: float = 35.0,
+        standing_angle: float = 145.0,
+        squat_angle: float = 125.0,
+        debounce_sec: float = 0.35,
+        min_displacement_px: float = 15.0,
     ):
         super().__init__("Squat")
         self.standing_angle = standing_angle
@@ -36,9 +36,9 @@ class SquatTracker(BaseExerciseTracker):
         self.state = "STANDING"
         self.last_rep_time = 0.0
 
-        self.left_knee_smoother = AngleSmoother(alpha=0.35)
-        self.right_knee_smoother = AngleSmoother(alpha=0.35)
-        self.torso_smoother = AngleSmoother(alpha=0.35)
+        self.left_knee_smoother = AngleSmoother(alpha=0.65)
+        self.right_knee_smoother = AngleSmoother(alpha=0.65)
+        self.torso_smoother = AngleSmoother(alpha=0.65)
 
         self.min_knee_angle_in_rep = 180.0
         self.displacement_tracker = MovementDisplacementTracker(

@@ -229,7 +229,12 @@ class CVLiveService:
         # 4. Optionally encode annotated frame with skeleton HUD overlay back to base64 JPEG
         annotated_b64 = None
         if include_annotated_image and annotated_frame is not None:
-            _, buffer = cv2.imencode('.jpg', annotated_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+            # Downsample annotated overlay if wide to keep network transfer ultra-fast (<10 KB)
+            h, w = annotated_frame.shape[:2]
+            if w > 384:
+                scale = 384.0 / w
+                annotated_frame = cv2.resize(annotated_frame, (384, int(h * scale)), interpolation=cv2.INTER_LINEAR)
+            _, buffer = cv2.imencode('.jpg', annotated_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 45])
             annotated_b64 = "data:image/jpeg;base64," + base64.b64encode(buffer).decode('utf-8')
 
         # 5. Return live telemetry payload

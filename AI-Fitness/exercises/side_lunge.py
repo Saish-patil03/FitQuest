@@ -35,7 +35,7 @@ class SideLungeTracker(BaseExerciseTracker):
         self.state = "STANDING"
         self.last_rep_time = 0.0
 
-        self.knee_smoother = AngleSmoother(alpha=0.35)
+        self.knee_smoother = AngleSmoother(alpha=0.65)
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_hip", "right_hip", "left_knee", "right_knee"]
         )

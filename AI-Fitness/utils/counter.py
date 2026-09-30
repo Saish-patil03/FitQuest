@@ -6,7 +6,7 @@ class TemporalStateValidator:
     Prevents single-frame noise spikes, temporary keypoint jitter, and camera distance shifts
     (e.g., user moving toward or away from the camera) from triggering false state transitions or false reps.
     """
-    def __init__(self, initial_state: str = "START", min_confirm_frames: int = 2, min_hold_sec: float = 0.12):
+    def __init__(self, initial_state: str = "START", min_confirm_frames: int = 1, min_hold_sec: float = 0.08):
         self.current_state = initial_state
         self.pending_state = None
         self.pending_frame_count = 0
@@ -61,7 +61,7 @@ class TemporalStateValidator:
 
         return self.current_state, False
 
-    def can_commit_rep(self, min_rep_duration_sec: float = 0.45, debounce_sec: float = 0.4) -> bool:
+    def can_commit_rep(self, min_rep_duration_sec: float = 0.35, debounce_sec: float = 0.35) -> bool:
         """
         Validates that a rep cycle fulfilled the minimum temporal physical movement duration.
         """

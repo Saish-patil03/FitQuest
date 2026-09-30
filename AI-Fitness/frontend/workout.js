@@ -1250,25 +1250,24 @@ function startFrameTransmission() {
 
   frameCount = 0;
   isProcessingFrame = false;
+  let lastInferenceTime = 0;
+  const MIN_FRAME_INTERVAL_MS = 50; // Dynamic ~15-20 FPS pipeline
 
   // Enable performance mode on demo avatar to lower canvas overhead during active workouts
   if (demoAvatarEngine && typeof demoAvatarEngine.setPerformanceMode === 'function') {
     demoAvatarEngine.setPerformanceMode(true);
   }
 
-  // 2. Optimized video processing loop with frame skipping (process every 2nd frame ~15 FPS)
+  // 2. High-speed adaptive frame transmission loop
   function processVideoLoop() {
     const hasStream = webcamStream && webcamStream.active;
     const hasVideo = video && !video.paused && !video.ended && (video.srcObject || video.src);
     if (!hasStream && !hasVideo) return;
 
-    frameCount++;
-
-    // Run inference only on even frames (cutting compute and network load in half)
-    if (frameCount % FRAME_SKIP_RATIO === 0) {
-      if (!isProcessingFrame && video && !video.paused && !video.ended && video.videoWidth) {
-        runYoloInference(video, canvas, ctx, overlay);
-      }
+    const now = performance.now();
+    if (!isProcessingFrame && (now - lastInferenceTime >= MIN_FRAME_INTERVAL_MS) && video && !video.paused && !video.ended && video.videoWidth) {
+      lastInferenceTime = now;
+      runYoloInference(video, canvas, ctx, overlay);
     }
 
     animationFrameId = requestAnimationFrame(processVideoLoop);
@@ -1322,8 +1321,9 @@ async function runYoloInference(video, canvas, ctx, overlay) {
   isProcessingFrame = true;
 
   try {
-    const targetW = 640;
-    const targetH = 480;
+    // High-performance 384x288 resolution: shrinks network payload by 75% and canvas toDataURL down to ~3ms
+    const targetW = 384;
+    const targetH = 288;
 
     // 3. Canvas size optimization: only resize if dimensions changed to eliminate GC pressure
     if (canvas.width !== targetW || canvas.height !== targetH) {
@@ -1336,7 +1336,7 @@ async function runYoloInference(video, canvas, ctx, overlay) {
     ctx.shadowColor = 'transparent';
     ctx.drawImage(video, 0, 0, targetW, targetH);
 
-    const base64Frame = canvas.toDataURL('image/jpeg', 0.55);
+    const base64Frame = canvas.toDataURL('image/jpeg', 0.42);
 
     const payload = {
       session_id: activeSessionId,

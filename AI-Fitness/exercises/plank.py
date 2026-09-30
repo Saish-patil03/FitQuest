@@ -25,7 +25,7 @@ class PlankTracker(BaseExerciseTracker):
         self.state = "HOLDING"
         self.total_hold_sec = 0
         self.last_increment_time = time.time()
-        self.body_line_smoother = AngleSmoother(alpha=0.35)
+        self.body_line_smoother = AngleSmoother(alpha=0.65)
 
     def process(self, keypoints):
         # Layer 1: Landmark Visibility

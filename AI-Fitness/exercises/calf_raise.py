@@ -36,7 +36,7 @@ class CalfRaiseTracker(BaseExerciseTracker):
         self.last_rep_time = 0.0
         self.baseline_leg_length = None
 
-        self.ankle_smoother = AngleSmoother(alpha=0.35)
+        self.ankle_smoother = AngleSmoother(alpha=0.65)
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_ankle", "right_ankle"]
         )

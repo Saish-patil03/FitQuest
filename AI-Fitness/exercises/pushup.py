@@ -37,9 +37,9 @@ class PushUpTracker(BaseExerciseTracker):
         self.state = "UP"
         self.last_rep_time = 0.0
 
-        self.left_elbow_smoother = AngleSmoother(alpha=0.35)
-        self.right_elbow_smoother = AngleSmoother(alpha=0.35)
-        self.body_line_smoother = AngleSmoother(alpha=0.35)
+        self.left_elbow_smoother = AngleSmoother(alpha=0.65)
+        self.right_elbow_smoother = AngleSmoother(alpha=0.65)
+        self.body_line_smoother = AngleSmoother(alpha=0.65)
 
         self.min_elbow_angle_in_rep = 180.0
         self.displacement_tracker = MovementDisplacementTracker(

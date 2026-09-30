@@ -23,8 +23,8 @@ class BicepCurlTracker(BaseExerciseTracker):
         self.state = "EXTENDED"
         self.last_rep_time = 0.0
 
-        self.left_elbow_smoother = AngleSmoother(alpha=0.35)
-        self.right_elbow_smoother = AngleSmoother(alpha=0.35)
+        self.left_elbow_smoother = AngleSmoother(alpha=0.65)
+        self.right_elbow_smoother = AngleSmoother(alpha=0.65)
         self.min_angle_in_rep = 180.0
 
     def process(self, keypoints):

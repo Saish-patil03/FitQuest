@@ -23,7 +23,10 @@ app = modal.App("fitquest-backend")
 
 @app.function(
     image=image,
-    secrets=[modal.Secret.from_name("fitquest-secrets")]
+    secrets=[modal.Secret.from_name("fitquest-secrets")],
+    cpu=2.0,
+    memory=2048,
+    scaledown_window=300
 )
 @modal.asgi_app()
 def serve():

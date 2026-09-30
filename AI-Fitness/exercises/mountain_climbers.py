@@ -37,8 +37,8 @@ class MountainClimbersTracker(BaseExerciseTracker):
         self.last_rep_time = 0.0
         self.last_active_leg = None  # Tracks "LEFT" vs "RIGHT"
 
-        self.left_hip_smoother = AngleSmoother(alpha=0.35)
-        self.right_hip_smoother = AngleSmoother(alpha=0.35)
+        self.left_hip_smoother = AngleSmoother(alpha=0.65)
+        self.right_hip_smoother = AngleSmoother(alpha=0.65)
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_knee", "right_knee"]
         )
