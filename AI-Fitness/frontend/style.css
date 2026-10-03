@@ -2690,6 +2690,8 @@ body {
   height: 100%;
   object-fit: contain;
   object-position: center;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .camera-overlay {
@@ -2701,6 +2703,8 @@ body {
   object-fit: contain;
   object-position: center;
   pointer-events: none;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .camera-placeholder {
