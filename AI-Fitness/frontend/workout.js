@@ -2135,7 +2135,16 @@ function drawMovementFingerprintRadar(canvas, data) {
  */
 function renderWorkoutHistoryCards(container, list) {
   if (!Array.isArray(list) || list.length === 0) {
-    container.innerHTML = `<div class="loading-spinner">No workout history recorded yet. Complete a workout session to see your stats here!</div>`;
+    container.innerHTML = `
+      <div class="empty-history-state" style="text-align: center; padding: 48px 20px; background: rgba(30, 41, 59, 0.4); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
+        <i class="fa-solid fa-dumbbell" style="font-size: 2.5rem; color: #38bdf8; margin-bottom: 14px; display: inline-block;"></i>
+        <h3 style="color: #f1f5f9; font-size: 1.15rem; margin-bottom: 8px;">No Workouts Recorded Yet</h3>
+        <p style="font-size: 0.9rem; color: #94a3b8; max-width: 420px; margin: 0 auto 16px;">Complete your first exercise session in the Workout Tracker and your reps, form accuracy, and movement telemetry will appear here!</p>
+        <button class="primary-btn" onclick="typeof safeSwitchTab === 'function' ? safeSwitchTab('workoutView') : (typeof switchTab === 'function' && switchTab('workoutView'))" style="padding: 10px 24px; font-size: 0.9rem; border-radius: 8px; cursor: pointer;">
+          <i class="fa-solid fa-play"></i> Start Your First Workout
+        </button>
+      </div>
+    `;
     return;
   }
   container.innerHTML = list.map((item) => {
@@ -2178,7 +2187,7 @@ async function loadWorkoutHistory() {
 
   if (!token) {
     if (localList.length === 0) {
-      container.innerHTML = `<div class="loading-spinner">Please log in to view your workout history.</div>`;
+      renderWorkoutHistoryCards(container, []);
     }
     return;
   }
@@ -2235,16 +2244,8 @@ async function loadWorkoutHistory() {
     renderWorkoutHistoryCards(container, combined);
 
   } catch (error) {
-    console.warn('[FitQuest Error]: Failed to fetch remote history, showing local:', error);
-    if (localList.length > 0) {
-      renderWorkoutHistoryCards(container, localList);
-    } else {
-      container.innerHTML = `
-        <div class="loading-spinner" style="color: #ef4444;">
-          <i class="fa-solid fa-triangle-exclamation"></i> Could not fetch history. Check internet connection.
-        </div>
-      `;
-    }
+    console.warn('[FitQuest History Sync Notice]:', error);
+    renderWorkoutHistoryCards(container, localList);
   }
 }
 
