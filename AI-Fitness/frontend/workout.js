@@ -1298,13 +1298,13 @@ async function startCameraStream() {
 
   try {
     if (!webcamStream || !webcamStream.active) {
-      // Uncap frameRate and resolution to allow native 60 FPS hardware accelerated camera streaming
+      // 1. Explicitly cap webcam resolution to 640x480 (480p) to eliminate resizing & memory bandwidth waste
       const constraints = {
         video: {
+          width: { ideal: 640, max: 640 },
+          height: { ideal: 480, max: 480 },
           facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 60 }
+          frameRate: { ideal: 30, max: 30 }
         },
         audio: false
       };
@@ -1702,9 +1702,9 @@ function applyHUDTelemetryDirectDOM(telemetry) {
     }
   }
 
-  // 5. Render YOLO Skeleton Overlay Image (fallback only when offscreen vector canvas is not active)
+  // 5. Render YOLO Skeleton Overlay Image
   if (telemetry.annotatedFrame) {
-    if (refs.overlayImage && !isOffscreenTransferred) {
+    if (refs.overlayImage) {
       if (refs.overlayImage.src !== telemetry.annotatedFrame) {
         refs.overlayImage.src = telemetry.annotatedFrame;
       }
@@ -1712,7 +1712,7 @@ function applyHUDTelemetryDirectDOM(telemetry) {
         refs.overlayImage.style.display = 'block';
       }
     }
-    if (refs.prepareOverlayImage && !isOffscreenTransferred) {
+    if (refs.prepareOverlayImage) {
       if (refs.prepareOverlayImage.src !== telemetry.annotatedFrame) {
         refs.prepareOverlayImage.src = telemetry.annotatedFrame;
       }
