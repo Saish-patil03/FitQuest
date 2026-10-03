@@ -13,8 +13,11 @@ def resolve_sqlite_url(url: str) -> str:
     """
     Resolves relative SQLite database URLs to an absolute canonical path
     anchored to the project directory to prevent database fragmentation
-    when started from different working directories.
+    when started from different working directories, and uses persistent /data volume on cloud instances.
     """
+    if os.path.exists("/data") and os.path.isdir("/data"):
+        return "sqlite:////data/ai_fitness.db"
+
     if url.startswith("sqlite:///") and not url.startswith("sqlite:///:memory:"):
         raw_path = url[len("sqlite:///"):]
         if not os.path.isabs(raw_path):

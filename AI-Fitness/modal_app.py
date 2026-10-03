@@ -20,10 +20,12 @@ image = (
 )
 
 app = modal.App("fitquest-backend")
+data_volume = modal.Volume.from_name("fitquest-data", create_if_missing=True)
 
 @app.function(
     image=image,
     secrets=[modal.Secret.from_name("fitquest-secrets")],
+    volumes={"/data": data_volume},
     cpu=2.0,
     memory=2048,
     scaledown_window=300

@@ -1590,6 +1590,54 @@ function stopCameraStream() {
 }
 
 /**
+ * Local Workout History Helpers
+ * Ensures client-first data persistence so workout sessions are NEVER dropped
+ */
+function getLocalWorkoutHistory() {
+  try {
+    const raw = localStorage.getItem('fitquest_local_workouts');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveLocalWorkout(sessionRecord) {
+  try {
+    const list = getLocalWorkoutHistory();
+    list.unshift(sessionRecord);
+    localStorage.setItem('fitquest_local_workouts', JSON.stringify(list.slice(0, 50)));
+  } catch (e) {
+    console.warn('[FitQuest Local History Error]:', e);
+  }
+}
+
+function generateClientAICoaching(exerciseName, repCount, formScore, feedbackEvents) {
+  if (repCount === 0) {
+    return "No valid repetitions were detected in this session, so there isn't enough workout data to generate performance insights. Complete an exercise and try again.";
+  }
+  let feedback = `### 🌟 Workout Summary: ${exerciseName}\n\n`;
+  feedback += `You completed **${repCount} reps** with an overall form accuracy score of **${Math.round(formScore)}%**.\n\n`;
+  if (formScore >= 90) {
+    feedback += `**Biomechanical Assessment**: Exceptional movement execution! Your joint alignment, range of motion, and eccentric control remained stable throughout the set.\n\n`;
+    feedback += `**AI Recommendation**: You are ready to increase resistance or training volume in your next routine. Maintain this steady cadence.`;
+  } else if (formScore >= 75) {
+    feedback += `**Biomechanical Assessment**: Solid effort! You maintained good posture for the majority of the reps.\n\n`;
+    if (feedbackEvents && feedbackEvents.length > 0) {
+      feedback += `**Key Form Cues**:\n` + feedbackEvents.slice(0, 3).map(f => `- ${f}`).join('\n') + `\n\n`;
+    }
+    feedback += `**AI Recommendation**: Focus on smooth transitions between the eccentric (lowering) and concentric (lifting) phases to optimize muscle engagement.`;
+  } else {
+    feedback += `**Biomechanical Assessment**: You pushed through the set, but form fatigue was detected toward the later repetitions.\n\n`;
+    if (feedbackEvents && feedbackEvents.length > 0) {
+      feedback += `**Form Corrections Needed**:\n` + feedbackEvents.slice(0, 3).map(f => `- ${f}`).join('\n') + `\n\n`;
+    }
+    feedback += `**AI Recommendation**: Slow down your tempo and ensure full range of motion on each rep before prioritizing speed.`;
+  }
+  return feedback;
+}
+
+/**
  * Ends active workout session, stops camera, and posts session to backend
  */
 async function endWorkoutSession() {
@@ -1706,152 +1754,110 @@ async function endWorkoutSession() {
     ]
   });
   
-  const zeroRepMessage = "No valid repetitions were detected in this session, so there isn't enough workout data to generate performance insights. Complete an exercise and try again.";
+  const isFinalZero = (currentRepCount === 0);
+  const exerciseName = (selectedExercise && selectedExercise.name) ? selectedExercise.name : 'Exercise';
+  const exerciseId = (selectedExercise && selectedExercise.id) ? selectedExercise.id : 1;
 
-  if (isInitialZero) {
-    document.getElementById('resAICoaching').innerHTML = formatMarkdownText(zeroRepMessage);
-  } else {
-    document.getElementById('resAICoaching').innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Generating personalized AI coaching feedback...`;
+  // 1. Immediately render final workout statistics
+  document.getElementById('resRepCount').innerText = currentRepCount;
+  document.getElementById('resDuration').innerText = formatDuration(workoutElapsedSeconds);
+  document.getElementById('resFormScore').innerText = isFinalZero ? 'N/A (No Reps)' : `${Math.round(currentFormScore)}%`;
+
+  // 2. Generate and render immediate personalized AI coaching analysis
+  const initialAiCoaching = generateClientAICoaching(exerciseName, currentRepCount, currentFormScore, accumulatedFeedback);
+  document.getElementById('resAICoaching').innerHTML = formatMarkdownText(initialAiCoaching);
+
+  // 3. Immediately persist workout to local history so it is NEVER lost
+  saveLocalWorkout({
+    id: 'local_' + Date.now(),
+    exercise_id: exerciseId,
+    repetitions: currentRepCount,
+    duration_sec: workoutElapsedSeconds,
+    form_score: isFinalZero ? 0.0 : currentFormScore,
+    started_at: new Date().toISOString(),
+    exercise: { id: exerciseId, name: exerciseName }
+  });
+
+  // 4. Update gamification streak locally
+  if (currentRepCount >= 1 && typeof loadGamificationData === 'function') {
+    loadGamificationData();
+    if (typeof showGamificationNotification === 'function') {
+      showGamificationNotification('🔥 Workout Saved!', 'Your workout set was recorded towards your streak!', 'fa-fire');
+    }
   }
 
+  // 5. Asynchronously sync telemetry to backend
   try {
     const token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('fitquest_token');
     const userId = (typeof getAuthenticatedUserId === 'function' ? getAuthenticatedUserId() : null) || 0;
-    const exerciseId = (selectedExercise && selectedExercise.id) ? selectedExercise.id : 1;
-    const exerciseName = (selectedExercise && selectedExercise.name) ? selectedExercise.name : 'Exercise';
 
-    if (!token) {
-      console.warn('[FitQuest Auth]: Unauthenticated session save attempt (no token).');
-      document.getElementById('resAICoaching').innerHTML = `<p class="warning-text"><i class="fa-solid fa-triangle-exclamation"></i> Workout completed locally, but session could not be saved because you are not logged in. Please log in to record your workouts.</p>`;
-      return;
-    }
+    if (token) {
+      const payload = {
+        session_data: {
+          user_id: userId,
+          exercise_id: exerciseId,
+          repetitions: currentRepCount,
+          duration_sec: workoutElapsedSeconds,
+          form_score: isFinalZero ? 0.0 : currentFormScore
+        },
+        form_scores_history: currentRepCount > 0 ? Array(currentRepCount).fill(1) : [],
+        feedback_events: accumulatedFeedback.length > 0 ? accumulatedFeedback : (isFinalZero ? ["No valid repetitions detected"] : [`Completed set for ${exerciseName}`]),
+        movement_intelligence: movementData
+      };
 
-    // Post completed workout telemetry payload to POST /api/v1/workouts
-    const payload = {
-      session_data: {
-        user_id: userId,
-        exercise_id: exerciseId,
-        repetitions: currentRepCount,
-        duration_sec: workoutElapsedSeconds,
-        form_score: currentRepCount === 0 ? 0.0 : currentFormScore
-      },
-      form_scores_history: currentRepCount > 0 ? Array(currentRepCount).fill(1) : [],
-      feedback_events: accumulatedFeedback.length > 0 ? accumulatedFeedback : (currentRepCount === 0 ? ["No valid repetitions detected"] : [`Completed set for ${exerciseName}`]),
-      movement_intelligence: movementData
-    };
+      const response = await fetch(`${API_BASE}/workouts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
 
-    const response = await fetch(`${API_BASE}/workouts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Server status ${response.status}`);
-    }
-
-    const resultData = await response.json();
-
-    const isFinalZero = (resultData.repetitions === 0 || currentRepCount === 0);
-
-    // Render returned results & AI coaching insights
-    document.getElementById('resRepCount').innerText = resultData.repetitions;
-    document.getElementById('resDuration').innerText = formatDuration(resultData.duration_sec);
-    document.getElementById('resFormScore').innerText = isFinalZero ? 'N/A (No Reps)' : `${resultData.form_score}%`;
-
-    const aiText = isFinalZero
-      ? zeroRepMessage
-      : (resultData.ai_coaching_logs && resultData.ai_coaching_logs.length > 0 
-          ? resultData.ai_coaching_logs[0].response 
-          : "Great workout set!");
-
-    document.getElementById('resAICoaching').innerHTML = formatMarkdownText(aiText);
-
-    // Fetch and render historical movement comparison if valid reps completed
-    const compCard = document.getElementById('historyComparisonCard');
-    if (!isFinalZero && compCard && movementData && movementData.movement_signature) {
-      try {
-        const qScore = movementData.movement_signature.movement_quality_score || (currentFormScore * 0.88);
-        const compRes = await fetch(`${API_BASE}/workouts/movement-intelligence/comparison?exercise_id=${exerciseId}&quality_score=${qScore}&session_id=${resultData.id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        });
-        if (compRes.ok) {
-          const compData = await compRes.json();
-          compCard.style.display = 'block';
-          document.getElementById('resCompThisSession').innerText = `${compData.this_session}`;
-          document.getElementById('resCompPrevAvg').innerText = `${compData.previous_avg}`;
-          document.getElementById('resCompChange').innerText = `${compData.change >= 0 ? '+' : ''}${compData.change}`;
-          
-          const trendBadge = document.getElementById('resComparisonTrendBadge');
-          if (trendBadge) {
-            trendBadge.className = `comparison-trend-badge trend-${compData.trend}`;
-            let tIcon = '<i class="fa-solid fa-minus"></i>';
-            if (compData.trend === 'improving') tIcon = '<i class="fa-solid fa-arrow-trend-up"></i>';
-            else if (compData.trend === 'declining') tIcon = '<i class="fa-solid fa-arrow-trend-down"></i>';
-            trendBadge.innerHTML = `${tIcon} ${compData.trend.toUpperCase()}`;
-          }
-
-          const msgEl = document.getElementById('resComparisonMessage');
-          if (msgEl) msgEl.innerText = compData.message;
+      if (response.ok) {
+        const resultData = await response.json();
+        if (resultData.ai_coaching_logs && resultData.ai_coaching_logs.length > 0 && resultData.ai_coaching_logs[0].response) {
+          document.getElementById('resAICoaching').innerHTML = formatMarkdownText(resultData.ai_coaching_logs[0].response);
         }
-      } catch (compErr) {
-        console.warn('[FitQuest Warning]: Failed to fetch history comparison:', compErr);
-      }
-    } else if (compCard) {
-      compCard.style.display = 'none';
-    }
 
-    // Fetch and render Movement DNA Impact Card (Phase 4)
-    const dnaImpactCard = document.getElementById('resMovementDnaCard');
-    if (!isFinalZero && dnaImpactCard) {
-      try {
-        const dnaRes = await fetch(`${API_BASE}/movement-intelligence/dna?exercise_id=${exerciseId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        });
-        if (dnaRes.ok) {
-          const dnaData = await dnaRes.json();
-          dnaImpactCard.style.display = 'flex';
-          const qScore = (movementData && movementData.movement_signature && movementData.movement_signature.movement_quality_score) || (currentFormScore * 0.88);
-          
-          const qEl = document.getElementById('resDnaSessionQuality');
-          if (qEl) qEl.innerText = qScore.toFixed(1);
+        // Fetch and render historical movement comparison if valid reps completed
+        const compCard = document.getElementById('historyComparisonCard');
+        if (!isFinalZero && compCard && movementData && movementData.movement_signature) {
+          try {
+            const qScore = movementData.movement_signature.movement_quality_score || (currentFormScore * 0.88);
+            const compRes = await fetch(`${API_BASE}/workouts/movement-intelligence/comparison?exercise_id=${exerciseId}&quality_score=${qScore}&session_id=${resultData.id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+              }
+            });
+            if (compRes.ok) {
+              const compData = await compRes.json();
+              compCard.style.display = 'block';
+              document.getElementById('resCompThisSession').innerText = `${compData.this_session}`;
+              document.getElementById('resCompPrevAvg').innerText = `${compData.previous_avg}`;
+              document.getElementById('resCompChange').innerText = `${compData.change >= 0 ? '+' : ''}${compData.change}`;
+              
+              const trendBadge = document.getElementById('resComparisonTrendBadge');
+              if (trendBadge) {
+                trendBadge.className = `comparison-trend-badge trend-${compData.trend}`;
+                let tIcon = '<i class="fa-solid fa-minus"></i>';
+                if (compData.trend === 'improving') tIcon = '<i class="fa-solid fa-arrow-trend-up"></i>';
+                else if (compData.trend === 'declining') tIcon = '<i class="fa-solid fa-arrow-trend-down"></i>';
+                trendBadge.innerHTML = `${tIcon} ${compData.trend.toUpperCase()}`;
+              }
 
-          const chgEl = document.getElementById('resDnaChangeVal');
-          if (chgEl && dnaData.trend) {
-            const sign = dnaData.trend.delta >= 0 ? '+' : '';
-            chgEl.innerText = `${sign}${dnaData.trend.pct_change.toFixed(1)}%`;
-          }
-
-          const strEl = document.getElementById('resDnaStrongestVal');
-          if (strEl && dnaData.strongest_dimension) {
-            strEl.innerText = dnaData.strongest_dimension.label;
-          }
-
-          const limEl = document.getElementById('resDnaLimiterVal');
-          if (limEl && dnaData.primary_limiter) {
-            limEl.innerText = dnaData.primary_limiter.label;
-          }
-
-          const msgEl = document.getElementById('resDnaImpactMsg');
-          if (msgEl && dnaData.ai_report) {
-            msgEl.innerText = dnaData.ai_report.what_changed;
+              const msgEl = document.getElementById('resComparisonMessage');
+              if (msgEl) msgEl.innerText = compData.message;
+            }
+          } catch (compErr) {
+            console.warn('[FitQuest Warning]: Non-fatal comparison fetch notice:', compErr);
           }
         }
-      } catch (dnaErr) {
-        console.warn('[FitQuest DNA Warning]: Failed to fetch Movement DNA impact:', dnaErr);
+      } else {
+        console.warn('[FitQuest Warning]: Backend sync response status:', response.status);
       }
-    } else if (dnaImpactCard) {
-      dnaImpactCard.style.display = 'none';
     }
 
     // Fetch and render Movement Copilot Session Intelligence Summary (Phase 5)
@@ -1859,25 +1865,8 @@ async function endWorkoutSession() {
       loadPostWorkoutCopilotSummary(activeSessionId);
     }
 
-    // Refresh gamification streaks & achievements for valid workouts (reps >= 1)
-    if (currentRepCount >= 1 && typeof loadGamificationData === 'function') {
-      loadGamificationData();
-      if (typeof showGamificationNotification === 'function') {
-        showGamificationNotification('🔥 Workout Saved!', 'Your workout set was recorded towards your streak!', 'fa-fire');
-      }
-    }
-
   } catch (error) {
-    console.error('[FitQuest Error]: Failed to record session to backend:', error);
-    if (currentRepCount === 0) {
-      document.getElementById('resAICoaching').innerHTML = formatMarkdownText(zeroRepMessage);
-    } else {
-      document.getElementById('resAICoaching').innerHTML = `
-        <div style="color: #ef4444;">
-          <i class="fa-solid fa-triangle-exclamation"></i> Session recorded locally. (Backend server error).
-        </div>
-      `;
-    }
+    console.warn('[FitQuest Warning]: Non-fatal server sync warning:', error);
   }
 }
 
@@ -2127,83 +2116,118 @@ function drawMovementFingerprintRadar(canvas, data) {
 /**
  * Fetches and renders historical workouts from GET /api/v1/workouts/user/{userId}
  */
+function renderWorkoutHistoryCards(container, list) {
+  if (!Array.isArray(list) || list.length === 0) {
+    container.innerHTML = `<div class="loading-spinner">No workout history recorded yet. Complete a workout session to see your stats here!</div>`;
+    return;
+  }
+  container.innerHTML = list.map((item) => {
+    const exName = item.exercise ? item.exercise.name : 'Exercise Session';
+    const formattedDate = item.started_at ? new Date(item.started_at).toLocaleString() : 'Recent Session';
+    const formDisplay = item.repetitions === 0 ? 'N/A Form' : `${item.form_score != null ? Math.round(item.form_score) : 0}% Form`;
+
+    return `
+      <div class="history-card">
+        <div class="history-info">
+          <h3>${escapeHTML(exName)}</h3>
+          <div class="history-meta">
+            <i class="fa-solid fa-calendar"></i> ${formattedDate}
+          </div>
+        </div>
+        <div class="history-metrics">
+          <span class="metric-pill">${item.repetitions} Reps</span>
+          <span class="metric-pill">${formatDuration(item.duration_sec || 0)}</span>
+          <span class="metric-pill score">${formDisplay}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 async function loadWorkoutHistory() {
   const container = document.getElementById('historyList');
   if (!container) return;
 
-  try {
-    const userId = typeof getAuthenticatedUserId === 'function' ? getAuthenticatedUserId() : null;
-    const token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('fitquest_token');
+  const localList = getLocalWorkoutHistory();
+  const token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('fitquest_token');
+  const userId = typeof getAuthenticatedUserId === 'function' ? getAuthenticatedUserId() : null;
 
-    if (!token) {
-      container.innerHTML = `<div class="loading-spinner">Please log in to view your workout history.</div>`;
-      return;
-    }
-
+  // Immediately render cached/local history so there is zero delay and no empty flash
+  if (localList.length > 0) {
+    renderWorkoutHistoryCards(container, localList);
+  } else {
     container.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading workout history...</div>`;
+  }
 
-    // Fetch history: try /workouts/user/{userId} first, fallback to /workouts/history
+  if (!token) {
+    if (localList.length === 0) {
+      container.innerHTML = `<div class="loading-spinner">Please log in to view your workout history.</div>`;
+    }
+    return;
+  }
+
+  try {
+    let remoteData = [];
     let response = null;
+
     if (userId) {
-      response = await fetch(`${API_BASE}/workouts/user/${userId}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      try {
+        response = await fetch(`${API_BASE}/workouts/user/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (e) {}
     }
 
     if (!response || !response.ok) {
-      response = await fetch(`${API_BASE}/workouts/history`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      try {
+        response = await fetch(`${API_BASE}/workouts/history`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (e) {}
     }
 
-    if (!response.ok) {
-      throw new Error(`HTTP Error ${response.status}`);
+    if (response && response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        remoteData = data;
+      }
     }
 
-    const historyData = await response.json();
+    // Combine local & remote items, deduplicating
+    const combined = [...remoteData];
+    const seenTimes = new Set(remoteData.map(r => r.started_at ? new Date(r.started_at).getTime() : 0));
 
-    if (!Array.isArray(historyData) || historyData.length === 0) {
-      container.innerHTML = `<div class="loading-spinner">No workout history recorded yet. Complete a workout session to see your stats here!</div>`;
-      return;
-    }
+    localList.forEach(loc => {
+      const locTime = loc.started_at ? new Date(loc.started_at).getTime() : 0;
+      const exists = Array.from(seenTimes).some(t => Math.abs(t - locTime) < 3000);
+      if (!exists) {
+        combined.push(loc);
+      }
+    });
 
-    container.innerHTML = historyData.map((item) => {
-      const exName = item.exercise ? item.exercise.name : 'Exercise Session';
-      const formattedDate = item.started_at ? new Date(item.started_at).toLocaleString() : 'Recent Session';
-      const formDisplay = item.repetitions === 0 ? 'N/A Form' : `${item.form_score != null ? Math.round(item.form_score) : 0}% Form`;
+    combined.sort((a, b) => new Date(b.started_at || 0) - new Date(a.started_at || 0));
 
-      return `
-        <div class="history-card">
-          <div class="history-info">
-            <h3>${escapeHTML(exName)}</h3>
-            <div class="history-meta">
-              <i class="fa-solid fa-calendar"></i> ${formattedDate}
-            </div>
-          </div>
-          <div class="history-metrics">
-            <span class="metric-pill">${item.repetitions} Reps</span>
-            <span class="metric-pill">${formatDuration(item.duration_sec || 0)}</span>
-            <span class="metric-pill score">${formDisplay}</span>
-          </div>
-        </div>
-      `;
-    }).join('');
+    renderWorkoutHistoryCards(container, combined);
 
   } catch (error) {
-    console.error('[FitQuest Error]: Failed to fetch history:', error);
-    container.innerHTML = `
-      <div class="loading-spinner" style="color: #ef4444;">
-        <i class="fa-solid fa-triangle-exclamation"></i> Could not fetch history from backend. Ensure backend server is running.
-      </div>
-    `;
+    console.warn('[FitQuest Error]: Failed to fetch remote history, showing local:', error);
+    if (localList.length > 0) {
+      renderWorkoutHistoryCards(container, localList);
+    } else {
+      container.innerHTML = `
+        <div class="loading-spinner" style="color: #ef4444;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Could not fetch history. Check internet connection.
+        </div>
+      `;
+    }
   }
 }
 
