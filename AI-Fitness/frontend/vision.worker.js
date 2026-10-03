@@ -393,130 +393,112 @@ function renderOffscreenPose(angle) {
    5. ZERO-COPY FRAME PROCESSING & DISPATCH
    ========================================================================== */
 
+let scratchCanvas = null;
+let scratchCtx = null;
+const INFERENCE_W = 384;
+const INFERENCE_H = 288;
+
+function getScratchCanvas() {
+  if (!scratchCanvas && typeof OffscreenCanvas !== 'undefined') {
+    scratchCanvas = new OffscreenCanvas(INFERENCE_W, INFERENCE_H);
+    scratchCtx = scratchCanvas.getContext('2d', { willReadFrequently: true });
+  }
+  return { canvas: scratchCanvas, ctx: scratchCtx };
+}
+
+function blobToDataUrl(blob) {
+  if (typeof FileReaderSync !== 'undefined') {
+    try {
+      const syncReader = new FileReaderSync();
+      return Promise.resolve(syncReader.readAsDataURL(blob));
+    } catch (e) {}
+  }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 /**
  * Processes an individual ImageBitmap frame transferred with memory ownership
  */
 async function processIncomingFrame(frameBitmap, timestamp) {
   try {
-    const fw = frameBitmap.width;
-    const fh = frameBitmap.height;
-
-    // Synthesize or update keypoints from frame
-    // In hybrid mode: provides instant client-side EMA updates and renders to OffscreenCanvas
-    hasDetectedPose = true;
-    consecutiveMissedFrames = 0;
-
-    // Apply temporal EMA smoothing to keypoints
-    for (let i = 0; i < KEYPOINT_COUNT; i++) {
-      const rx = rawKeypoints[i * 3];
-      const ry = rawKeypoints[i * 3 + 1];
-      const conf = rawKeypoints[i * 3 + 2];
-
-      if (conf > 0.25) {
-        if (smoothedKeypoints[i * 2] === 0.0 && smoothedKeypoints[i * 2 + 1] === 0.0) {
-          smoothedKeypoints[i * 2] = rx;
-          smoothedKeypoints[i * 2 + 1] = ry;
-        } else {
-          smoothedKeypoints[i * 2] = EMA_ALPHA * rx + (1.0 - EMA_ALPHA) * smoothedKeypoints[i * 2];
-          smoothedKeypoints[i * 2 + 1] = EMA_ALPHA * ry + (1.0 - EMA_ALPHA) * smoothedKeypoints[i * 2 + 1];
-        }
+    const { canvas: scCanvas, ctx: scCtx } = getScratchCanvas();
+    if (!scCanvas || !scCtx) {
+      if (frameBitmap && typeof frameBitmap.close === 'function') {
+        frameBitmap.close();
       }
+      return;
     }
 
-    // Evaluate Kinematics
-    const liveAngle = evaluateExerciseKinematics(activeExerciseId);
+    // 1. Draw the user's video frame onto the scratch canvas
+    scCtx.drawImage(frameBitmap, 0, 0, INFERENCE_W, INFERENCE_H);
 
-    // Render directly to OffscreenCanvas
-    renderOffscreenPose(liveAngle);
-
-    // Asynchronously sync with cloud ML microservice without blocking the frame rate
-    const now = Date.now();
-    if (mlApiBase && (now - lastNetworkInferenceTime >= NETWORK_INFERENCE_INTERVAL_MS)) {
-      lastNetworkInferenceTime = now;
-      syncFrameWithModalCloud(frameBitmap);
-    }
-
-    // Populate pre-allocated telemetry message
-    telemetryMessage.repCount = currentRepCount;
-    telemetryMessage.formScore = currentFormScore;
-    telemetryMessage.primaryAngle = liveAngle;
-    telemetryMessage.feedbackCode = activeFeedbackCode;
-    telemetryMessage.feedbackDetail = activeFeedbackDetail;
-    telemetryMessage.feedbackPriority = activeFeedbackPriority;
-    telemetryMessage.isRepActive = (repStage === 1);
-    telemetryMessage.isCalibrated = hasDetectedPose;
-
-    // Dispatch telemetry back to main thread
-    self.postMessage(telemetryMessage);
-
-  } catch (err) {
-    // Non-fatal frame processing error
-  } finally {
-    // Crucial: Always close ImageBitmap to prevent GPU memory leaks
+    // 2. Immediately close transferred frameBitmap to free GPU memory
     if (frameBitmap && typeof frameBitmap.close === 'function') {
       frameBitmap.close();
     }
-    isProcessing = false;
-    // Notify main thread loop that worker is immediately ready for next frame
-    self.postMessage(readyMessage);
-  }
-}
 
-/**
- * Background network sync with Modal ML Engine
- */
-async function syncFrameWithModalCloud(frameBitmap) {
-  try {
-    // If OffscreenCanvas has convertToBlob, extract lightweight JPEG in background worker
-    if (!offscreenCanvas || typeof offscreenCanvas.convertToBlob !== 'function') return;
-
-    // Create small scratch blob for network
-    const blob = await offscreenCanvas.convertToBlob({ type: 'image/jpeg', quality: 0.38 });
+    // 3. Convert scratch canvas to lightweight JPEG blob
+    const blob = await scCanvas.convertToBlob({ type: 'image/jpeg', quality: 0.42 });
     if (!blob) return;
 
-    // Convert blob to base64 via FileReader inside worker
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Data = reader.result;
-      if (!base64Data) return;
+    // 4. Convert blob to Base64 Data URL
+    const base64Data = await blobToDataUrl(blob);
+    if (!base64Data) return;
 
-      try {
-        const res = await fetch(`${mlApiBase}/workouts/live/process-frame`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: activeSessionId || 'default_session',
-            exercise_choice: String(activeExerciseId),
-            frame_data: base64Data,
-            include_annotated_image: false
-          })
-        });
+    // 5. POST to FitQuest ML Cloud Engine (Modal YOLOv8-pose)
+    const res = await fetch(`${mlApiBase}/workouts/live/process-frame`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: activeSessionId || 'default_session',
+        exercise_choice: String(activeExerciseId),
+        frame_data: base64Data,
+        include_annotated_image: true
+      })
+    });
 
-        if (res.ok) {
-          const telemetry = await res.json();
-          if (telemetry && telemetry.status === 'success') {
-            if (telemetry.rep_count !== undefined && telemetry.rep_count > currentRepCount) {
-              currentRepCount = telemetry.rep_count;
-            }
-            if (telemetry.form_score !== undefined && telemetry.form_score > 0) {
-              currentFormScore = telemetry.form_score;
-            }
-            if (telemetry.feedback_code) {
-              activeFeedbackCode = telemetry.feedback_code;
-            }
-            if (telemetry.feedback_detail) {
-              activeFeedbackDetail = telemetry.feedback_detail;
-            }
-          }
+    if (res.ok) {
+      const telemetry = await res.json();
+      if (telemetry && telemetry.status === 'success') {
+        currentRepCount = telemetry.rep_count !== undefined ? telemetry.rep_count : currentRepCount;
+        currentFormScore = telemetry.form_score !== undefined ? telemetry.form_score : currentFormScore;
+        activeFeedbackCode = telemetry.feedback_code || 'GOOD_FORM';
+        activeFeedbackDetail = telemetry.feedback_detail || (telemetry.feedback && telemetry.feedback[0]) || 'Good form';
+        activeFeedbackPriority = telemetry.feedback_priority !== undefined ? telemetry.feedback_priority : 7;
+        smoothedPrimaryAngle = telemetry.primary_angle || smoothedPrimaryAngle;
+        const isValid = telemetry.valid !== false && activeFeedbackCode !== 'LANDMARKS_MISSING';
+        hasDetectedPose = isValid;
+
+        // Render to OffscreenCanvas if transferred
+        if (offscreenCtx && offscreenCanvas) {
+          renderOffscreenPose(smoothedPrimaryAngle);
         }
-      } catch (netErr) {
-        // Fallback local tracking continues uninterrupted
-      }
-    };
-    reader.readAsDataURL(blob);
 
-  } catch (e) {
-    // Non-blocking background sync error
+        // Send telemetry back to main thread
+        self.postMessage({
+          type: 'TELEMETRY',
+          repCount: currentRepCount,
+          formScore: currentFormScore,
+          primaryAngle: smoothedPrimaryAngle,
+          feedbackCode: activeFeedbackCode,
+          feedbackDetail: activeFeedbackDetail,
+          feedbackPriority: activeFeedbackPriority,
+          annotatedFrame: telemetry.annotated_frame,
+          valid: isValid,
+          isCalibrated: isValid
+        });
+      }
+    }
+  } catch (err) {
+    // Non-fatal inference error
+  } finally {
+    isProcessing = false;
+    self.postMessage(readyMessage);
   }
 }
 

@@ -1413,8 +1413,47 @@ function initOffscreenCanvas() {
       isOffscreenTransferred = true;
       overlayCanvas.style.display = 'block';
     } catch (e) {
-      console.warn('[FitQuest OffscreenCanvas Transfer Error]:', e);
+      isOffscreenTransferred = true;
+      console.warn('[FitQuest OffscreenCanvas Transfer Notice]:', e);
     }
+  }
+}
+
+/**
+ * Resilient fallback inference function running on main loop without blocking UI
+ */
+async function runDirectYoloInference(activeVideo, canvas, ctx) {
+  if (!canvas || !ctx || !activeVideo) return;
+  try {
+    const targetW = 384;
+    const targetH = 288;
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+    ctx.shadowBlur = 0;
+    ctx.drawImage(activeVideo, 0, 0, targetW, targetH);
+    const base64Frame = canvas.toDataURL('image/jpeg', 0.42);
+
+    const payload = {
+      session_id: activeSessionId,
+      exercise_choice: String(selectedExercise ? selectedExercise.id : 1),
+      frame_data: base64Frame,
+      include_annotated_image: true
+    };
+
+    const res = await fetch(`${ML_API_BASE}/workouts/live/process-frame`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      const telemetry = await res.json();
+      updateHUDTelemetry(telemetry);
+    }
+  } catch (err) {
+    // Non-fatal fallback error
   }
 }
 
@@ -1425,7 +1464,9 @@ function initOffscreenCanvas() {
  */
 function startFrameTransmission() {
   const video = document.getElementById('webcamFeed');
-  if (!video) return;
+  const prepareVideo = document.getElementById('prepareWebcamFeed');
+  const canvas = document.getElementById('frameCanvas');
+  const ctx = canvas ? canvas.getContext('2d', { willReadFrequently: true }) : null;
 
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
@@ -1438,37 +1479,60 @@ function startFrameTransmission() {
   frameCount = 0;
   workerIsBusy = false;
   let lastFrameSentTime = 0;
-  const TARGET_FRAME_INTERVAL_MS = 33; // ~30 FPS frame transfer to worker
+  const MIN_FRAME_INTERVAL_MS = 65; // Dynamic ~15 FPS pipeline for responsive ML without network congestion
+
+  function getActiveVideo() {
+    if (prepareCalibrationActive && prepareVideo && (prepareVideo.srcObject || prepareVideo.src) && prepareVideo.videoWidth > 0) {
+      return prepareVideo;
+    }
+    if (video && (video.srcObject || video.src) && video.videoWidth > 0) {
+      return video;
+    }
+    return prepareVideo || video;
+  }
 
   // Strict decoupled 60 FPS loop on main thread
   function processVideoLoop() {
+    const activeVideo = getActiveVideo();
     const hasStream = webcamStream && webcamStream.active;
-    const hasVideo = video && !video.paused && !video.ended && (video.srcObject || video.src);
-    if (!hasStream && !hasVideo) return;
+    const hasVideo = activeVideo && !activeVideo.paused && !activeVideo.ended && (activeVideo.srcObject || activeVideo.src) && activeVideo.videoWidth > 0;
+
+    if (!hasStream && !hasVideo) {
+      animationFrameId = requestAnimationFrame(processVideoLoop);
+      return;
+    }
 
     const now = performance.now();
 
-    // Phase 2 Drop-Frame Mechanism:
-    // If worker is still computing, drop frame instantly without creating ImageBitmap
-    if (visionWorker && !workerIsBusy && (now - lastFrameSentTime >= TARGET_FRAME_INTERVAL_MS) && video.videoWidth > 0) {
+    // Drop-frame mechanism:
+    // If worker or network is still computing, drop frame instantly without creating ImageBitmap
+    if (!workerIsBusy && (now - lastFrameSentTime >= MIN_FRAME_INTERVAL_MS) && activeVideo && activeVideo.videoWidth > 0) {
       lastFrameSentTime = now;
-      workerIsBusy = true;
 
-      // Phase 1 Zero-Copy Frame Transfer: Transfers memory ownership via ImageBitmap [bitmap]
-      createImageBitmap(video).then((bitmap) => {
-        if (!webcamStream && !video.src) {
-          bitmap.close();
+      if (visionWorker && isWorkerReady && typeof createImageBitmap === 'function') {
+        workerIsBusy = true;
+        // Phase 1 Zero-Copy Frame Transfer: Transfers memory ownership via ImageBitmap [bitmap]
+        createImageBitmap(activeVideo).then((bitmap) => {
+          if (!webcamStream && !activeVideo.src) {
+            bitmap.close();
+            workerIsBusy = false;
+            return;
+          }
+          visionWorker.postMessage({
+            type: 'PROCESS_FRAME',
+            frame: bitmap,
+            timestamp: now
+          }, [bitmap]);
+        }).catch(() => {
           workerIsBusy = false;
-          return;
-        }
-        visionWorker.postMessage({
-          type: 'PROCESS_FRAME',
-          frame: bitmap,
-          timestamp: now
-        }, [bitmap]);
-      }).catch(() => {
-        workerIsBusy = false;
-      });
+        });
+      } else {
+        // High-performance fallback if worker is unavailable or during worker startup
+        workerIsBusy = true;
+        runDirectYoloInference(activeVideo, canvas, ctx).finally(() => {
+          workerIsBusy = false;
+        });
+      }
     }
 
     animationFrameId = requestAnimationFrame(processVideoLoop);
@@ -1532,7 +1596,9 @@ function getHudDOMRefs() {
       prepTitle: document.getElementById('prepareStatusTitle'),
       prepDesc: document.getElementById('prepareStatusDesc'),
       prepFrameInst: document.getElementById('prepareFramingInstruction'),
-      prepStartBtn: document.getElementById('prepareStartBtn')
+      prepStartBtn: document.getElementById('prepareStartBtn'),
+      overlayImage: document.getElementById('overlayImage'),
+      prepareOverlayImage: document.getElementById('prepareOverlayImage')
     };
   }
   return hudDOMRefs;
@@ -1632,6 +1698,26 @@ function applyHUDTelemetryDirectDOM(telemetry) {
     }
   }
 
+  // 5. Render YOLO Skeleton Overlay Image
+  if (telemetry.annotatedFrame) {
+    if (refs.overlayImage) {
+      if (refs.overlayImage.src !== telemetry.annotatedFrame) {
+        refs.overlayImage.src = telemetry.annotatedFrame;
+      }
+      if (refs.overlayImage.style.display !== 'block') {
+        refs.overlayImage.style.display = 'block';
+      }
+    }
+    if (refs.prepareOverlayImage) {
+      if (refs.prepareOverlayImage.src !== telemetry.annotatedFrame) {
+        refs.prepareOverlayImage.src = telemetry.annotatedFrame;
+      }
+      if (refs.prepareOverlayImage.style.display !== 'block') {
+        refs.prepareOverlayImage.style.display = 'block';
+      }
+    }
+  }
+
   // Feed real-time telemetry into Movement Copilot (Phase 5)
   if (typeof processCopilotTelemetry === 'function') {
     processCopilotTelemetry(telemetry);
@@ -1642,13 +1728,17 @@ function applyHUDTelemetryDirectDOM(telemetry) {
  * Universal HUD Telemetry update handler (Backwards-compatible bridge)
  */
 function updateHUDTelemetry(telemetry) {
+  if (!telemetry) return;
   applyHUDTelemetryDirectDOM({
     repCount: telemetry.rep_count,
     formScore: telemetry.form_score,
     primaryAngle: telemetry.primary_angle,
     feedbackCode: telemetry.feedback_code,
     feedbackDetail: telemetry.feedback_detail || (telemetry.feedback && telemetry.feedback[0]),
-    feedbackPriority: telemetry.feedback_priority
+    feedbackPriority: telemetry.feedback_priority,
+    annotatedFrame: telemetry.annotated_frame,
+    valid: telemetry.valid !== false,
+    isCalibrated: telemetry.valid !== false && telemetry.feedback_code !== 'LANDMARKS_MISSING'
   });
 }
 
