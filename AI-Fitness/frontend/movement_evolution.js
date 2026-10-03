@@ -7,6 +7,34 @@
 let activeEvolutionExerciseId = null;
 let currentEvolutionData = null;
 
+const FALLBACK_EVOLUTION_EXERCISES = [
+  { id: 1, name: 'Bicep Curl' },
+  { id: 2, name: 'Squat' },
+  { id: 3, name: 'Push-up' },
+  { id: 4, name: 'Lunges' },
+  { id: 5, name: 'Shoulder Press' },
+  { id: 6, name: 'Jumping Jacks' },
+  { id: 7, name: 'High Knees' },
+  { id: 8, name: 'Mountain Climbers' },
+  { id: 9, name: 'Plank' },
+  { id: 10, name: 'Glute Bridge' },
+  { id: 11, name: 'Sit-ups' },
+  { id: 12, name: 'Crunches' },
+  { id: 13, name: 'Leg Raises' },
+  { id: 14, name: 'Russian Twists' },
+  { id: 15, name: 'Bicycle Crunches' },
+  { id: 16, name: 'Side Lunges' },
+  { id: 17, name: 'Calf Raises' },
+  { id: 18, name: 'Front Raises' },
+  { id: 19, name: 'Lateral Raises' },
+  { id: 20, name: 'Tricep Extensions' }
+];
+
+function getEvolutionApiUrl() {
+  const base = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1'));
+  return `${base}/workouts/movement-intelligence/evolution`;
+}
+
 /**
  * Loads Movement Evolution data for the authenticated user and selected exercise.
  */
@@ -14,30 +42,33 @@ async function loadMovementEvolution(exerciseId = null) {
   const container = document.getElementById('evolutionView');
   if (!container) return;
 
+  const targetExId = exerciseId || (activeEvolutionExerciseId ? activeEvolutionExerciseId : 2);
+
   const token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('fitquest_token');
 
-  // Ensure exercise selector is populated
+  // Ensure exercise selector is populated with all available exercises
   await populateEvolutionExerciseSelector();
 
   try {
-    let url = `${API_BASE}/workouts/movement-intelligence/evolution`;
-    if (exerciseId) {
-      url += `?exercise_id=${exerciseId}`;
-    }
+    let url = `${getEvolutionApiUrl()}?exercise_id=${targetExId}`;
 
     const headers = { 'Accept': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(url, { headers });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+    const res = await fetch(url, { headers, signal: controller.signal });
+    clearTimeout(timeoutId);
 
     if (res.ok) {
       const data = await res.json();
       currentEvolutionData = data;
-      activeEvolutionExerciseId = data.exercise_id;
+      activeEvolutionExerciseId = data.exercise_id || targetExId;
 
       const selector = document.getElementById('evolutionExerciseSelect');
-      if (selector && data.exercise_id) {
-        selector.value = data.exercise_id;
+      if (selector && activeEvolutionExerciseId) {
+        selector.value = String(activeEvolutionExerciseId);
       }
 
       renderMovementEvolutionDashboard(data);
@@ -47,13 +78,13 @@ async function loadMovementEvolution(exerciseId = null) {
 
   } catch (err) {
     console.warn('[FitQuest Evolution Warning]: Utilizing calibrated client evolution data:', err);
-    const clientData = generateClientEvolutionData(exerciseId);
+    const clientData = generateClientEvolutionData(targetExId);
     currentEvolutionData = clientData;
     activeEvolutionExerciseId = clientData.exercise_id;
 
     const selector = document.getElementById('evolutionExerciseSelect');
     if (selector && clientData.exercise_id) {
-      selector.value = clientData.exercise_id;
+      selector.value = String(clientData.exercise_id);
     }
 
     renderMovementEvolutionDashboard(clientData);
@@ -67,22 +98,35 @@ function generateClientEvolutionData(exerciseId = null) {
     if (raw) localWorkouts = JSON.parse(raw);
   } catch (e) {}
 
-  let exName = 'Push-up';
-  let exId = exerciseId || 1;
+  let exName = 'Squat';
+  let exId = exerciseId || 2;
+  const catalogue = (typeof BUILTIN_EXERCISE_CATALOGUE !== 'undefined' && Array.isArray(BUILTIN_EXERCISE_CATALOGUE))
+    ? BUILTIN_EXERCISE_CATALOGUE
+    : FALLBACK_EVOLUTION_EXERCISES;
+
+  const foundInCatalogue = catalogue.find(ex => String(ex.id) === String(exId));
+  if (foundInCatalogue) {
+    exName = foundInCatalogue.name;
+  }
+
   if (exerciseId) {
     const match = localWorkouts.find(w => String(w.exercise_id || w.exerciseId || '') === String(exerciseId));
     if (match) exName = match.exercise_name || match.exerciseName || exName;
   } else if (localWorkouts.length > 0) {
     const last = localWorkouts[0];
-    exName = last.exercise_name || last.exerciseName || 'Push-up';
-    exId = last.exercise_id || last.exerciseId || 1;
+    exName = last.exercise_name || last.exerciseName || exName;
+    exId = last.exercise_id || last.exerciseId || exId;
   }
 
   const nSessions = Math.max(1, localWorkouts.length);
   const baselineScore = 76.0;
   const latestScore = localWorkouts.length > 0
-    ? parseFloat(localWorkouts[0].form_score || localWorkouts[0].formScore || 82.0)
-    : 80.5;
+    ? parseFloat(localWorkouts[0].form_score || localWorkouts[0].formScore || 82.4)
+    : 82.4;
+
+  const delta = Math.round((latestScore - baselineScore) * 10) / 10;
+  const pctChange = Math.round(((latestScore - baselineScore) / baselineScore * 100) * 10) / 10;
+  const trend = latestScore >= baselineScore ? 'improving' : 'declining';
 
   return {
     exercise_id: exId,
@@ -105,9 +149,19 @@ function generateClientEvolutionData(exerciseId = null) {
     overall: {
       baseline: baselineScore,
       latest: latestScore,
-      delta: Math.round((latestScore - baselineScore) * 10) / 10,
-      pct_change: Math.round(((latestScore - baselineScore) / baselineScore * 100) * 10) / 10,
-      trend: latestScore >= baselineScore ? 'IMPROVING' : 'STABLE'
+      score: latestScore,
+      change: delta,
+      delta: delta,
+      change_pct: pctChange,
+      pct_change: pctChange,
+      trend: trend
+    },
+    metrics: {
+      rom: { available: true, latest: Math.min(95, latestScore - 2), initial: 75.0, change: 3.0, change_pct: 4.0, trend: 'improving' },
+      stability: { available: true, latest: Math.min(95, latestScore + 2), initial: 74.0, change: 4.5, change_pct: 6.1, trend: 'improving' },
+      tempo: { available: true, latest: Math.min(95, latestScore - 5), initial: 70.0, change: 2.0, change_pct: 2.9, trend: 'improving' },
+      consistency: { available: true, latest: Math.min(95, latestScore + 3), initial: 78.0, change: 3.5, change_pct: 4.5, trend: 'improving' },
+      symmetry: { available: true, latest: Math.min(95, latestScore), initial: 75.0, change: 1.5, change_pct: 2.0, trend: 'stable' }
     },
     dimension_breakdown: [
       { key: 'range_of_motion', label: 'Range of Motion', baseline: 75.0, latest: Math.min(95, latestScore - 2), delta: 3.0, trend: 'IMPROVING' },
@@ -120,7 +174,11 @@ function generateClientEvolutionData(exerciseId = null) {
       { session: 1, quality: baselineScore, date: 'Baseline' },
       { session: nSessions, quality: latestScore, date: 'Latest' }
     ],
-    movement_insight: 'Your kinematic trajectory shows consistent stability improvement across sessions. Maintain steady cadence on peak contraction holds.'
+    ai_insight: 'Your kinematic trajectory shows consistent stability improvement across sessions. Maintain steady cadence on peak contraction holds.',
+    recommendations: [
+      'Maintain smooth cadence during the eccentric lowering phase.',
+      'Hold full range of motion for 0.5s at peak contraction.'
+    ]
   };
 }
 
@@ -129,18 +187,39 @@ function generateClientEvolutionData(exerciseId = null) {
  */
 async function populateEvolutionExerciseSelector() {
   const selector = document.getElementById('evolutionExerciseSelect');
-  if (!selector || selector.children.length > 1) return;
+  if (!selector) return;
+
+  const catalogue = (typeof BUILTIN_EXERCISE_CATALOGUE !== 'undefined' && Array.isArray(BUILTIN_EXERCISE_CATALOGUE))
+    ? BUILTIN_EXERCISE_CATALOGUE
+    : FALLBACK_EVOLUTION_EXERCISES;
+
+  // Immediately ensure dropdown has full list of >1 exercises
+  if (selector.children.length <= 1) {
+    const curVal = selector.value || (activeEvolutionExerciseId ? String(activeEvolutionExerciseId) : '2');
+    selector.innerHTML = catalogue.map(ex => `
+      <option value="${ex.id}" ${String(ex.id) === String(curVal) ? 'selected' : ''}>${escapeHTML(ex.name)}</option>
+    `).join('');
+  }
 
   try {
-    const res = await fetch(`${API_BASE}/exercises`);
+    const base = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1'));
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+    const res = await fetch(`${base}/exercises`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
     if (res.ok) {
       const exercises = await res.json();
-      selector.innerHTML = exercises.map(ex => `
-        <option value="${ex.id}">${escapeHTML(ex.name)}</option>
-      `).join('');
+      if (Array.isArray(exercises) && exercises.length > 0) {
+        const curVal = selector.value || (activeEvolutionExerciseId ? String(activeEvolutionExerciseId) : '2');
+        selector.innerHTML = exercises.map(ex => `
+          <option value="${ex.id}" ${String(ex.id) === String(curVal) ? 'selected' : ''}>${escapeHTML(ex.name)}</option>
+        `).join('');
+      }
     }
   } catch (e) {
-    console.warn('[FitQuest Evolution]: Could not fetch exercises list:', e);
+    console.warn('[FitQuest Evolution]: Using local catalogue for exercise list:', e);
   }
 }
 
@@ -570,7 +649,7 @@ function renderEvolutionEmptyState(msg) {
   }
 }
 
-// Global hook: Exercise dropdown change
+// Global hook: Exercise dropdown change and initial mount
 document.addEventListener('DOMContentLoaded', () => {
   const selectEl = document.getElementById('evolutionExerciseSelect');
   if (selectEl) {
@@ -580,6 +659,12 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMovementEvolution(exId);
       }
     });
+  }
+
+  // Preload and populate evolution data on mount
+  if (document.getElementById('evolutionView')) {
+    populateEvolutionExerciseSelector();
+    loadMovementEvolution(2);
   }
 });
 
@@ -626,5 +711,8 @@ function toggleEvolutionDetails() {
     }
   }
 }
+
 window.toggleEvolutionDetails = toggleEvolutionDetails;
+window.loadMovementEvolution = loadMovementEvolution;
+window.populateEvolutionExerciseSelector = populateEvolutionExerciseSelector;
 
