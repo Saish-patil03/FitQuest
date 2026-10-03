@@ -1221,6 +1221,20 @@ async function startWorkoutSession() {
     console.warn('[FitQuest Warning]: Live session start endpoint call failed:', e);
   }
 
+  // Notify Dedicated Vision Worker to start tracking session
+  if (!visionWorker) {
+    initVisionWorker();
+  }
+  if (visionWorker) {
+    visionWorker.postMessage({
+      type: 'START_SESSION',
+      session_id: activeSessionId,
+      exercise_id: selectedExercise.id,
+      exercise_name: selectedExercise.name,
+      ml_api_base: ML_API_BASE
+    });
+  }
+
   // Reset duration timer
   workoutElapsedSeconds = 0;
   workoutStartTime = Date.now();
@@ -1334,45 +1348,127 @@ async function startCameraStream() {
   }
 }
 
+/* ==========================================================================
+   PHASE 1-4: DEDICATED VISION WEB WORKER & OFFSCREENCANVAS PIPELINE
+   ========================================================================== */
+
+let visionWorker = null;
+let isWorkerReady = false;
+let workerIsBusy = false;
+let isOffscreenTransferred = false;
+
 /**
- * Transmits video frames to backend CV Engine via HTTP / WebSocket
- * Features frame skipping (~15 FPS inference), concurrency throttling, and optimized canvas rendering
+ * Phase 1: Initializes Dedicated Vision Web Worker
+ * Isolates all pose tracking, kinematics, and OffscreenCanvas painting off the main thread
+ */
+function initVisionWorker() {
+  if (visionWorker) return;
+  if (typeof window.Worker === 'undefined') {
+    console.warn('[FitQuest Vision]: Web Workers not supported in this browser.');
+    return;
+  }
+
+  try {
+    visionWorker = new Worker('vision.worker.js');
+    visionWorker.onmessage = function (event) {
+      const msg = event.data;
+      if (!msg) return;
+
+      if (msg.type === 'READY_FOR_FRAME') {
+        workerIsBusy = false;
+      } else if (msg.type === 'TELEMETRY') {
+        workerIsBusy = false;
+        applyHUDTelemetryDirectDOM(msg);
+      }
+    };
+
+    visionWorker.onerror = function (err) {
+      console.warn('[FitQuest Vision Worker Error]:', err);
+      workerIsBusy = false;
+    };
+
+    initOffscreenCanvas();
+    isWorkerReady = true;
+    console.info('[FitQuest Vision Worker]: Offscreen Web Worker initialized with zero-copy pipeline.');
+  } catch (err) {
+    console.warn('[FitQuest Vision Worker Init Error]:', err);
+  }
+}
+
+/**
+ * Phase 1: Transfers control of the overlay canvas to OffscreenCanvas
+ */
+function initOffscreenCanvas() {
+  if (isOffscreenTransferred || !visionWorker) return;
+  const overlayCanvas = document.getElementById('poseOverlayCanvas');
+  if (overlayCanvas && typeof overlayCanvas.transferControlToOffscreen === 'function') {
+    try {
+      const offscreen = overlayCanvas.transferControlToOffscreen();
+      visionWorker.postMessage({
+        type: 'INIT_CANVAS',
+        canvas: offscreen,
+        width: overlayCanvas.clientWidth || 640,
+        height: overlayCanvas.clientHeight || 480
+      }, [offscreen]);
+      isOffscreenTransferred = true;
+      overlayCanvas.style.display = 'block';
+    } catch (e) {
+      console.warn('[FitQuest OffscreenCanvas Transfer Error]:', e);
+    }
+  }
+}
+
+/**
+ * Phase 2: Decoupled 60 FPS Video Loop & Zero-Copy Frame Transfer
+ * The main thread runs a strict 60 FPS requestAnimationFrame loop that never waits for AI inference.
+ * Frames are transferred with memory ownership via createImageBitmap() to eliminate copying.
  */
 function startFrameTransmission() {
   const video = document.getElementById('webcamFeed');
-  const canvas = document.getElementById('frameCanvas');
-  const overlay = document.getElementById('overlayImage');
-  const ctx = canvas ? canvas.getContext('2d', { willReadFrequently: true }) : null;
+  if (!video) return;
 
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
-  if (frameCaptureInterval) {
-    clearInterval(frameCaptureInterval);
-    frameCaptureInterval = null;
-  }
+
+  initVisionWorker();
+  initOffscreenCanvas();
 
   frameCount = 0;
-  isProcessingFrame = false;
-  let lastInferenceTime = 0;
-  const MIN_FRAME_INTERVAL_MS = 50; // Dynamic ~15-20 FPS pipeline
+  workerIsBusy = false;
+  let lastFrameSentTime = 0;
+  const TARGET_FRAME_INTERVAL_MS = 33; // ~30 FPS frame transfer to worker
 
-  // Enable performance mode on demo avatar to lower canvas overhead during active workouts
-  if (demoAvatarEngine && typeof demoAvatarEngine.setPerformanceMode === 'function') {
-    demoAvatarEngine.setPerformanceMode(true);
-  }
-
-  // 2. High-speed adaptive frame transmission loop
+  // Strict decoupled 60 FPS loop on main thread
   function processVideoLoop() {
     const hasStream = webcamStream && webcamStream.active;
     const hasVideo = video && !video.paused && !video.ended && (video.srcObject || video.src);
     if (!hasStream && !hasVideo) return;
 
     const now = performance.now();
-    if (!isProcessingFrame && (now - lastInferenceTime >= MIN_FRAME_INTERVAL_MS) && video && !video.paused && !video.ended && video.videoWidth) {
-      lastInferenceTime = now;
-      runYoloInference(video, canvas, ctx, overlay);
+
+    // Phase 2 Drop-Frame Mechanism:
+    // If worker is still computing, drop frame instantly without creating ImageBitmap
+    if (visionWorker && !workerIsBusy && (now - lastFrameSentTime >= TARGET_FRAME_INTERVAL_MS) && video.videoWidth > 0) {
+      lastFrameSentTime = now;
+      workerIsBusy = true;
+
+      // Phase 1 Zero-Copy Frame Transfer: Transfers memory ownership via ImageBitmap [bitmap]
+      createImageBitmap(video).then((bitmap) => {
+        if (!webcamStream && !video.src) {
+          bitmap.close();
+          workerIsBusy = false;
+          return;
+        }
+        visionWorker.postMessage({
+          type: 'PROCESS_FRAME',
+          frame: bitmap,
+          timestamp: now
+        }, [bitmap]);
+      }).catch(() => {
+        workerIsBusy = false;
+      });
     }
 
     animationFrameId = requestAnimationFrame(processVideoLoop);
@@ -1383,17 +1479,15 @@ function startFrameTransmission() {
 
 /**
  * Loads a local video file (MP4, WebM, MOV) as a synthetic camera feed
- * Allows seamless testing on desktop machines that do not have physical webcams
  */
 function handleWorkoutVideoUpload(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
   const video = document.getElementById('webcamFeed');
-  const overlay = document.getElementById('overlayImage');
+  const overlayCanvas = document.getElementById('poseOverlayCanvas');
   const placeholder = document.getElementById('cameraPlaceholder');
 
-  // Stop any active hardware webcam stream
   if (webcamStream) {
     webcamStream.getTracks().forEach((track) => {
       try { track.stop(); } catch (e) {}
@@ -1406,7 +1500,7 @@ function handleWorkoutVideoUpload(event) {
   video.loop = true;
   video.muted = true;
   video.style.display = 'block';
-  if (overlay) overlay.style.display = 'block';
+  if (overlayCanvas) overlayCanvas.style.display = 'block';
   if (placeholder) placeholder.style.display = 'none';
 
   video.onloadeddata = () => {
@@ -1418,250 +1512,144 @@ function handleWorkoutVideoUpload(event) {
 window.handleWorkoutVideoUpload = handleWorkoutVideoUpload;
 
 /**
- * Executes a single throttled YOLO pose estimation inference call
- * Guarded against overlapping requests and optimized to eliminate canvas GC pressure
+ * Phase 4: Direct DOM Element References (State Isolation)
+ * Targets specific DOM nodes to bypass heavy reactive re-renders
  */
-async function runYoloInference(video, canvas, ctx, overlay) {
-  if (isProcessingFrame) return; // Concurrency guard: never pile up requests if backend takes > frame interval
-  isProcessingFrame = true;
+let hudDOMRefs = null;
 
-  try {
-    // High-performance 384x288 resolution: shrinks network payload by 75% and canvas toDataURL down to ~3ms
-    const targetW = 384;
-    const targetH = 288;
-
-    // 3. Canvas size optimization: only resize if dimensions changed to eliminate GC pressure
-    if (canvas.width !== targetW || canvas.height !== targetH) {
-      canvas.width = targetW;
-      canvas.height = targetH;
-    }
-
-    // Turn off expensive shadow/blur effects on canvas context during active workouts
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
-    ctx.drawImage(video, 0, 0, targetW, targetH);
-
-    const base64Frame = canvas.toDataURL('image/jpeg', 0.42);
-
-    const payload = {
-      session_id: activeSessionId,
-      exercise_choice: String(selectedExercise.id),
-      frame_data: base64Frame,
-      include_annotated_image: true
+function getHudDOMRefs() {
+  if (!hudDOMRefs) {
+    hudDOMRefs = {
+      repCount: document.getElementById('hudRepCount'),
+      repDisplay: document.getElementById('heroRepDisplay'),
+      repProgressFill: document.getElementById('hudRepProgressFill'),
+      formScore: document.getElementById('hudFormScore'),
+      formPill: document.getElementById('hudFormScorePill'),
+      feedback: document.getElementById('hudFeedback'),
+      coachBanner: document.getElementById('trainerCoachingBanner'),
+      coachIcon: document.getElementById('trainerCoachIcon'),
+      prepIcon: document.getElementById('prepareStatusIcon'),
+      prepTitle: document.getElementById('prepareStatusTitle'),
+      prepDesc: document.getElementById('prepareStatusDesc'),
+      prepFrameInst: document.getElementById('prepareFramingInstruction'),
+      prepStartBtn: document.getElementById('prepareStartBtn')
     };
-
-    const liveMlBase = typeof ML_API_BASE !== 'undefined' ? ML_API_BASE : (typeof API_BASE !== 'undefined' ? API_BASE : 'http://127.0.0.1:8000/api/v1');
-
-    const res = await fetch(`${liveMlBase}/workouts/live/process-frame`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) return;
-
-    const telemetry = await res.json();
-    updateHUDTelemetry(telemetry, overlay);
-
-  } catch (err) {
-    console.error('[FitQuest Frame Processing Error]:', err);
-  } finally {
-    isProcessingFrame = false;
   }
+  return hudDOMRefs;
 }
 
 /**
- * Updates Live Workout HUD with authoritative CV Engine telemetry
- * Formatted cleanly like a Personal Trainer ("Show the Action, Not the Algorithm")
+ * Phase 4: Direct DOM Mutation for HUD Telemetry
+ * Updates HUD elements directly (analogous to useRef) to eliminate main-thread lag
  */
-// Feedback Stabilization State (prevents rapid per-frame UI flicker)
-let activeFeedbackCode = 'GOOD_FORM';
-let activeFeedbackDetail = 'Position yourself in front of camera.';
-let activeFeedbackPriority = 7;
-let lastFeedbackUpdateTime = 0;
-const FEEDBACK_HOLD_MS = 450;
-let smoothedTelemetryAngle = null;
+function applyHUDTelemetryDirectDOM(telemetry) {
+  if (!telemetry) return;
+  const refs = getHudDOMRefs();
 
-function formatTrainerCue(code, rawDetail) {
-  const codeMap = {
-    'LANDMARKS_MISSING': 'Step back so your full body is visible.',
-    'ELBOW_FLARING': 'Keep your elbows closer to your sides.',
-    'KNEE_VALGUS': 'Keep knees pushed outward inline with toes.',
-    'INSUFFICIENT_DEPTH': 'Go slightly deeper on the descent.',
-    'BACK_ROUNDING': 'Keep your chest proud and spine neutral.',
-    'FAST_TEMPO': 'Move a little slower for maximum control.',
-    'ASYMMETRICAL_MOVEMENT': 'Drive evenly through both sides.',
-    'UNEVEN_EXT': 'Extend both arms fully and symmetrically.',
-    'TRUNK_LEAN': 'Keep your torso upright and core engaged.',
-    'FORWARD_LEAN': 'Keep weight balanced through your midfoot.',
-    'KNEE_CAVE': 'Push your knees out as you stand.',
-    'GOOD_FORM': 'Great form · Keep going ✓'
-  };
+  // 1. Direct Rep Count & Progress Bar Mutation
+  if (telemetry.repCount !== undefined) {
+    const prev = currentRepCount;
+    currentRepCount = telemetry.repCount;
 
-  if (codeMap[code]) return codeMap[code];
-  if (rawDetail && typeof rawDetail === 'string' && rawDetail.trim().length > 0) {
-    return rawDetail.replace(/^(error|warning|issue|alert):\s*/i, '').trim();
-  }
-  return 'Maintain steady cadence and control.';
-}
-
-function updateHUDTelemetry(telemetry, overlayElement) {
-  if (!telemetry || telemetry.status === 'error') return;
-
-  // Stabilize primary angle via client-side EMA filter
-  if (telemetry.primary_angle !== undefined && telemetry.primary_angle !== null) {
-    const rawVal = parseFloat(telemetry.primary_angle);
-    if (!isNaN(rawVal)) {
-      if (smoothedTelemetryAngle === null) {
-        smoothedTelemetryAngle = rawVal;
-      } else {
-        const diff = Math.abs(rawVal - smoothedTelemetryAngle);
-        if (diff >= 0.8) {
-          smoothedTelemetryAngle = 0.40 * rawVal + 0.60 * smoothedTelemetryAngle;
-        }
-      }
-      telemetry.primary_angle = Math.round(smoothedTelemetryAngle * 10) / 10;
-    }
-  }
-
-  // 0. PREPARE STAGE CALIBRATION & FRAMING GUIDANCE
-  if (prepareCalibrationActive) {
-    const icon = document.getElementById('prepareStatusIcon');
-    const title = document.getElementById('prepareStatusTitle');
-    const desc = document.getElementById('prepareStatusDesc');
-    const frameInst = document.getElementById('prepareFramingInstruction');
-    const startBtn = document.getElementById('prepareStartBtn');
-
-    if (telemetry.feedback_code === 'LANDMARKS_MISSING') {
-      if (icon) icon.className = 'status-indicator-icon icon-calibrating';
-      if (title) title.innerText = 'Move into Camera View';
-      if (desc) desc.innerText = 'Step back so your upper body and active joints are clearly visible inside the frame.';
-      if (frameInst) frameInst.innerText = 'Step back so your body fits inside the frame';
-      if (startBtn) startBtn.classList.remove('btn-pulse-ready');
-    } else {
-      isCalibrationReady = true;
-      if (icon) icon.className = 'status-indicator-icon icon-ready';
-      if (title) title.innerText = '✓ Body Detected · In Position!';
-      if (desc) desc.innerText = 'You are in optimal position. Click Start Workout when you are ready to begin.';
-      if (frameInst) frameInst.innerText = '✓ Perfect position! Ready to start.';
-      if (startBtn) startBtn.classList.add('btn-pulse-ready');
-    }
-  }
-
-  const targetReps = activeStructuredSession 
-    ? (window.currentStructuredSetTarget || 10) 
-    : (activeWorkoutSetsState ? activeWorkoutSetsState.targetReps : 10);
-
-  // 1. HERO REPETITIONS & PROGRESS
-  if (telemetry.rep_count !== undefined) {
-    const prevRep = currentRepCount;
-    currentRepCount = telemetry.rep_count;
-
-    const repCountEl = document.getElementById('hudRepCount');
-    if (repCountEl) {
-      repCountEl.innerText = currentRepCount;
-      if (currentRepCount > prevRep) {
-        // Trigger celebratory rep pulse animation
-        const repDisplay = document.getElementById('heroRepDisplay');
-        if (repDisplay) {
-          repDisplay.classList.add('rep-bump-pulse');
-          setTimeout(() => repDisplay.classList.remove('rep-bump-pulse'), 600);
-        }
+    if (refs.repCount && refs.repCount.textContent !== String(currentRepCount)) {
+      refs.repCount.textContent = currentRepCount;
+      if (currentRepCount > prev && refs.repDisplay) {
+        refs.repDisplay.classList.add('rep-bump-pulse');
+        setTimeout(() => refs.repDisplay && refs.repDisplay.classList.remove('rep-bump-pulse'), 500);
       }
     }
 
-    const progressFill = document.getElementById('hudRepProgressFill');
-    if (progressFill) {
+    if (refs.repProgressFill) {
+      const targetReps = activeStructuredSession 
+        ? (window.currentStructuredSetTarget || 10) 
+        : (activeWorkoutSetsState ? activeWorkoutSetsState.targetReps : 10);
       const pct = Math.min(100, Math.round((currentRepCount / Math.max(1, targetReps)) * 100));
-      progressFill.style.width = `${pct}%`;
+      refs.repProgressFill.style.width = `${pct}%`;
     }
 
-    // Auto trigger set completion when target reps reached in single-exercise workout
+    // Check set completion for single-exercise flow
     if (!activeStructuredSession && activeWorkoutSetsState && activeWorkoutSetsState.isSingleExerciseFlow && !activeWorkoutSetsState.isSetCompleting) {
-      if (currentRepCount >= targetReps && targetReps > 0) {
+      const target = activeWorkoutSetsState.targetReps || 10;
+      if (currentRepCount >= target && target > 0) {
         activeWorkoutSetsState.isSetCompleting = true;
         setTimeout(() => {
           handleSingleExerciseSetComplete();
-        }, 450);
+        }, 400);
       }
     }
   }
 
-  // 2. FORM QUALITY PILL (Concise & Unobtrusive)
-  if (telemetry.form_score !== undefined) {
-    currentFormScore = telemetry.form_score;
-    const formScoreEl = document.getElementById('hudFormScore');
-    const formPillEl = document.getElementById('hudFormScorePill');
-
-    if (formScoreEl && formPillEl) {
-      if (currentRepCount === 0 || currentFormScore === 0.0) {
-        formScoreEl.innerText = 'Calibrating';
-        formPillEl.className = 'trainer-form-pill pill-neutral';
+  // 2. Direct Form Score & Quality Pill Mutation
+  if (telemetry.formScore !== undefined) {
+    currentFormScore = telemetry.formScore;
+    if (refs.formScore && refs.formPill) {
+      if (currentRepCount === 0) {
+        refs.formScore.textContent = 'Calibrating';
+        refs.formPill.className = 'trainer-form-pill pill-neutral';
       } else {
         const score = Math.round(currentFormScore);
-        formScoreEl.innerText = `${score}% Form`;
-        if (score >= 85) {
-          formPillEl.className = 'trainer-form-pill pill-good';
-        } else if (score >= 70) {
-          formPillEl.className = 'trainer-form-pill pill-warn';
-        } else {
-          formPillEl.className = 'trainer-form-pill pill-alert';
+        refs.formScore.textContent = `${score}% Form`;
+        const cls = score >= 85 ? 'trainer-form-pill pill-good' : (score >= 70 ? 'trainer-form-pill pill-warn' : 'trainer-form-pill pill-alert');
+        if (refs.formPill.className !== cls) {
+          refs.formPill.className = cls;
         }
       }
     }
   }
 
-  // 3. STABILIZED CONTEXTUAL PERSONAL TRAINER COACHING
-  const now = Date.now();
-  const newCode = telemetry.feedback_code || 'GOOD_FORM';
-  const newDetail = telemetry.feedback_detail || (telemetry.feedback && telemetry.feedback.length > 0 ? telemetry.feedback[0] : 'Good Form');
-  const newPriority = telemetry.feedback_priority !== undefined ? telemetry.feedback_priority : 7;
-
-  if (newPriority < activeFeedbackPriority || (now - lastFeedbackUpdateTime) >= FEEDBACK_HOLD_MS) {
-    activeFeedbackCode = newCode;
-    activeFeedbackDetail = newDetail;
-    activeFeedbackPriority = newPriority;
-    lastFeedbackUpdateTime = now;
-  }
-
-  const feedbackContainer = document.getElementById('hudFeedback');
-  const coachIcon = document.getElementById('trainerCoachIcon');
-  const coachBanner = document.getElementById('trainerCoachingBanner');
-
-  if (feedbackContainer) {
-    const trainerMessage = formatTrainerCue(activeFeedbackCode, activeFeedbackDetail);
-    feedbackContainer.innerText = trainerMessage;
-
-    if (coachBanner && coachIcon) {
-      if (!telemetry.valid || activeFeedbackCode === 'LANDMARKS_MISSING') {
-        coachBanner.className = 'trainer-coaching-banner banner-guidance';
-        coachIcon.innerHTML = '<i class="fa-solid fa-person-circle-question"></i>';
-      } else if (activeFeedbackCode === 'GOOD_FORM') {
-        coachBanner.className = 'trainer-coaching-banner banner-good';
-        coachIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+  // 3. Direct Trainer Cue Banner Mutation
+  if (telemetry.feedbackDetail && refs.feedback && refs.feedback.textContent !== telemetry.feedbackDetail) {
+    refs.feedback.textContent = telemetry.feedbackDetail;
+    if (refs.coachBanner && refs.coachIcon) {
+      if (telemetry.feedbackCode === 'LANDMARKS_MISSING') {
+        refs.coachBanner.className = 'trainer-coaching-banner banner-guidance';
+        refs.coachIcon.innerHTML = '<i class="fa-solid fa-person-circle-question"></i>';
+      } else if (telemetry.feedbackCode === 'GOOD_FORM') {
+        refs.coachBanner.className = 'trainer-coaching-banner banner-good';
+        refs.coachIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
       } else {
-        coachBanner.className = 'trainer-coaching-banner banner-warn';
-        coachIcon.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
+        refs.coachBanner.className = 'trainer-coaching-banner banner-warn';
+        refs.coachIcon.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
       }
     }
   }
 
-  if (telemetry.feedback && telemetry.feedback.length > 0) {
-    const feedbackStr = telemetry.feedback.join(' | ');
-    if (!accumulatedFeedback.includes(feedbackStr)) {
-      accumulatedFeedback.push(feedbackStr);
+  // 4. Calibration Stage Direct DOM Updates
+  if (prepareCalibrationActive) {
+    if (telemetry.feedbackCode === 'LANDMARKS_MISSING') {
+      if (refs.prepIcon) refs.prepIcon.className = 'status-indicator-icon icon-calibrating';
+      if (refs.prepTitle) refs.prepTitle.textContent = 'Move into Camera View';
+      if (refs.prepDesc) refs.prepDesc.textContent = 'Step back so your upper body and active joints are clearly visible inside the frame.';
+      if (refs.prepFrameInst) refs.prepFrameInst.textContent = 'Step back so your body fits inside the frame';
+      if (refs.prepStartBtn) refs.prepStartBtn.classList.remove('btn-pulse-ready');
+    } else {
+      isCalibrationReady = true;
+      if (refs.prepIcon) refs.prepIcon.className = 'status-indicator-icon icon-ready';
+      if (refs.prepTitle) refs.prepTitle.textContent = '✓ Body Detected · In Position!';
+      if (refs.prepDesc) refs.prepDesc.textContent = 'You are in optimal position. Click Start Workout when you are ready to begin.';
+      if (refs.prepFrameInst) refs.prepFrameInst.textContent = '✓ Perfect position! Ready to start.';
+      if (refs.prepStartBtn) refs.prepStartBtn.classList.add('btn-pulse-ready');
     }
-  }
-
-  if (telemetry.annotated_frame && overlayElement) {
-    overlayElement.src = telemetry.annotated_frame;
-    overlayElement.style.display = 'block';
   }
 
   // Feed real-time telemetry into Movement Copilot (Phase 5)
   if (typeof processCopilotTelemetry === 'function') {
     processCopilotTelemetry(telemetry);
   }
+}
+
+/**
+ * Universal HUD Telemetry update handler (Backwards-compatible bridge)
+ */
+function updateHUDTelemetry(telemetry) {
+  applyHUDTelemetryDirectDOM({
+    repCount: telemetry.rep_count,
+    formScore: telemetry.form_score,
+    primaryAngle: telemetry.primary_angle,
+    feedbackCode: telemetry.feedback_code,
+    feedbackDetail: telemetry.feedback_detail || (telemetry.feedback && telemetry.feedback[0]),
+    feedbackPriority: telemetry.feedback_priority
+  });
 }
 
 
@@ -1767,6 +1755,11 @@ async function endWorkoutSession() {
 
   // Stop camera & frame capture
   stopCameraStream();
+
+  // Stop dedicated Vision Web Worker session
+  if (visionWorker) {
+    visionWorker.postMessage({ type: 'STOP_SESSION' });
+  }
 
   // Stop Movement Copilot (Phase 5)
   if (typeof stopCopilot === 'function') {
