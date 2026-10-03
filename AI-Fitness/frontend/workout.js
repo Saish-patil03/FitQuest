@@ -1375,6 +1375,7 @@ let activeFeedbackDetail = 'Position yourself in front of camera.';
 let activeFeedbackPriority = 7;
 let lastFeedbackUpdateTime = 0;
 const FEEDBACK_HOLD_MS = 450;
+let smoothedTelemetryAngle = null;
 
 function formatTrainerCue(code, rawDetail) {
   const codeMap = {
@@ -1401,6 +1402,22 @@ function formatTrainerCue(code, rawDetail) {
 
 function updateHUDTelemetry(telemetry, overlayElement) {
   if (!telemetry || telemetry.status === 'error') return;
+
+  // Stabilize primary angle via client-side EMA filter
+  if (telemetry.primary_angle !== undefined && telemetry.primary_angle !== null) {
+    const rawVal = parseFloat(telemetry.primary_angle);
+    if (!isNaN(rawVal)) {
+      if (smoothedTelemetryAngle === null) {
+        smoothedTelemetryAngle = rawVal;
+      } else {
+        const diff = Math.abs(rawVal - smoothedTelemetryAngle);
+        if (diff >= 0.8) {
+          smoothedTelemetryAngle = 0.40 * rawVal + 0.60 * smoothedTelemetryAngle;
+        }
+      }
+      telemetry.primary_angle = Math.round(smoothedTelemetryAngle * 10) / 10;
+    }
+  }
 
   // 0. PREPARE STAGE CALIBRATION & FRAMING GUIDANCE
   if (prepareCalibrationActive) {

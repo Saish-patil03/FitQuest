@@ -20,16 +20,24 @@ document.addEventListener('DOMContentLoaded', () => {
  * Loads streak metrics and achievements from backend APIs
  */
 async function loadGamificationData() {
-  if (typeof authToken === 'undefined' || !authToken) return;
+  const token = typeof getAuthToken === 'function' ? getAuthToken() : (typeof authToken !== 'undefined' ? authToken : localStorage.getItem('fitquest_token'));
+
+  // Immediate local-first rendering so streak never lags or shows 0 if workouts exist
+  const initialStreak = getMergedStreakData(null);
+  renderHomeStreakWidget(initialStreak);
+  renderProfileStreakAndCalendar(initialStreak);
+
+  if (!token) return;
 
   try {
     const [streakRes, achRes] = await Promise.all([
-      fetch(`${STREAK_API_BASE}/me`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
-      fetch(`${ACH_API_BASE}/me`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+      fetch(`${STREAK_API_BASE}/me`, { headers: { 'Authorization': `Bearer ${token}` } }),
+      fetch(`${ACH_API_BASE}/me`, { headers: { 'Authorization': `Bearer ${token}` } })
     ]);
 
     if (streakRes.ok) {
-      activeStreakData = await streakRes.json();
+      const serverStreak = await streakRes.json();
+      activeStreakData = getMergedStreakData(serverStreak);
       renderHomeStreakWidget(activeStreakData);
       renderProfileStreakAndCalendar(activeStreakData);
     }
@@ -39,8 +47,59 @@ async function loadGamificationData() {
       renderProfileAchievements(activeAchievementsData);
     }
   } catch (err) {
-    console.warn('[FitQuest Gamification]: Failed to load streaks/achievements:', err);
+    console.warn('[FitQuest Gamification Warning]: Utilizing local streak telemetry:', err);
   }
+}
+
+function getMergedStreakData(serverStreak) {
+  let localWorkouts = [];
+  try {
+    const raw = localStorage.getItem('fitquest_local_workouts');
+    if (raw) localWorkouts = JSON.parse(raw);
+  } catch (e) {}
+
+  const activeDates = new Set(serverStreak && serverStreak.active_dates ? serverStreak.active_dates : []);
+  for (const w of localWorkouts) {
+    if (w.timestamp) {
+      const dStr = new Date(w.timestamp).toISOString().split('T')[0];
+      activeDates.add(dStr);
+    }
+  }
+
+  const sortedDates = Array.from(activeDates).sort();
+  const todayStr = new Date().toISOString().split('T')[0];
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  let currentStreak = 0;
+  if (activeDates.has(todayStr)) {
+    currentStreak = 1;
+    let checkD = new Date(yesterday);
+    while (activeDates.has(checkD.toISOString().split('T')[0])) {
+      currentStreak++;
+      checkD.setDate(checkD.getDate() - 1);
+    }
+  } else if (activeDates.has(yesterdayStr)) {
+    currentStreak = 1;
+    let checkD = new Date(yesterday);
+    checkD.setDate(checkD.getDate() - 1);
+    while (activeDates.has(checkD.toISOString().split('T')[0])) {
+      currentStreak++;
+      checkD.setDate(checkD.getDate() - 1);
+    }
+  }
+
+  const longestStreak = Math.max(currentStreak, serverStreak ? (serverStreak.longest_streak || 0) : currentStreak);
+
+  return {
+    current_streak: currentStreak,
+    longest_streak: longestStreak,
+    total_workout_days: activeDates.size,
+    total_valid_workouts: Math.max(localWorkouts.length, serverStreak ? (serverStreak.total_valid_workouts || 0) : localWorkouts.length),
+    today_completed: activeDates.has(todayStr),
+    active_dates: sortedDates
+  };
 }
 
 /**

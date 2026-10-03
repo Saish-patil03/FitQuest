@@ -11,9 +11,12 @@ class AICoachingRequestPayload(BaseModel):
     session_data: WorkoutSessionData
     user_profile: Optional[UserProfile] = None
 
+from typing import List, Dict, Any
+
 class FitnessQARequestPayload(BaseModel):
     question: str
     user_profile: Optional[UserProfile] = None
+    recent_workouts: Optional[List[Dict[str, Any]]] = None
 
 @router.post("/coaching", summary="Generate Standalone AI Workout Coaching Feedback")
 def generate_ai_coaching(payload: AICoachingRequestPayload):
@@ -34,9 +37,14 @@ def generate_ai_coaching(payload: AICoachingRequestPayload):
 @router.post("/qa", summary="General Fitness & Biomechanics Q&A")
 def answer_fitness_question(payload: FitnessQARequestPayload):
     """
-    Answers user fitness, workout technique, diet, or recovery questions using AI Assistant.
+    Answers user fitness, workout technique, diet, or recovery questions using AI Assistant,
+    grounded with context from the athlete's previous workouts.
     """
-    answer = ai_service.answer_fitness_question(payload.question, payload.user_profile)
+    answer = ai_service.answer_fitness_question(
+        payload.question,
+        payload.user_profile,
+        recent_workouts=payload.recent_workouts
+    )
     return {
         "status": "success",
         "question": payload.question,

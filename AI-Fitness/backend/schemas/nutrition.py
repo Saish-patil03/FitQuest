@@ -122,6 +122,7 @@ class FoodAnalysisRequest(BaseModel):
     text_description: Optional[str] = Field(None, description="Text description of the food item")
 
 class FoodAnalysisResponse(BaseModel):
+    is_food: Optional[bool] = True
     food_name: str
     estimated_calories: int
     protein_g: float

@@ -89,9 +89,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ? getAuthenticatedUserProfile() 
         : { fitness_goal: 'General Fitness', experience_level: 'Beginner' };
 
+      // Retrieve recent workouts from localStorage to provide historical context
+      let recentWorkouts = [];
+      try {
+        const raw = localStorage.getItem('fitquest_local_workouts');
+        if (raw) {
+          const list = JSON.parse(raw);
+          recentWorkouts = list.slice(0, 5).map(w => ({
+            exercise_name: w.exercise_name || w.exerciseName || 'Workout',
+            reps: w.reps || w.rep_count || 0,
+            duration_sec: w.duration_sec || w.durationSec || 0,
+            form_score: w.form_score || w.formScore || 0,
+            date: w.timestamp ? new Date(w.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent',
+            coaching: w.ai_coaching || w.coaching || ''
+          }));
+        }
+      } catch (e) {}
+
       const payload = {
         question: question,
-        user_profile: profile
+        user_profile: profile,
+        recent_workouts: recentWorkouts
       };
 
       const response = await fetch(API_ENDPOINT, {

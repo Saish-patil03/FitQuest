@@ -137,7 +137,8 @@ class FitQuestGuideService:
         self,
         message: str,
         current_view: Optional[str] = None,
-        conversation_history: Optional[List[Dict[str, str]]] = None
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        recent_workouts: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
         """
         Processes a user query to FitQuest Guide.
@@ -149,6 +150,29 @@ class FitQuestGuideService:
         # Check navigation intent
         nav_action = self._detect_navigation_intent(msg_lower)
         nav_suggestion = self._detect_navigation_suggestion(msg_lower, current_view)
+
+        # Check if question is inquiring about previous workout performance
+        past_workout_terms = ["last workout", "previous workout", "how was my", "my form", "my reps", "how did i do", "past workout"]
+        if any(term in msg_lower for term in past_workout_terms):
+            if recent_workouts and len(recent_workouts) > 0:
+                summary_items = []
+                for w in recent_workouts[:3]:
+                    dt = w.get("date", "Recent")
+                    ex = w.get("exercise_name", "Workout")
+                    reps = w.get("reps", 0)
+                    score = w.get("form_score", 0)
+                    summary_items.append(f"• **{ex}** ({dt}): **{reps} reps**, Form Score: **{score}%**")
+
+                return {
+                    "reply": (
+                        "Here is your recent workout activity recorded in FitQuest:\n\n"
+                        + "\n".join(summary_items)
+                        + "\n\nFor personalized technique advice, rep progression, and workout plans, head over to the **AI Coach** tab!"
+                    ),
+                    "nav_suggestion": "aiCoachView",
+                    "nav_action": None,
+                    "provider": "FitQuest Workout History Memory"
+                }
 
         # Check AI Coach redirection (Fitness coaching question)
         if self._is_fitness_coaching_query(msg_lower):

@@ -70,11 +70,12 @@ def get_body_inclination(point_a, point_b):
 class AngleSmoother:
     """
     Multi-stage Angle Filter:
-    Combines 2-frame Median Pre-filter + Deadband Noise Gate + Bounded EMA Smoothing.
+    Combines 3-frame Median Pre-filter + Deadband Noise Gate + Bounded EMA Smoothing.
     Dampens camera keypoint jitter and single-frame tracking spikes while preserving fast physical motion.
     """
-    def __init__(self, alpha: float = 0.65, deadband_deg: float = 0.5, max_step_deg: float = 180.0, window_size: int = 3):
-        self.alpha = alpha
+    def __init__(self, alpha: float = 0.45, deadband_deg: float = 0.8, max_step_deg: float = 90.0, window_size: int = 3):
+        # Adaptive stabilization: clamp alpha to 0.48 to guarantee silky smooth angle transitions
+        self.alpha = min(alpha, 0.48) if alpha > 0.48 else alpha
         self.deadband_deg = deadband_deg
         self.max_step_deg = max_step_deg
         self.window_size = window_size
