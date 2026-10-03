@@ -2142,18 +2142,20 @@ async function loadWorkoutHistory() {
 
     container.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading workout history...</div>`;
 
-    // First attempt: /workouts/history (uses Bearer token directly)
-    let response = await fetch(`${API_BASE}/workouts/history`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    // Fallback: /workouts/user/{userId} if /workouts/history isn't available
-    if (!response.ok && userId) {
+    // Fetch history: try /workouts/user/{userId} first, fallback to /workouts/history
+    let response = null;
+    if (userId) {
       response = await fetch(`${API_BASE}/workouts/user/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    }
+
+    if (!response || !response.ok) {
+      response = await fetch(`${API_BASE}/workouts/history`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
