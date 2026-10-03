@@ -381,6 +381,10 @@ function switchTab(viewId) {
     if (typeof loadLeaderboardView === 'function') {
       loadLeaderboardView();
     }
+  } else if (viewId === 'profileView') {
+    if (typeof loadGamificationData === 'function') {
+      loadGamificationData();
+    }
   }
 }
 
@@ -1980,6 +1984,9 @@ async function endWorkoutSession() {
     duration_sec: workoutElapsedSeconds,
     form_score: isFinalZero ? 0.0 : currentFormScore,
     started_at: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+    date: new Date().toISOString(),
     exercise: { id: exerciseId, name: exerciseName }
   });
 

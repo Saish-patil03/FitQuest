@@ -51,6 +51,16 @@ async function loadGamificationData() {
   }
 }
 
+function getLocalDateString(dInput) {
+  if (!dInput) return null;
+  const d = new Date(dInput);
+  if (isNaN(d.getTime())) return null;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function getMergedStreakData(serverStreak) {
   let localWorkouts = [];
   try {
@@ -58,25 +68,45 @@ function getMergedStreakData(serverStreak) {
     if (raw) localWorkouts = JSON.parse(raw);
   } catch (e) {}
 
-  const activeDates = new Set(serverStreak && serverStreak.active_dates ? serverStreak.active_dates : []);
+  const activeDates = new Set();
+
+  // 1. Include server streak active dates
+  if (serverStreak && Array.isArray(serverStreak.active_dates)) {
+    for (const ad of serverStreak.active_dates) {
+      if (typeof ad === 'string') {
+        const localKey = getLocalDateString(ad);
+        if (localKey) activeDates.add(localKey);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(ad)) activeDates.add(ad);
+      }
+    }
+  }
+
+  // 2. Include all local workouts (checking started_at, timestamp, created_at, date)
   for (const w of localWorkouts) {
-    if (w.timestamp) {
-      const dStr = new Date(w.timestamp).toISOString().split('T')[0];
-      activeDates.add(dStr);
+    const reps = w.repetitions !== undefined ? w.repetitions : (w.reps !== undefined ? w.reps : (w.rep_count || 0));
+    if (reps >= 1 || (w.duration_sec && w.duration_sec >= 5)) {
+      const rawDate = w.started_at || w.timestamp || w.created_at || w.date;
+      if (rawDate) {
+        const dStr = getLocalDateString(rawDate);
+        if (dStr) {
+          activeDates.add(dStr);
+        }
+      }
     }
   }
 
   const sortedDates = Array.from(activeDates).sort();
-  const todayStr = new Date().toISOString().split('T')[0];
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const today = new Date();
+  const todayStr = getLocalDateString(today);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const yesterdayStr = getLocalDateString(yesterday);
 
   let currentStreak = 0;
   if (activeDates.has(todayStr)) {
     currentStreak = 1;
     let checkD = new Date(yesterday);
-    while (activeDates.has(checkD.toISOString().split('T')[0])) {
+    while (activeDates.has(getLocalDateString(checkD))) {
       currentStreak++;
       checkD.setDate(checkD.getDate() - 1);
     }
@@ -84,7 +114,7 @@ function getMergedStreakData(serverStreak) {
     currentStreak = 1;
     let checkD = new Date(yesterday);
     checkD.setDate(checkD.getDate() - 1);
-    while (activeDates.has(checkD.toISOString().split('T')[0])) {
+    while (activeDates.has(getLocalDateString(checkD))) {
       currentStreak++;
       checkD.setDate(checkD.getDate() - 1);
     }
@@ -168,6 +198,16 @@ function renderProfileStreakAndCalendar(streak) {
   const calendarContainer = document.getElementById('profCalendarContainer');
   if (!streak) return;
 
+  // Sync with Progress and Home views
+  const progStreak = document.getElementById('progCurrentStreak');
+  if (progStreak) {
+    progStreak.innerText = `${streak.current_streak} Day${streak.current_streak === 1 ? '' : 's'}`;
+  }
+  const dashStreak = document.getElementById('dashStreakSummary');
+  if (dashStreak) {
+    dashStreak.innerText = streak.today_completed ? `${streak.current_streak} Days 🔥` : `${streak.current_streak} Days`;
+  }
+
   if (statsContainer) {
     statsContainer.innerHTML = `
       <div class="prof-metric-box highlight-box">
@@ -195,7 +235,7 @@ function renderProfileStreakAndCalendar(streak) {
 }
 
 /**
- * Renders interactive monthly workout activity grid
+ * Renders interactive monthly workout activity grid with vibrant green active day badges
  */
 function renderMonthlyCalendarGrid(container, activeDates) {
   const activeSet = new Set(activeDates);
@@ -225,9 +265,9 @@ function renderMonthlyCalendarGrid(container, activeDates) {
     const isToday = day === now.getDate();
 
     cells.push(`
-      <div class="cal-cell ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}" title="${dateKey}">
-        <span class="cal-day-num">${day}</span>
-        <span class="cal-status-icon">${isActive ? '<i class="fa-solid fa-fire"></i>' : ''}</span>
+      <div class="cal-cell ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}" title="${dateKey}" ${isActive ? 'style="border: 1.5px solid #22c55e !important; background-color: rgba(34, 197, 94, 0.22) !important; color: #4ade80 !important; box-shadow: 0 0 10px rgba(34, 197, 94, 0.35); font-weight: 700;"' : ''}>
+        <span class="cal-day-num" ${isActive ? 'style="color: #4ade80 !important; font-weight: 800;"' : ''}>${day}</span>
+        <span class="cal-status-icon" ${isActive ? 'style="color: #22c55e !important;"' : ''}>${isActive ? '<i class="fa-solid fa-fire" style="color: #22c55e !important;"></i>' : ''}</span>
       </div>
     `);
   }
