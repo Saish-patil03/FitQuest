@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
 
 class UserCreate(BaseModel):
     name: str
@@ -13,6 +13,13 @@ class UserCreate(BaseModel):
     weight: Optional[float] = None
     gender: Optional[str] = None
 
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.strip().lower()
+        return v
+
 class UserRegister(BaseModel):
     name: str
     email: EmailStr
@@ -24,9 +31,23 @@ class UserRegister(BaseModel):
     weight: Optional[float] = None
     gender: Optional[str] = None
 
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.strip().lower()
+        return v
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.strip().lower()
+        return v
 
 class UserProfileUpdate(BaseModel):
     name: Optional[str] = None
@@ -60,6 +81,13 @@ class AuthTokenResponse(BaseModel):
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.strip().lower()
+        return v
 
 class ResetPasswordRequest(BaseModel):
     token: str

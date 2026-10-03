@@ -1,3 +1,4 @@
+import os
 import time
 import logging
 import re
@@ -7,6 +8,21 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from backend.config import settings
 
 logger = logging.getLogger("backend.database")
+
+def resolve_sqlite_url(url: str) -> str:
+    """
+    Resolves relative SQLite database URLs to an absolute canonical path
+    anchored to the project directory to prevent database fragmentation
+    when started from different working directories.
+    """
+    if url.startswith("sqlite:///") and not url.startswith("sqlite:///:memory:"):
+        raw_path = url[len("sqlite:///"):]
+        if not os.path.isabs(raw_path):
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            parent_db = os.path.join(os.path.dirname(base_dir), "ai_fitness.db")
+            target_db = parent_db if os.path.exists(parent_db) else os.path.join(base_dir, "ai_fitness.db")
+            return f"sqlite:///{target_db.replace(os.sep, '/')}"
+    return url
 
 # Normalize database URL scheme for SQLAlchemy 2.0 + psycopg2
 db_url = settings.DATABASE_URL.strip() if settings.DATABASE_URL else ""
@@ -26,6 +42,7 @@ if m:
 is_sqlite = db_url.startswith("sqlite")
 
 if is_sqlite:
+    db_url = resolve_sqlite_url(db_url)
     engine = create_engine(
         db_url,
         connect_args={"check_same_thread": False},
@@ -196,8 +213,9 @@ def init_db(max_retries: int = 5, initial_delay: float = 2.0, backoff_factor: fl
                 logger.warning(msg)
                 print(f"[WARN] {msg}")
                 is_sqlite = True
+                fallback_url = resolve_sqlite_url("sqlite:///ai_fitness.db")
                 engine = create_engine(
-                    "sqlite:///./ai_fitness.db",
+                    fallback_url,
                     connect_args={"check_same_thread": False},
                     echo=False
                 )
@@ -234,8 +252,9 @@ def init_db(max_retries: int = 5, initial_delay: float = 2.0, backoff_factor: fl
         if not is_sqlite:
             print(f"[WARN] Retries exhausted for PostgreSQL. Switching to SQLite.")
             is_sqlite = True
+            fallback_url = resolve_sqlite_url("sqlite:///ai_fitness.db")
             engine = create_engine(
-                "sqlite:///./ai_fitness.db",
+                fallback_url,
                 connect_args={"check_same_thread": False},
                 echo=False
             )

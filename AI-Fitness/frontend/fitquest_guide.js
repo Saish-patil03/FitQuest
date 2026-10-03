@@ -152,7 +152,7 @@
     const activePanel = document.querySelector('.view-panel.active');
     const currentViewId = activePanel ? activePanel.id : 'homeView';
 
-    const apiBase = window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1');
+    const apiBase = window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1');
     const endpoint = `${apiBase}/guide/chat`;
 
     try {

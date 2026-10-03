@@ -72,7 +72,7 @@ const EXERCISE_DEFAULT_PRESCRIPTIONS = {
 };
 
 // API Endpoints
-var API_BASE = window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1');
+var API_BASE = window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1');
 // Dedicated Computer Vision & Pose Telemetry Engine Base (Modal ML Microservice)
 // Separated from main application backend to ensure heavy webcam frame streams route directly to Modal
 const ML_API_BASE = window.getFitQuestMlBase ? window.getFitQuestMlBase() : (window.ML_API_BASE || 'https://nihartambe20--fitquest-ml-fastapi-app.modal.run');
@@ -1716,15 +1716,13 @@ async function endWorkoutSession() {
 
   try {
     const token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('fitquest_token');
-    const userId = typeof getAuthenticatedUserId === 'function' ? getAuthenticatedUserId() : null;
+    const userId = (typeof getAuthenticatedUserId === 'function' ? getAuthenticatedUserId() : null) || 0;
     const exerciseId = (selectedExercise && selectedExercise.id) ? selectedExercise.id : 1;
     const exerciseName = (selectedExercise && selectedExercise.name) ? selectedExercise.name : 'Exercise';
 
-    if (!token || !userId) {
-      console.warn('[FitQuest Auth]: Unauthenticated session save attempt.');
-      if (typeof showUnauthenticatedState === 'function') {
-        showUnauthenticatedState();
-      }
+    if (!token) {
+      console.warn('[FitQuest Auth]: Unauthenticated session save attempt (no token).');
+      document.getElementById('resAICoaching').innerHTML = `<p class="warning-text"><i class="fa-solid fa-triangle-exclamation"></i> Workout completed locally, but session could not be saved because you are not logged in. Please log in to record your workouts.</p>`;
       return;
     }
 
@@ -2137,12 +2135,15 @@ async function loadWorkoutHistory() {
     const userId = typeof getAuthenticatedUserId === 'function' ? getAuthenticatedUserId() : null;
     const token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('fitquest_token');
 
-    if (!userId || !token) {
+    if (!token) {
       container.innerHTML = `<div class="loading-spinner">Please log in to view your workout history.</div>`;
       return;
     }
 
-    const response = await fetch(`${API_BASE}/workouts/user/${userId}`, {
+    container.innerHTML = `<div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading workout history...</div>`;
+
+    // First attempt: /workouts/history (uses Bearer token directly)
+    let response = await fetch(`${API_BASE}/workouts/history`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -2150,39 +2151,55 @@ async function loadWorkoutHistory() {
       }
     });
 
+    // Fallback: /workouts/user/{userId} if /workouts/history isn't available
+    if (!response.ok && userId) {
+      response = await fetch(`${API_BASE}/workouts/user/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    }
+
     if (!response.ok) {
       throw new Error(`HTTP Error ${response.status}`);
     }
 
     const historyData = await response.json();
 
-    if (historyData.length === 0) {
+    if (!Array.isArray(historyData) || historyData.length === 0) {
       container.innerHTML = `<div class="loading-spinner">No workout history recorded yet. Complete a workout session to see your stats here!</div>`;
       return;
     }
 
-    container.innerHTML = historyData.map((item) => `
-      <div class="history-card">
-        <div class="history-info">
-          <h3>${escapeHTML(item.exercise ? item.exercise.name : 'Exercise Session')}</h3>
-          <div class="history-meta">
-            <i class="fa-solid fa-calendar"></i> ${new Date(item.started_at).toLocaleString()}
+    container.innerHTML = historyData.map((item) => {
+      const exName = item.exercise ? item.exercise.name : 'Exercise Session';
+      const formattedDate = item.started_at ? new Date(item.started_at).toLocaleString() : 'Recent Session';
+      const formDisplay = item.repetitions === 0 ? 'N/A Form' : `${item.form_score != null ? Math.round(item.form_score) : 0}% Form`;
+
+      return `
+        <div class="history-card">
+          <div class="history-info">
+            <h3>${escapeHTML(exName)}</h3>
+            <div class="history-meta">
+              <i class="fa-solid fa-calendar"></i> ${formattedDate}
+            </div>
+          </div>
+          <div class="history-metrics">
+            <span class="metric-pill">${item.repetitions} Reps</span>
+            <span class="metric-pill">${formatDuration(item.duration_sec || 0)}</span>
+            <span class="metric-pill score">${formDisplay}</span>
           </div>
         </div>
-        <div class="history-metrics">
-          <span class="metric-pill">${item.repetitions} Reps</span>
-          <span class="metric-pill">${formatDuration(item.duration_sec)}</span>
-          <span class="metric-pill score">${item.repetitions === 0 ? 'N/A Form' : item.form_score + '% Form'}</span>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
   } catch (error) {
     console.error('[FitQuest Error]: Failed to fetch history:', error);
     container.innerHTML = `
-
       <div class="loading-spinner" style="color: #ef4444;">
-        <i class="fa-solid fa-triangle-exclamation"></i> Could not fetch history from backend. Ensure FastAPI server is running.
+        <i class="fa-solid fa-triangle-exclamation"></i> Could not fetch history from backend. Ensure backend server is running.
       </div>
     `;
   }
@@ -2966,6 +2983,8 @@ window.handleSingleExerciseSetComplete = handleSingleExerciseSetComplete;
 window.resolveExercisePrescription = resolveExercisePrescription;
 window.stopCameraStream = stopCameraStream;
 window.createHardwareAcceleratedSession = createHardwareAcceleratedSession;
+window.loadWorkoutHistory = loadWorkoutHistory;
+window.endWorkoutSession = endWorkoutSession;
 
 // Page Visibility Safety: Stop active camera tracks if browser tab/window is hidden
 document.addEventListener('visibilitychange', () => {

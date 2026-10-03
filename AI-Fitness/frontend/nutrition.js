@@ -12,7 +12,7 @@ let pendingFoodAnalysisResult = null;
 let selectedFoodPhotoBase64 = null;
 
 function getNutritionApiBase() {
-  return window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1');
+  return window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

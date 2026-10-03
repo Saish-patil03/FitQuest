@@ -3,10 +3,17 @@
  * Manages Registration, Login, Token Storage, Persistent Sessions, Profile Updates, and Protected Route Redirection.
  */
 
-const AUTH_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1')) + '/auth';
+const AUTH_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1')) + '/auth';
 
 // State
-let currentUser = null;
+let currentUser = (() => {
+  try {
+    const saved = localStorage.getItem('fitquest_user');
+    return saved ? JSON.parse(saved) : null;
+  } catch (e) {
+    return null;
+  }
+})();
 let authToken = localStorage.getItem('fitquest_token') || null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -63,7 +70,7 @@ function initAuthUI() {
       e.preventDefault();
       clearAuthAlerts();
 
-      const email = document.getElementById('forgotEmail').value.trim();
+      const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
       if (!email) {
         showAuthError('Please enter a valid email address.');
         return;
@@ -158,7 +165,7 @@ function initAuthUI() {
       e.preventDefault();
       clearAuthAlerts();
 
-      const email = document.getElementById('loginEmail').value.trim();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
       const password = document.getElementById('loginPassword').value;
 
       if (!email || !password) {
@@ -196,7 +203,7 @@ function initAuthUI() {
       clearAuthAlerts();
 
       const name = document.getElementById('regName').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
       const password = document.getElementById('regPassword').value;
       const confirmPassword = document.getElementById('regConfirmPassword').value;
       const fitnessGoal = document.getElementById('regFitnessGoal').value;
@@ -282,6 +289,9 @@ function initAuthUI() {
         }
 
         currentUser = updatedUser;
+        if (currentUser) {
+          localStorage.setItem('fitquest_user', JSON.stringify(currentUser));
+        }
         renderProfilePage();
         updateUserNavBadge();
         toggleEditProfileModal(false);
@@ -302,6 +312,11 @@ async function checkPersistentSession() {
     return;
   }
 
+  // If currentUser is already cached in localStorage, restore UI immediately without blank flash
+  if (currentUser) {
+    showAuthenticatedState();
+  }
+
   try {
     const response = await fetch(`${AUTH_API_BASE}/me`, {
       method: 'GET',
@@ -309,14 +324,23 @@ async function checkPersistentSession() {
     });
 
     if (!response.ok) {
-      throw new Error('Token expired or invalid');
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Token expired or invalid');
+      }
+      console.warn('[FitQuest Auth]: Backend status', response.status, '- keeping session.');
+      return;
     }
 
     currentUser = await response.json();
+    if (currentUser) {
+      localStorage.setItem('fitquest_user', JSON.stringify(currentUser));
+    }
     showAuthenticatedState();
   } catch (err) {
     console.warn('[FitQuest Auth]: Persistent session check failed:', err);
-    logoutUser();
+    if (err && err.message === 'Token expired or invalid') {
+      logoutUser();
+    }
   }
 }
 
@@ -335,6 +359,9 @@ function handleAuthSuccess(authData) {
   authToken = authData.access_token;
   currentUser = authData.user;
   localStorage.setItem('fitquest_token', authToken);
+  if (currentUser) {
+    localStorage.setItem('fitquest_user', JSON.stringify(currentUser));
+  }
 
   showAuthenticatedState();
   safeSwitchTab('homeView');
@@ -355,6 +382,7 @@ async function logoutUser() {
   authToken = null;
   currentUser = null;
   localStorage.removeItem('fitquest_token');
+  localStorage.removeItem('fitquest_user');
 
   showUnauthenticatedState();
 }
@@ -644,7 +672,33 @@ function toggleEditProfileModal(show) {
  * Returns active user ID or null if unauthenticated
  */
 function getAuthenticatedUserId() {
-  return currentUser ? currentUser.id : null;
+  if (currentUser && currentUser.id) {
+    return currentUser.id;
+  }
+  try {
+    const saved = localStorage.getItem('fitquest_user');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.id) return parsed.id;
+    }
+  } catch (e) {}
+
+  // Fallback: decode JWT sub claim
+  const token = getAuthToken();
+  if (token) {
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        if (payload && payload.sub) {
+          const numId = parseInt(payload.sub, 10);
+          if (!isNaN(numId)) return numId;
+        }
+      }
+    } catch (e) {}
+  }
+
+  return null;
 }
 
 /**
@@ -658,13 +712,20 @@ function getAuthToken() {
  * Returns active user profile object for AI Coach
  */
 function getAuthenticatedUserProfile() {
-  if (!currentUser) {
+  let user = currentUser;
+  if (!user) {
+    try {
+      const saved = localStorage.getItem('fitquest_user');
+      if (saved) user = JSON.parse(saved);
+    } catch (e) {}
+  }
+  if (!user) {
     return null;
   }
   return {
-    user_id: String(currentUser.id),
-    fitness_goal: currentUser.fitness_goal || 'General Fitness',
-    experience_level: currentUser.experience_level || 'Beginner'
+    user_id: String(user.id),
+    fitness_goal: user.fitness_goal || 'General Fitness',
+    experience_level: user.experience_level || 'Beginner'
   };
 }
 
@@ -741,6 +802,9 @@ async function toggleLeaderboardPrivacy(checked) {
       throw new Error(updatedUser.detail || 'Failed to update leaderboard privacy.');
     }
     currentUser = updatedUser;
+    if (currentUser) {
+      localStorage.setItem('fitquest_user', JSON.stringify(currentUser));
+    }
     renderProfilePage();
     if (typeof loadLeaderboardView === 'function') {
       loadLeaderboardView();

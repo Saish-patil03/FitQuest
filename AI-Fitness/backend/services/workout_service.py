@@ -23,13 +23,15 @@ class WorkoutService:
     # --- User Operations ---
     @staticmethod
     def create_user(db: Session, user_in: UserCreate) -> UserModel:
-        existing = db.query(UserModel).filter(UserModel.email == user_in.email).first()
+        from sqlalchemy import func
+        clean_email = user_in.email.strip().lower()
+        existing = db.query(UserModel).filter(func.lower(UserModel.email) == clean_email).first()
         if existing:
             return existing
 
         user = UserModel(
-            name=user_in.name,
-            email=user_in.email,
+            name=user_in.name.strip() if user_in.name else "",
+            email=clean_email,
             fitness_goal=user_in.fitness_goal or "General Fitness",
             experience_level=user_in.experience_level or "Beginner",
             age=user_in.age,
@@ -48,14 +50,16 @@ class WorkoutService:
 
     @staticmethod
     def register_user(db: Session, reg_in) -> UserModel:
-        existing = db.query(UserModel).filter(UserModel.email == reg_in.email).first()
+        from sqlalchemy import func
+        clean_email = reg_in.email.strip().lower()
+        existing = db.query(UserModel).filter(func.lower(UserModel.email) == clean_email).first()
         if existing:
-            raise ValueError(f"An account with email '{reg_in.email}' already exists.")
+            raise ValueError(f"An account with email '{clean_email}' already exists.")
 
         from backend.utils.auth import hash_password
         user = UserModel(
-            name=reg_in.name,
-            email=reg_in.email,
+            name=reg_in.name.strip() if reg_in.name else "",
+            email=clean_email,
             password_hash=hash_password(reg_in.password),
             fitness_goal=reg_in.fitness_goal or "General Fitness",
             experience_level=reg_in.experience_level or "Beginner",
@@ -71,7 +75,11 @@ class WorkoutService:
 
     @staticmethod
     def authenticate_user(db: Session, email: str, password: str) -> Optional[UserModel]:
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        if not email or not password:
+            return None
+        from sqlalchemy import func
+        clean_email = email.strip().lower()
+        user = db.query(UserModel).filter(func.lower(UserModel.email) == clean_email).first()
         if not user or not user.password_hash:
             return None
         from backend.utils.auth import verify_password
@@ -156,19 +164,31 @@ class WorkoutService:
         feedback_events: Optional[List[str]] = None
     ) -> WorkoutSessionModel:
         user = db.query(UserModel).filter(UserModel.id == session_in.user_id).first()
-        exercise = db.query(ExerciseModel).filter(ExerciseModel.id == session_in.exercise_id).first()
-
         if not user:
             raise ValueError(f"User with ID {session_in.user_id} not found.")
+
+        exercise = db.query(ExerciseModel).filter(ExerciseModel.id == session_in.exercise_id).first()
         if not exercise:
-            raise ValueError(f"Exercise with ID {session_in.exercise_id} not found.")
+            from backend.database import DEFAULT_EXERCISES, seed_exercises
+            # Try to resolve by default exercise key
+            for key, name in DEFAULT_EXERCISES:
+                if str(key) == str(session_in.exercise_id):
+                    exercise = db.query(ExerciseModel).filter(ExerciseModel.name == name).first()
+                    break
+            if not exercise:
+                exercise = db.query(ExerciseModel).first()
+            if not exercise:
+                seed_exercises(db)
+                exercise = db.query(ExerciseModel).first()
+            if not exercise:
+                raise ValueError(f"Exercise with ID {session_in.exercise_id} not found.")
 
         actual_form_score = 0.0 if session_in.repetitions == 0 else session_in.form_score
 
         # 1. Create WorkoutSession Record
         workout_session = WorkoutSessionModel(
             user_id=session_in.user_id,
-            exercise_id=session_in.exercise_id,
+            exercise_id=exercise.id,
             repetitions=session_in.repetitions,
             duration_sec=session_in.duration_sec,
             form_score=actual_form_score,
@@ -215,8 +235,11 @@ class WorkoutService:
 
         # 5. Automatically evaluate & award gamification achievements for valid workouts (reps >= 1)
         if session_in.repetitions >= 1:
-            from backend.services.gamification_service import gamification_service
-            gamification_service.evaluate_and_award_achievements(db, user.id)
+            try:
+                from backend.services.gamification_service import gamification_service
+                gamification_service.evaluate_and_award_achievements(db, user.id)
+            except Exception as gm_err:
+                logger.warning(f"Non-fatal achievement evaluation error: {gm_err}")
 
         # Commit transaction
         db.commit()

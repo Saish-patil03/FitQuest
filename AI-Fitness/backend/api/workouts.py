@@ -336,6 +336,34 @@ async def live_workout_websocket(websocket: WebSocket, exercise_choice: str):
     finally:
         cv_live_service.close_session(session_id)
 
+@router.get("/history", response_model=List[WorkoutSessionResponse], summary="Get Workout History for Authenticated User")
+def get_my_workout_history(
+    auth_user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves historical workout sessions for the currently authenticated user.
+    """
+    return workout_service.get_user_workouts(db, auth_user_id)
+
+@router.get("/user/{user_id}", response_model=List[WorkoutSessionResponse], summary="Get Workout History for a User")
+def get_user_workouts(
+    user_id: int,
+    auth_user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves historical workout sessions for a given user.
+    Enforces authorization: users can only view their own workout history.
+    """
+    target_id = auth_user_id if user_id in (0, auth_user_id) else user_id
+    if auth_user_id != target_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Cannot access another user's workout history."
+        )
+    return workout_service.get_user_workouts(db, target_id)
+
 @router.get("/{session_id}", response_model=WorkoutSessionResponse, summary="Get Workout Session details by ID")
 def get_workout_session(
     session_id: int,
@@ -355,21 +383,4 @@ def get_workout_session(
             detail="Access denied. Cannot access another user's workout session."
         )
     return session
-
-@router.get("/user/{user_id}", response_model=List[WorkoutSessionResponse], summary="Get Workout History for a User")
-def get_user_workouts(
-    user_id: int,
-    auth_user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db)
-):
-    """
-    Retrieves historical workout sessions for a given user.
-    Enforces authorization: users can only view their own workout history.
-    """
-    if auth_user_id != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied. Cannot access another user's workout history."
-        )
-    return workout_service.get_user_workouts(db, user_id)
 
