@@ -35,29 +35,24 @@
     if (typeof window !== 'undefined' && window.FITQUEST_API_OVERRIDE) {
       return window.FITQUEST_API_OVERRIDE;
     }
-    if (typeof window !== 'undefined' && window.API_BASE) {
-      if (!isLocalDev && (window.API_BASE.indexOf('127.0.0.1') !== -1 || window.API_BASE.indexOf('localhost') !== -1)) {
-        return PRODUCTION_BACKEND_URL;
-      }
+    if (typeof window !== 'undefined' && window.API_BASE && window.API_BASE !== LOCAL_BACKEND_URL) {
       return window.API_BASE;
     }
-    return isLocalDev ? LOCAL_BACKEND_URL : PRODUCTION_BACKEND_URL;
+    return PRODUCTION_BACKEND_URL;
   }
 
   /**
    * Resolves the active Modal ML base URL
+   * Always routes to the live cloud ML engine unless explicitly overridden with FITQUEST_ML_OVERRIDE
    */
   function getMlBase() {
     if (typeof window !== 'undefined' && window.FITQUEST_ML_OVERRIDE) {
       return window.FITQUEST_ML_OVERRIDE;
     }
-    if (typeof window !== 'undefined' && window.ML_API_BASE) {
-      if (!isLocalDev && (window.ML_API_BASE.indexOf('127.0.0.1') !== -1 || window.ML_API_BASE.indexOf('localhost') !== -1)) {
-        return PRODUCTION_MODAL_ML_URL;
-      }
+    if (typeof window !== 'undefined' && window.ML_API_BASE && window.ML_API_BASE !== LOCAL_MODAL_ML_URL) {
       return window.ML_API_BASE;
     }
-    return isLocalDev ? LOCAL_MODAL_ML_URL : PRODUCTION_MODAL_ML_URL;
+    return PRODUCTION_MODAL_ML_URL;
   }
 
   // Assign to window object
