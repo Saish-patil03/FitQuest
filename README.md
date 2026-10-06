@@ -18,11 +18,7 @@ backend, persistent workout data, and AI-powered coaching.
 | Service | Environment / Host | Direct Link | Status |
 | :--- | :--- | :--- | :--- |
 | **FitQuest Web App** | Vercel (Production) | [https://fitquest-frontend-one.vercel.app](https://fitquest-frontend-one.vercel.app) | ![Production](https://img.shields.io/badge/Status-Live-success) |
-| **Frontend Mirror** | Vercel (Backup) | [https://frontend-nine-rho-41.vercel.app](https://frontend-nine-rho-41.vercel.app) | ![Production](https://img.shields.io/badge/Status-Live-success) |
-| **FastAPI Backend API** | Modal Serverless | [https://saish-patil03--fitquest-backend-serve.modal.run](https://saish-patil03--fitquest-backend-serve.modal.run) | ![Operational](https://img.shields.io/badge/Status-Operational-success) |
-| **Interactive API Docs** | Swagger UI | [https://saish-patil03--fitquest-backend-serve.modal.run/docs](https://saish-patil03--fitquest-backend-serve.modal.run/docs) | ![Swagger](https://img.shields.io/badge/Docs-Swagger_UI-blue) |
-| **API Health Check** | Modal Endpoint | [https://saish-patil03--fitquest-backend-serve.modal.run/health](https://saish-patil03--fitquest-backend-serve.modal.run/health) | ![Health](https://img.shields.io/badge/Health-200_OK-brightgreen) |
-| **Modal ML CV Engine** | Modal Serverless | [https://nihartambe20--fitquest-ml-fastapi-app.modal.run](https://nihartambe20--fitquest-ml-fastapi-app.modal.run) | ![Operational](https://img.shields.io/badge/Status-Operational-success) |
+
 
 ---
 
