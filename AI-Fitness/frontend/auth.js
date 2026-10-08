@@ -243,7 +243,7 @@ function initAuthUI() {
             });
             return;
           } else {
-            throw new Error('Incorrect password. Please verify your password.');
+            throw new Error('Incorrect password for this saved local account. If you forgot your password, switch to "Create Account" tab to update it, or use One-Click Instant Access below.');
           }
         }
 
@@ -257,7 +257,32 @@ function initAuthUI() {
           return;
         }
 
-        throw new Error('No local account found for this email. Since the cloud backend is currently offline, please switch to the "Create Account" tab above to register and start training immediately!');
+        // Seamless Auto-Provisioning for Offline / Cloud-Disconnected Mode:
+        // Automatically initialize their local profile with their email & password so the user is never blocked!
+        const rawName = email.split('@')[0].replace(/[._-]/g, ' ').trim();
+        const cleanName = rawName ? (rawName.charAt(0).toUpperCase() + rawName.slice(1)) : 'Athlete';
+        const newUserId = 'user_' + Date.now().toString(36);
+        const newUser = {
+          id: localUserId,
+          name: cleanName,
+          email: email,
+          fitness_goal: 'Improve General Fitness',
+          experience_level: 'Intermediate',
+          age: 24,
+          height: 175,
+          weight: 70,
+          gender: 'Prefer not to say',
+          leaderboard_visible: true,
+          created_at: new Date().toISOString()
+        };
+
+        saveLocalAccount(email, newUser, password);
+        handleAuthSuccess({
+          access_token: 'local_token_' + Date.now(),
+          token_type: 'bearer',
+          user: newUser
+        });
+        return;
 
       } catch (err) {
         showAuthError(err.message);
@@ -339,11 +364,9 @@ function initAuthUI() {
         // 2. Resilient Local-First Registration Fallback
         if (serverFailed || !authResult) {
           const localAccounts = getLocalAccounts();
-          if (localAccounts[email]) {
-            throw new Error('An account with this email already exists. Please log in.');
-          }
+          const existing = localAccounts[email];
 
-          const localUserId = 'user_' + Date.now().toString(36);
+          const localUserId = existing ? existing.user.id : ('user_' + Date.now().toString(36));
           const newUser = {
             id: localUserId,
             name: name,
@@ -355,8 +378,11 @@ function initAuthUI() {
             weight: weight || 70,
             gender: gender || 'Prefer not to say',
             leaderboard_visible: true,
-            created_at: new Date().toISOString()
+            created_at: existing ? (existing.user.created_at || new Date().toISOString()) : new Date().toISOString(),
+            updated_at: new Date().toISOString()
           };
+
+          saveLocalAccount(email, newUser, password);
 
           authResult = {
             access_token: 'local_token_' + Date.now(),
@@ -964,4 +990,40 @@ async function toggleLeaderboardPrivacy(checked) {
 
 window.renderProfilePage = renderProfilePage;
 window.toggleLeaderboardPrivacy = toggleLeaderboardPrivacy;
+
+/**
+ * One-Click Instant Guest / Offline Access
+ * Instantly logs in the user with an offline profile so they can immediately access
+ * the dashboard, camera workouts, movement intelligence, and exercises without typing credentials.
+ */
+function quickGuestLogin() {
+  const email = 'athlete@fitquest.ai';
+  const name = 'FitQuest Athlete';
+  const localAccounts = getLocalAccounts();
+  let user = localAccounts[email] ? localAccounts[email].user : null;
+  if (!user) {
+    user = {
+      id: 'athlete_demo',
+      name: name,
+      email: email,
+      fitness_goal: 'Athletic Conditioning & Muscle Tone',
+      experience_level: 'Intermediate',
+      age: 25,
+      height: 178,
+      weight: 72,
+      gender: 'Prefer not to say',
+      leaderboard_visible: true,
+      created_at: new Date().toISOString()
+    };
+    saveLocalAccount(email, user, 'fitquest2026');
+  }
+  handleAuthSuccess({
+    access_token: 'local_token_guest_' + Date.now(),
+    token_type: 'bearer',
+    user: user
+  });
+}
+
+window.quickGuestLogin = quickGuestLogin;
+
 
