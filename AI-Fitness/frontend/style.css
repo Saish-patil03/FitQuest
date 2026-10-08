@@ -6519,10 +6519,24 @@ body {
 }
 
 .cal-cell.active {
-  border-color: var(--accent-lime-border);
-  background-color: var(--accent-lime-muted);
-  color: var(--accent-lime);
+  border: 1.5px solid #22c55e !important;
+  background-color: rgba(34, 197, 94, 0.22) !important;
+  color: #4ade80 !important;
   font-weight: 700;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.35);
+}
+
+.cal-cell.active .cal-day-num {
+  color: #4ade80 !important;
+  font-weight: 800;
+}
+
+.cal-cell.active .cal-status-icon {
+  color: #22c55e !important;
+}
+
+.cal-cell.active .cal-status-icon i {
+  color: #22c55e !important;
 }
 
 .cal-cell.today {

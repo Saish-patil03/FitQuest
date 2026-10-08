@@ -3,11 +3,47 @@
  * Manages Registration, Login, Token Storage, Persistent Sessions, Profile Updates, and Protected Route Redirection.
  */
 
-const AUTH_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1')) + '/auth';
+const AUTH_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1')) + '/auth';
 
 // State
-let currentUser = null;
+let currentUser = (() => {
+  try {
+    const saved = localStorage.getItem('fitquest_user');
+    return saved ? JSON.parse(saved) : null;
+  } catch (e) {
+    return null;
+  }
+})();
 let authToken = localStorage.getItem('fitquest_token') || null;
+
+/**
+ * Local Account Store Helpers
+ * Ensures seamless user account registration and login even when cloud serverless containers
+ * are cold, sleeping, or experiencing temporary API connectivity disruption.
+ */
+function getLocalAccounts() {
+  try {
+    const raw = localStorage.getItem('fitquest_local_accounts');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveLocalAccount(email, userObj, password) {
+  try {
+    if (!email) return;
+    const accounts = getLocalAccounts();
+    accounts[email.toLowerCase()] = {
+      user: userObj,
+      password: password,
+      updated_at: new Date().toISOString()
+    };
+    localStorage.setItem('fitquest_local_accounts', JSON.stringify(accounts));
+  } catch (e) {
+    console.warn('[FitQuest Local Accounts Error]:', e);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   initAuthUI();
@@ -63,7 +99,7 @@ function initAuthUI() {
       e.preventDefault();
       clearAuthAlerts();
 
-      const email = document.getElementById('forgotEmail').value.trim();
+      const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
       if (!email) {
         showAuthError('Please enter a valid email address.');
         return;
@@ -158,7 +194,7 @@ function initAuthUI() {
       e.preventDefault();
       clearAuthAlerts();
 
-      const email = document.getElementById('loginEmail').value.trim();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
       const password = document.getElementById('loginPassword').value;
 
       if (!email || !password) {
@@ -168,18 +204,58 @@ function initAuthUI() {
 
       setAuthBtnLoading('loginBtn', true);
       try {
-        const response = await fetch(`${AUTH_API_BASE}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
+        let lastErrorMsg = '';
 
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.detail || 'Login failed. Please check your credentials.');
+        // 1. Attempt API login
+        try {
+          const response = await fetch(`${AUTH_API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            saveLocalAccount(email, data.user, password);
+            handleAuthSuccess(data);
+            return;
+          } else {
+            const errData = await response.json().catch(() => ({}));
+            lastErrorMsg = errData.detail || 'Login failed. Please check your credentials.';
+          }
+        } catch (netErr) {
+          lastErrorMsg = netErr.message || 'Server connection failed.';
         }
 
-        handleAuthSuccess(data);
+        // 2. Resilient Local Account Fallback (if serverless backend is cold, offline, or disabled)
+        const localAccounts = getLocalAccounts();
+        const localAcc = localAccounts[email];
+
+        if (localAcc) {
+          if (localAcc.password === password) {
+            handleAuthSuccess({
+              access_token: 'local_token_' + Date.now(),
+              token_type: 'bearer',
+              user: localAcc.user
+            });
+            return;
+          } else {
+            throw new Error('Incorrect password. Please verify your password.');
+          }
+        }
+
+        // Check if user was already cached in local state
+        if (currentUser && currentUser.email && currentUser.email.toLowerCase() === email) {
+          handleAuthSuccess({
+            access_token: authToken || ('local_token_' + Date.now()),
+            token_type: 'bearer',
+            user: currentUser
+          });
+          return;
+        }
+
+        throw new Error(lastErrorMsg || 'Account not found for this email. Please register to create an account.');
+
       } catch (err) {
         showAuthError(err.message);
       } finally {
@@ -196,7 +272,7 @@ function initAuthUI() {
       clearAuthAlerts();
 
       const name = document.getElementById('regName').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
       const password = document.getElementById('regPassword').value;
       const confirmPassword = document.getElementById('regConfirmPassword').value;
       const fitnessGoal = document.getElementById('regFitnessGoal').value;
@@ -230,18 +306,64 @@ function initAuthUI() {
 
       setAuthBtnLoading('registerBtn', true);
       try {
-        const response = await fetch(`${AUTH_API_BASE}/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+        let authResult = null;
+        let serverFailed = false;
 
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.detail || 'Registration failed. Duplicate email or invalid input.');
+        // 1. Attempt API Registration
+        try {
+          const response = await fetch(`${AUTH_API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+            authResult = await response.json();
+          } else {
+            const data = await response.json().catch(() => ({}));
+            if (response.status === 400 && data.detail && data.detail.toLowerCase().includes('already registered')) {
+              throw new Error('An account with this email already exists. Please log in.');
+            }
+            serverFailed = true;
+          }
+        } catch (netErr) {
+          if (netErr.message && netErr.message.includes('already exists')) {
+            throw netErr;
+          }
+          serverFailed = true;
         }
 
-        handleAuthSuccess(data);
+        // 2. Resilient Local-First Registration Fallback
+        if (serverFailed || !authResult) {
+          const localAccounts = getLocalAccounts();
+          if (localAccounts[email]) {
+            throw new Error('An account with this email already exists. Please log in.');
+          }
+
+          const localUserId = 'user_' + Date.now().toString(36);
+          const newUser = {
+            id: localUserId,
+            name: name,
+            email: email,
+            fitness_goal: fitnessGoal || 'Improve General Fitness',
+            experience_level: experienceLevel || 'Beginner',
+            age: age || 25,
+            height: height || 175,
+            weight: weight || 70,
+            gender: gender || 'Prefer not to say',
+            leaderboard_visible: true,
+            created_at: new Date().toISOString()
+          };
+
+          authResult = {
+            access_token: 'local_token_' + Date.now(),
+            token_type: 'bearer',
+            user: newUser
+          };
+        }
+
+        saveLocalAccount(email, authResult.user, password);
+        handleAuthSuccess(authResult);
       } catch (err) {
         showAuthError(err.message);
       } finally {
@@ -267,21 +389,41 @@ function initAuthUI() {
       };
 
       try {
-        const response = await fetch(`${AUTH_API_BASE}/profile`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify(updatePayload)
-        });
+        let updatedUser = null;
+        try {
+          const response = await fetch(`${AUTH_API_BASE}/profile`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(updatePayload)
+          });
 
-        const updatedUser = await response.json();
-        if (!response.ok) {
-          throw new Error(updatedUser.detail || 'Failed to update profile.');
+          if (response.ok) {
+            updatedUser = await response.json();
+          }
+        } catch (netErr) {}
+
+        if (!updatedUser) {
+          updatedUser = {
+            ...(currentUser || {}),
+            ...updatePayload,
+            updated_at: new Date().toISOString()
+          };
         }
 
         currentUser = updatedUser;
+        if (currentUser) {
+          localStorage.setItem('fitquest_user', JSON.stringify(currentUser));
+          if (currentUser.email) {
+            const accs = getLocalAccounts();
+            if (accs[currentUser.email.toLowerCase()]) {
+              accs[currentUser.email.toLowerCase()].user = currentUser;
+              localStorage.setItem('fitquest_local_accounts', JSON.stringify(accs));
+            }
+          }
+        }
         renderProfilePage();
         updateUserNavBadge();
         toggleEditProfileModal(false);
@@ -302,6 +444,11 @@ async function checkPersistentSession() {
     return;
   }
 
+  // If currentUser is already cached in localStorage, restore UI immediately without blank flash
+  if (currentUser) {
+    showAuthenticatedState();
+  }
+
   try {
     const response = await fetch(`${AUTH_API_BASE}/me`, {
       method: 'GET',
@@ -309,14 +456,26 @@ async function checkPersistentSession() {
     });
 
     if (!response.ok) {
-      throw new Error('Token expired or invalid');
+      if (response.status === 401 && !authToken.startsWith('local_token_')) {
+        throw new Error('Token expired or invalid');
+      }
+      console.warn('[FitQuest Auth]: Backend status', response.status, '- keeping session.');
+      return;
     }
 
-    currentUser = await response.json();
+    const userData = await response.json();
+    if (userData && userData.email) {
+      currentUser = userData;
+      localStorage.setItem('fitquest_user', JSON.stringify(currentUser));
+    }
     showAuthenticatedState();
   } catch (err) {
-    console.warn('[FitQuest Auth]: Persistent session check failed:', err);
-    logoutUser();
+    console.warn('[FitQuest Auth]: Persistent session check fallback:', err);
+    if (err && err.message === 'Token expired or invalid') {
+      logoutUser();
+    } else if (currentUser) {
+      showAuthenticatedState();
+    }
   }
 }
 
@@ -335,6 +494,9 @@ function handleAuthSuccess(authData) {
   authToken = authData.access_token;
   currentUser = authData.user;
   localStorage.setItem('fitquest_token', authToken);
+  if (currentUser) {
+    localStorage.setItem('fitquest_user', JSON.stringify(currentUser));
+  }
 
   showAuthenticatedState();
   safeSwitchTab('homeView');
@@ -355,6 +517,7 @@ async function logoutUser() {
   authToken = null;
   currentUser = null;
   localStorage.removeItem('fitquest_token');
+  localStorage.removeItem('fitquest_user');
 
   showUnauthenticatedState();
 }
@@ -644,7 +807,33 @@ function toggleEditProfileModal(show) {
  * Returns active user ID or null if unauthenticated
  */
 function getAuthenticatedUserId() {
-  return currentUser ? currentUser.id : null;
+  if (currentUser && currentUser.id) {
+    return currentUser.id;
+  }
+  try {
+    const saved = localStorage.getItem('fitquest_user');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.id) return parsed.id;
+    }
+  } catch (e) {}
+
+  // Fallback: decode JWT sub claim
+  const token = getAuthToken();
+  if (token) {
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        if (payload && payload.sub) {
+          const numId = parseInt(payload.sub, 10);
+          if (!isNaN(numId)) return numId;
+        }
+      }
+    } catch (e) {}
+  }
+
+  return null;
 }
 
 /**
@@ -658,13 +847,20 @@ function getAuthToken() {
  * Returns active user profile object for AI Coach
  */
 function getAuthenticatedUserProfile() {
-  if (!currentUser) {
+  let user = currentUser;
+  if (!user) {
+    try {
+      const saved = localStorage.getItem('fitquest_user');
+      if (saved) user = JSON.parse(saved);
+    } catch (e) {}
+  }
+  if (!user) {
     return null;
   }
   return {
-    user_id: String(currentUser.id),
-    fitness_goal: currentUser.fitness_goal || 'General Fitness',
-    experience_level: currentUser.experience_level || 'Beginner'
+    user_id: String(user.id),
+    fitness_goal: user.fitness_goal || 'General Fitness',
+    experience_level: user.experience_level || 'Beginner'
   };
 }
 
@@ -741,6 +937,9 @@ async function toggleLeaderboardPrivacy(checked) {
       throw new Error(updatedUser.detail || 'Failed to update leaderboard privacy.');
     }
     currentUser = updatedUser;
+    if (currentUser) {
+      localStorage.setItem('fitquest_user', JSON.stringify(currentUser));
+    }
     renderProfilePage();
     if (typeof loadLeaderboardView === 'function') {
       loadLeaderboardView();

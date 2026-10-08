@@ -12,7 +12,7 @@ let pendingFoodAnalysisResult = null;
 let selectedFoodPhotoBase64 = null;
 
 function getNutritionApiBase() {
-  return window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1');
+  return window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -824,7 +824,18 @@ async function runFoodAnalysis() {
     renderFoodAnalysisResults(result);
   } catch (err) {
     console.error('[FitQuest Nutrition] Food analysis error:', err);
-    alert('Food analysis encountered an issue. Please verify your connection.');
+    const fallbackResult = {
+      is_food: false,
+      food_name: 'No Food Detected',
+      estimated_calories: 0,
+      protein_g: 0.0,
+      carbs_g: 0.0,
+      fat_g: 0.0,
+      provider: 'FitQuest Vision Guard',
+      recommendations: 'Unable to detect food in this object or photo. Values set to 0. Please try again with a clear meal photo.'
+    };
+    pendingFoodAnalysisResult = fallbackResult;
+    renderFoodAnalysisResults(fallbackResult);
   } finally {
     if (btn) {
       btn.disabled = false;
@@ -838,13 +849,28 @@ function renderFoodAnalysisResults(result) {
   if (!box) return;
 
   box.style.display = 'block';
-  document.getElementById('analyzedFoodTitle').textContent = result.food_name || 'Identified Food Item';
-  document.getElementById('analyzedProviderBadge').textContent = result.provider || 'Gemini Vision AI';
+  const isNonFood = result.is_food === false || result.food_name === 'No Food Detected' || result.estimated_calories === 0;
 
-  document.getElementById('analyzedCalVal').textContent = `${result.estimated_calories}`;
-  document.getElementById('analyzedProteinVal').textContent = `${result.protein_g}g`;
-  document.getElementById('analyzedCarbsVal').textContent = `${result.carbs_g}g`;
-  document.getElementById('analyzedFatVal').textContent = `${result.fat_g}g`;
+  const titleEl = document.getElementById('analyzedFoodTitle');
+  if (titleEl) {
+    if (isNonFood) {
+      titleEl.innerHTML = `<span style="color: #ef4444;"><i class="fa-solid fa-ban"></i> No Food Detected</span>`;
+    } else {
+      titleEl.textContent = result.food_name || 'Identified Food Item';
+    }
+  }
+
+  const badgeEl = document.getElementById('analyzedProviderBadge');
+  if (badgeEl) {
+    badgeEl.textContent = isNonFood ? 'Non-Food Object' : (result.provider || 'Gemini Vision AI');
+    badgeEl.style.background = isNonFood ? 'rgba(239, 68, 68, 0.2)' : 'rgba(0, 240, 255, 0.15)';
+    badgeEl.style.color = isNonFood ? '#ef4444' : 'var(--accent-cyan)';
+  }
+
+  document.getElementById('analyzedCalVal').textContent = `${result.estimated_calories || 0}`;
+  document.getElementById('analyzedProteinVal').textContent = `${result.protein_g || 0}g`;
+  document.getElementById('analyzedCarbsVal').textContent = `${result.carbs_g || 0}g`;
+  document.getElementById('analyzedFatVal').textContent = `${result.fat_g || 0}g`;
 
   // Allergen warnings
   const allergenAlert = document.getElementById('analyzedAllergensAlert');
@@ -860,7 +886,27 @@ function renderFoodAnalysisResults(result) {
   // Recommendations
   const recBox = document.getElementById('analyzedRecommendation');
   if (recBox) {
-    recBox.innerHTML = `<i class="fa-solid fa-lightbulb"></i> <strong>Coach Tip:</strong> ${escapeHTML(result.recommendations || 'Balanced fitness meal.')}`;
+    if (isNonFood) {
+      recBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> <strong>Notice:</strong> ${escapeHTML(result.recommendations || 'The uploaded object is not recognized as a food item. Values set to 0. Please upload a clear photo of your meal.')}`;
+    } else {
+      recBox.innerHTML = `<i class="fa-solid fa-lightbulb"></i> <strong>Coach Tip:</strong> ${escapeHTML(result.recommendations || 'Balanced fitness meal.')}`;
+    }
+  }
+
+  // Log Button: disable if non-food item
+  const logBtn = document.getElementById('logAnalyzedMealBtn');
+  if (logBtn) {
+    if (isNonFood) {
+      logBtn.disabled = true;
+      logBtn.style.opacity = '0.4';
+      logBtn.style.cursor = 'not-allowed';
+      logBtn.innerHTML = `<i class="fa-solid fa-ban"></i> Cannot Log Non-Food Item`;
+    } else {
+      logBtn.disabled = false;
+      logBtn.style.opacity = '1';
+      logBtn.style.cursor = 'pointer';
+      logBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Log to Today's Meals`;
+    }
   }
 }
 

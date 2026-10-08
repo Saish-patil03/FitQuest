@@ -152,19 +152,35 @@
     const activePanel = document.querySelector('.view-panel.active');
     const currentViewId = activePanel ? activePanel.id : 'homeView';
 
-    const apiBase = window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1');
+    const apiBase = window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1');
     const endpoint = `${apiBase}/guide/chat`;
+
+    const token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('fitquest_token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    let recentWorkouts = [];
+    try {
+      const raw = localStorage.getItem('fitquest_local_workouts');
+      if (raw) {
+        recentWorkouts = JSON.parse(raw).slice(0, 5).map(w => ({
+          exercise_name: w.exercise_name || w.exerciseName || 'Workout',
+          reps: w.reps || w.rep_count || 0,
+          form_score: w.form_score || w.formScore || 0,
+          date: w.timestamp ? new Date(w.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent'
+        }));
+      }
+    } catch (e) {}
 
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify({
           message: question,
           current_view: currentViewId,
-          conversation_history: guideHistory.slice(-6)
+          conversation_history: guideHistory.slice(-6),
+          recent_workouts: recentWorkouts
         })
       });
 

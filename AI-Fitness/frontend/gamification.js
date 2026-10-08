@@ -3,8 +3,8 @@
  * Fetches and renders streak metrics, weekly/monthly activity calendars, achievement badges, and toast notifications.
  */
 
-const STREAK_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1')) + '/streaks';
-const ACH_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1')) + '/achievements';
+const STREAK_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1')) + '/streaks';
+const ACH_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1')) + '/achievements';
 
 let activeStreakData = null;
 let activeAchievementsData = null;
@@ -20,16 +20,24 @@ document.addEventListener('DOMContentLoaded', () => {
  * Loads streak metrics and achievements from backend APIs
  */
 async function loadGamificationData() {
-  if (typeof authToken === 'undefined' || !authToken) return;
+  const token = typeof getAuthToken === 'function' ? getAuthToken() : (typeof authToken !== 'undefined' ? authToken : localStorage.getItem('fitquest_token'));
+
+  // Immediate local-first rendering so streak never lags or shows 0 if workouts exist
+  const initialStreak = getMergedStreakData(null);
+  renderHomeStreakWidget(initialStreak);
+  renderProfileStreakAndCalendar(initialStreak);
+
+  if (!token) return;
 
   try {
     const [streakRes, achRes] = await Promise.all([
-      fetch(`${STREAK_API_BASE}/me`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
-      fetch(`${ACH_API_BASE}/me`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+      fetch(`${STREAK_API_BASE}/me`, { headers: { 'Authorization': `Bearer ${token}` } }),
+      fetch(`${ACH_API_BASE}/me`, { headers: { 'Authorization': `Bearer ${token}` } })
     ]);
 
     if (streakRes.ok) {
-      activeStreakData = await streakRes.json();
+      const serverStreak = await streakRes.json();
+      activeStreakData = getMergedStreakData(serverStreak);
       renderHomeStreakWidget(activeStreakData);
       renderProfileStreakAndCalendar(activeStreakData);
     }
@@ -39,8 +47,89 @@ async function loadGamificationData() {
       renderProfileAchievements(activeAchievementsData);
     }
   } catch (err) {
-    console.warn('[FitQuest Gamification]: Failed to load streaks/achievements:', err);
+    console.warn('[FitQuest Gamification Warning]: Utilizing local streak telemetry:', err);
   }
+}
+
+function getLocalDateString(dInput) {
+  if (!dInput) return null;
+  const d = new Date(dInput);
+  if (isNaN(d.getTime())) return null;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getMergedStreakData(serverStreak) {
+  let localWorkouts = [];
+  try {
+    const raw = localStorage.getItem('fitquest_local_workouts');
+    if (raw) localWorkouts = JSON.parse(raw);
+  } catch (e) {}
+
+  const activeDates = new Set();
+
+  // 1. Include server streak active dates
+  if (serverStreak && Array.isArray(serverStreak.active_dates)) {
+    for (const ad of serverStreak.active_dates) {
+      if (typeof ad === 'string') {
+        const localKey = getLocalDateString(ad);
+        if (localKey) activeDates.add(localKey);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(ad)) activeDates.add(ad);
+      }
+    }
+  }
+
+  // 2. Include all local workouts (checking started_at, timestamp, created_at, date)
+  for (const w of localWorkouts) {
+    const reps = w.repetitions !== undefined ? w.repetitions : (w.reps !== undefined ? w.reps : (w.rep_count || 0));
+    if (reps >= 1 || (w.duration_sec && w.duration_sec >= 5)) {
+      const rawDate = w.started_at || w.timestamp || w.created_at || w.date;
+      if (rawDate) {
+        const dStr = getLocalDateString(rawDate);
+        if (dStr) {
+          activeDates.add(dStr);
+        }
+      }
+    }
+  }
+
+  const sortedDates = Array.from(activeDates).sort();
+  const today = new Date();
+  const todayStr = getLocalDateString(today);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const yesterdayStr = getLocalDateString(yesterday);
+
+  let currentStreak = 0;
+  if (activeDates.has(todayStr)) {
+    currentStreak = 1;
+    let checkD = new Date(yesterday);
+    while (activeDates.has(getLocalDateString(checkD))) {
+      currentStreak++;
+      checkD.setDate(checkD.getDate() - 1);
+    }
+  } else if (activeDates.has(yesterdayStr)) {
+    currentStreak = 1;
+    let checkD = new Date(yesterday);
+    checkD.setDate(checkD.getDate() - 1);
+    while (activeDates.has(getLocalDateString(checkD))) {
+      currentStreak++;
+      checkD.setDate(checkD.getDate() - 1);
+    }
+  }
+
+  const longestStreak = Math.max(currentStreak, serverStreak ? (serverStreak.longest_streak || 0) : currentStreak);
+
+  return {
+    current_streak: currentStreak,
+    longest_streak: longestStreak,
+    total_workout_days: activeDates.size,
+    total_valid_workouts: Math.max(localWorkouts.length, serverStreak ? (serverStreak.total_valid_workouts || 0) : localWorkouts.length),
+    today_completed: activeDates.has(todayStr),
+    active_dates: sortedDates
+  };
 }
 
 /**
@@ -109,6 +198,16 @@ function renderProfileStreakAndCalendar(streak) {
   const calendarContainer = document.getElementById('profCalendarContainer');
   if (!streak) return;
 
+  // Sync with Progress and Home views
+  const progStreak = document.getElementById('progCurrentStreak');
+  if (progStreak) {
+    progStreak.innerText = `${streak.current_streak} Day${streak.current_streak === 1 ? '' : 's'}`;
+  }
+  const dashStreak = document.getElementById('dashStreakSummary');
+  if (dashStreak) {
+    dashStreak.innerText = streak.today_completed ? `${streak.current_streak} Days 🔥` : `${streak.current_streak} Days`;
+  }
+
   if (statsContainer) {
     statsContainer.innerHTML = `
       <div class="prof-metric-box highlight-box">
@@ -136,7 +235,7 @@ function renderProfileStreakAndCalendar(streak) {
 }
 
 /**
- * Renders interactive monthly workout activity grid
+ * Renders interactive monthly workout activity grid with vibrant green active day badges
  */
 function renderMonthlyCalendarGrid(container, activeDates) {
   const activeSet = new Set(activeDates);
@@ -166,9 +265,9 @@ function renderMonthlyCalendarGrid(container, activeDates) {
     const isToday = day === now.getDate();
 
     cells.push(`
-      <div class="cal-cell ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}" title="${dateKey}">
-        <span class="cal-day-num">${day}</span>
-        <span class="cal-status-icon">${isActive ? '<i class="fa-solid fa-fire"></i>' : ''}</span>
+      <div class="cal-cell ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}" title="${dateKey}" ${isActive ? 'style="border: 1.5px solid #22c55e !important; background-color: rgba(34, 197, 94, 0.22) !important; color: #4ade80 !important; box-shadow: 0 0 10px rgba(34, 197, 94, 0.35); font-weight: 700;"' : ''}>
+        <span class="cal-day-num" ${isActive ? 'style="color: #4ade80 !important; font-weight: 800;"' : ''}>${day}</span>
+        <span class="cal-status-icon" ${isActive ? 'style="color: #22c55e !important;"' : ''}>${isActive ? '<i class="fa-solid fa-fire" style="color: #22c55e !important;"></i>' : ''}</span>
       </div>
     `);
   }

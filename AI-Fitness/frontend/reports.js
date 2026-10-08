@@ -7,7 +7,7 @@
 let currentReportPeriod = null;
 
 function getReportsApiBase() {
-  return window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1');
+  return window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,43 +24,68 @@ async function loadProgressReports() {
   const container = document.getElementById('profReportsGrid');
   if (!container) return;
 
-  if (typeof authToken === 'undefined' || !authToken) {
-    container.innerHTML = `
-      <div class="report-empty-state">
-        <i class="fa-solid fa-lock"></i>
-        <p>Log in to view and download your FitQuest Progress Reports.</p>
-      </div>
-    `;
-    return;
-  }
-
+  const token = typeof getAuthToken === 'function' ? getAuthToken() : (typeof authToken !== 'undefined' ? authToken : localStorage.getItem('fitquest_token'));
   const apiBase = getReportsApiBase();
 
   try {
-    const res = await fetch(`${apiBase}/reports/available`, {
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    if (!res.ok) {
-      throw new Error('Could not load progress reports');
+    const res = await fetch(`${apiBase}/reports/available`, { headers });
+
+    if (res.ok) {
+      const data = await res.json();
+      renderReportCards(data.reports);
+      return;
     }
-
-    const data = await res.json();
-    renderReportCards(data.reports);
+    throw new Error('Could not load progress reports from server');
   } catch (err) {
-    container.innerHTML = `
-      <div class="report-empty-state error">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <p>Unable to load progress reports. Please check your connection.</p>
-        <button class="btn btn-secondary" onclick="loadUserReports()" style="margin-top: 12px;">
-          <i class="fa-solid fa-rotate-right"></i> Retry
-        </button>
-      </div>
-    `;
+    console.warn('[FitQuest Reports Warning]: Utilizing local activity duration for report availability:', err);
+    const clientReports = generateClientReportAvailability();
+    renderReportCards(clientReports);
   }
+}
+
+function generateClientReportAvailability() {
+  let localWorkouts = [];
+  try {
+    const raw = localStorage.getItem('fitquest_local_workouts');
+    if (raw) localWorkouts = JSON.parse(raw);
+  } catch (e) {}
+
+  let historyDays = 1;
+  const now = new Date();
+  if (localWorkouts.length > 0) {
+    const timestamps = localWorkouts.map(w => new Date(w.timestamp || Date.now()).getTime()).filter(t => !isNaN(t));
+    if (timestamps.length > 0) {
+      const oldest = Math.min(...timestamps);
+      const diffMs = now.getTime() - oldest;
+      historyDays = Math.max(1, Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1);
+    }
+  }
+
+  const periods = [
+    { period_days: 15, title: '15-Day Progress Snapshot', subtitle: 'Your first biomechanical milestone' },
+    { period_days: 30, title: '30-Day Monthly Review', subtitle: 'Comprehensive athletic transformation' },
+    { period_days: 60, title: '60-Day Progress Report', subtitle: 'Longer-term movement adaptation' },
+    { period_days: 90, title: '90-Day Full Transformation', subtitle: 'Complete athletic mastery overview' }
+  ];
+
+  return periods.map(p => {
+    const isAvail = historyDays >= p.period_days;
+    return {
+      period_days: p.period_days,
+      title: p.title,
+      subtitle: p.subtitle,
+      is_available: isAvail,
+      required_days: p.period_days,
+      user_history_days: historyDays,
+      formatted_date_range: `${p.period_days} Days History`,
+      status_message: isAvail 
+        ? 'Available to view and download' 
+        : `Available after ${p.period_days} days of activity (Logged: ${historyDays}/${p.period_days} days)`
+    };
+  });
 }
 
 /**
