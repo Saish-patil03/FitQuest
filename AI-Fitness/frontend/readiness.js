@@ -80,7 +80,7 @@ function renderReadinessCard(data) {
   const timeOfDay = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
   if (greetingTitle) {
-    greetingTitle.innerText = `${timeOfDay}, ${userName}.`;
+    greetingTitle.innerText = `Welcome to FitQuest, ${userName}!`;
   }
   if (greetingSub) {
     greetingSub.innerText = "Here's what your body is ready for today.";

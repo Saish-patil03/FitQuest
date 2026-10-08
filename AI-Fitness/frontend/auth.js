@@ -541,6 +541,14 @@ function showAuthenticatedState() {
   updateUserNavBadge();
   renderProfilePage();
 
+  const greetingTitle = document.getElementById('dashGreetingTitle');
+  if (greetingTitle) {
+    const userName = (currentUser && currentUser.name)
+      ? currentUser.name.split(' ')[0]
+      : (localStorage.getItem('fitquest_user_name') || 'Athlete');
+    greetingTitle.innerText = `Welcome to FitQuest, ${userName}!`;
+  }
+
   if (typeof loadGamificationData === 'function') {
     loadGamificationData();
   }
