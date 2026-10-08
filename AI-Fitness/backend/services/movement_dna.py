@@ -418,59 +418,44 @@ class MovementDNAService:
 
     @staticmethod
     def _build_empty_dna_profile() -> Dict[str, Any]:
-        """Structured default baseline profile for users awaiting multi-session decodes."""
-        baseline_dim_scores = {
-            "range_of_motion": 78.0,
-            "movement_stability": 75.0,
-            "tempo_control": 72.0,
-            "repetition_consistency": 80.0,
-            "bilateral_symmetry": 76.0
+        """Structured default profile for users with zero workout history."""
+        empty_dim = {
+            "score": 0.0, "baseline": 0.0, "recent": 0.0, "overall_avg": 0.0,
+            "delta": 0.0, "pct_change": 0.0, "velocity": 0.0,
+            "status": "N/A", "trend": "INSUFFICIENT DATA",
+            "interpretation": "No recorded movement data. Complete your first workout to establish your Movement DNA."
         }
-        dimensions = {}
-        for k, score in baseline_dim_scores.items():
-            dimensions[k] = {
-                "key": k,
-                "label": DIMENSION_LABELS[k],
-                "score": score,
-                "baseline": score,
-                "recent": score,
-                "overall_avg": score,
-                "delta": 0.0,
-                "pct_change": 0.0,
-                "velocity": 0.0,
-                "status": "ADEQUATE",
-                "trend": "STABLE",
-                "interpretation": f"Baseline {DIMENSION_LABELS[k].lower()} calibrated. Complete additional workout sets to track longitudinal adaptation."
-            }
+        dimensions = {
+            k: {**empty_dim, "key": k, "label": DIMENSION_LABELS[k]}
+            for k in DIMENSION_LABELS
+        }
 
         return {
-            "overall_score": 76.2,
-            "total_sessions_analyzed": 1,
-            "confidence": "Medium",
-            "confidence_reason": "Baseline movement telemetry calibrated. Perform more exercise sets to refine biomechanical resolution.",
-            "strongest_dimension": {"key": "repetition_consistency", "label": "Repetition Consistency", "score": 80.0, "status": "ADEQUATE"},
+            "overall_score": 0.0,
+            "total_sessions_analyzed": 0,
+            "confidence": "Low",
+            "confidence_reason": "No recorded workout history. Complete your first workout to establish your Movement DNA.",
+            "strongest_dimension": {"key": "range_of_motion", "label": "Range of Motion", "score": 0.0, "status": "N/A"},
             "primary_limiter": {
-                "key": "tempo_control", "label": "Tempo Control", "score": 72.0, "status": "ADEQUATE",
-                "why_it_matters": "Controlling the eccentric (lowering) phase maximizes motor unit recruitment and joint safety.",
-                "ai_response": "Pace your descent with a steady 2-1-2 cadence during active repetitions."
+                "key": "movement_stability", "label": "Movement Stability", "score": 0.0, "status": "N/A",
+                "why_it_matters": "Movement DNA is established after your first workout session.",
+                "ai_response": "Complete any workout to begin automated movement decoding."
             },
-            "secondary_limiter": {"key": "movement_stability", "label": "Movement Stability", "score": 75.0, "status": "ADEQUATE"},
-            "trend": {"direction": "STABLE", "delta": 0.0, "pct_change": 0.0, "velocity_per_session": 0.0},
+            "secondary_limiter": {"key": "tempo_control", "label": "Tempo Control", "score": 0.0, "status": "N/A"},
+            "trend": {"direction": "INSUFFICIENT DATA", "delta": 0.0, "pct_change": 0.0, "velocity_per_session": 0.0},
             "dimensions": dimensions,
-            "timeline": [
-                {"session_index": 1, "overall_quality": 76.2, "date": datetime.now(timezone.utc).strftime("%b %d")}
-            ],
+            "timeline": [],
             "ai_report": {
-                "what_you_do_well": "Your Repetition Consistency is your highest baseline movement characteristic, showing steady execution rhythm.",
-                "what_is_limiting_you": "Tempo Control (72.0/100) represents your best opportunity for mechanical optimization.",
-                "what_changed": "Baseline biomechanical signature calibrated across active movement vectors.",
-                "what_fitquest_recommends": "Incorporate controlled tempo pacing on eccentric phases to strengthen tendon resilience.",
-                "next_step": "Launch any workout session to update your live Movement DNA vectors."
+                "what_you_do_well": "Complete your first workout to reveal your movement strengths.",
+                "what_is_limiting_you": "No movement limiters detected yet.",
+                "what_changed": "Awaiting initial movement baseline data.",
+                "what_fitquest_recommends": "Select any single exercise or structured routine to begin.",
+                "next_step": "Start a workout session with your webcam enabled."
             },
             "adaptive_action": {
                 "endpoint": "/api/v1/adaptive-training/generate",
-                "primary_focus": "tempo_control",
-                "recommended_title": "Adaptive Session: Tempo Control Calibration"
+                "primary_focus": "movement_stability",
+                "recommended_title": "Adaptive Session: Baseline Calibration"
             }
         }
 

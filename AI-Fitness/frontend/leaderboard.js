@@ -10,11 +10,7 @@
  *  - Deterministic and real data only
  */
 
-function getLeaderboardApiUrl() {
-  const base = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://saish-patil03--fitquest-backend-serve.modal.run/api/v1'));
-  return `${base}/leaderboard`;
-}
-
+const LEADERBOARD_API_BASE = (window.getFitQuestApiBase ? window.getFitQuestApiBase() : (window.API_BASE || 'https://fitquest-backend-1brv.onrender.com/api/v1')) + '/leaderboard';
 let activeLeaderboardPeriod = 'weekly';
 let isLeaderboardLoading = false;
 
@@ -23,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Initializes UI event listeners for Leaderboard mode switcher and retry button
+ * Initializes UI event listeners for Leaderboard mode switcher
  */
 function initLeaderboardUI() {
   const periodBtns = document.querySelectorAll('.leaderboard-period-btn');
@@ -35,15 +31,6 @@ function initLeaderboardUI() {
       }
     });
   });
-
-  // Explicitly wire the Retry button
-  const retryBtn = document.querySelector('#leaderboardErrorState button');
-  if (retryBtn) {
-    retryBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      loadLeaderboardView(activeLeaderboardPeriod);
-    });
-  }
 }
 
 /**
@@ -73,35 +60,33 @@ async function loadLeaderboardView(period = null) {
     activeLeaderboardPeriod = period;
   }
 
-  const token = typeof getAuthToken === 'function' ? getAuthToken() : (localStorage.getItem('fitquest_token') || '');
+  const token = typeof getAuthToken === 'function' ? getAuthToken() : (localStorage.getItem('fitquest_token') || null);
+  if (!token) {
+    renderLeaderboardError('Please log in to view the FitQuest Leaderboard.');
+    return;
+  }
 
   setLeaderboardLoading(true);
 
   try {
-    const url = `${getLeaderboardApiUrl()}?period=${activeLeaderboardPeriod}`;
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(url, {
+    const response = await fetch(`${LEADERBOARD_API_BASE}?period=${activeLeaderboardPeriod}`, {
       method: 'GET',
-      headers: headers
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
     });
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.detail || `Failed to fetch`);
+      throw new Error(errData.detail || `Failed to load leaderboard (${response.status})`);
     }
 
     const data = await response.json();
     renderLeaderboard(data);
   } catch (err) {
     console.error('[Leaderboard] Error fetching data:', err);
-    renderLeaderboardError(err.message || 'Failed to fetch');
+    renderLeaderboardError(err.message || 'Unable to connect to leaderboard server.');
   } finally {
     setLeaderboardLoading(false);
   }

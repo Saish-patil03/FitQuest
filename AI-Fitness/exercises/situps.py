@@ -36,8 +36,8 @@ class SitUpsTracker(BaseExerciseTracker):
         self.state = "DOWN"
         self.last_rep_time = 0.0
 
-        self.left_hip_smoother = AngleSmoother(alpha=0.65)
-        self.right_hip_smoother = AngleSmoother(alpha=0.65)
+        self.left_hip_smoother = AngleSmoother(alpha=0.35)
+        self.right_hip_smoother = AngleSmoother(alpha=0.35)
         self.min_hip_angle_in_rep = 180.0
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_shoulder", "right_shoulder"]

@@ -41,7 +41,7 @@ class RussianTwistTracker(BaseExerciseTracker):
 
         self.state = "CENTER"
         self.last_rep_time = 0.0
-        self.twist_smoother = AngleSmoother(alpha=0.65)
+        self.twist_smoother = AngleSmoother(alpha=0.35)
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_wrist", "right_wrist"]
         )

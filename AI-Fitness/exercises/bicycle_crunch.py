@@ -34,7 +34,7 @@ class BicycleCrunchTracker(BaseExerciseTracker):
 
         self.state = "EXTENDED"
         self.last_rep_time = 0.0
-        self.angle_smoother = AngleSmoother(alpha=0.65)
+        self.angle_smoother = AngleSmoother(alpha=0.35)
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_knee", "right_knee", "left_elbow", "right_elbow"]
         )

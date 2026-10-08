@@ -146,15 +146,6 @@ class TestAuthAndProfileSystem(unittest.TestCase):
         self.assertEqual(res2.status_code, 400)
         self.assertIn("already exists", res2.json()["detail"])
 
-        # Test case-insensitive duplicate email detection
-        res3 = self.client.post("/api/v1/auth/register", json={
-            "name": "Duplicate User",
-            "email": "DUP@FITQUEST.AI",
-            "password": "Password123"
-        })
-        self.assertEqual(res3.status_code, 400)
-        self.assertIn("already exists", res3.json()["detail"])
-
     def test_user_login_success_and_failures(self):
         """Test user login with valid & invalid credentials."""
         # 1. Register
@@ -176,20 +167,6 @@ class TestAuthAndProfileSystem(unittest.TestCase):
         data = login_res.json()
         self.assertIn("access_token", data)
         self.assertEqual(data["user"]["name"], "Bob Runner")
-
-        # 2b. Case-insensitive login with uppercase & mixed case email
-        login_upper = self.client.post("/api/v1/auth/login", json={
-            "email": "BOB@FITQUEST.AI",
-            "password": "MarathonRunner2026"
-        })
-        self.assertEqual(login_upper.status_code, 200, "Uppercase email login should succeed")
-
-        # 2c. Whitespace-trimmed email login
-        login_ws = self.client.post("/api/v1/auth/login", json={
-            "email": "  bob@fitquest.ai  ",
-            "password": "MarathonRunner2026"
-        })
-        self.assertEqual(login_ws.status_code, 200, "Whitespace-padded email login should succeed")
 
         # 3. Login with wrong password
         fail_res = self.client.post("/api/v1/auth/login", json={

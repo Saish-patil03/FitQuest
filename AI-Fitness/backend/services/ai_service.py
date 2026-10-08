@@ -1,9 +1,6 @@
 from typing import Optional, Tuple
 from backend.config import settings
-try:
-    from assistant import AIFitnessAssistant, WorkoutSessionData, UserProfile
-except ImportError:
-    from backend.assistant import AIFitnessAssistant, WorkoutSessionData, UserProfile
+from assistant import AIFitnessAssistant, WorkoutSessionData, UserProfile
 
 class AIService:
     """
@@ -33,12 +30,7 @@ class AIService:
     def explain_form_issues(self, exercise_name: str, form_score: float, feedback_events: list) -> str:
         return self.assistant.explain_form_issues(exercise_name, form_score, feedback_events)
 
-    def answer_fitness_question(
-        self,
-        question: str,
-        user_profile: Optional[UserProfile] = None,
-        recent_workouts: Optional[list] = None
-    ) -> str:
-        return self.assistant.answer_fitness_question(question, user_profile, recent_workouts=recent_workouts)
+    def answer_fitness_question(self, question: str, user_profile: Optional[UserProfile] = None) -> str:
+        return self.assistant.answer_fitness_question(question, user_profile)
 
 ai_service = AIService()

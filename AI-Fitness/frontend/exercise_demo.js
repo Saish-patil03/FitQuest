@@ -1426,57 +1426,19 @@
       ctx.fill();
       ctx.restore();
 
-      // 5. Draw Primary Angle Arc Indicator (Stabilized EMA with Glowing Badge)
+      // 5. Draw Primary Angle Arc Indicator
       if (pose.targetAngle && pose.targetAngle.joint) {
         const jointPos = toScreen(pose.targetAngle.joint);
-        
-        // Temporal EMA filter on target angle value across consecutive frames
-        const rawVal = typeof pose.targetAngle.angleVal === 'number' ? pose.targetAngle.angleVal : 90;
-        if (this.smoothedAngleVal === undefined) {
-          this.smoothedAngleVal = rawVal;
-        } else {
-          this.smoothedAngleVal = 0.35 * rawVal + 0.65 * this.smoothedAngleVal;
-        }
-
-        const is90 = Math.abs(this.smoothedAngleVal - 90) <= 6;
-        const displayLabel = is90 ? '90°' : (pose.targetAngle.label || `${Math.round(this.smoothedAngleVal)}°`);
-
         ctx.save();
-        const badgeColor = is90 ? '#ccff00' : '#00f0ff';
-        
-        // Draw sleek glowing arc around active joint
-        ctx.strokeStyle = badgeColor;
-        ctx.lineWidth = 2 * scale;
-        ctx.beginPath();
-        ctx.arc(jointPos.x, jointPos.y, 14 * scale, 0, Math.PI * 0.75);
-        ctx.stroke();
-
-        // Draw translucent dark badge pill behind angle label
-        const fontSize = Math.max(11, Math.round(12 * scale));
-        ctx.font = `bold ${fontSize}px Outfit, Inter, sans-serif`;
-        const textWidth = ctx.measureText(displayLabel).width;
-        const pillX = jointPos.x + 8 * scale;
-        const pillY = jointPos.y - 20 * scale;
-        const pillW = textWidth + 12 * scale;
-        const pillH = fontSize + 8 * scale;
-
-        ctx.fillStyle = 'rgba(12, 16, 23, 0.85)';
-        ctx.strokeStyle = badgeColor;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.roundRect(pillX, pillY, pillW, pillH, 4 * scale);
-        ctx.fill();
-        ctx.stroke();
-
-        // Neon angle label
-        ctx.fillStyle = badgeColor;
+        ctx.fillStyle = '#ccff00';
+        ctx.font = `bold ${Math.max(11, Math.round(12 * scale))}px Outfit, Inter, sans-serif`;
         if (!this.lowOverheadMode) {
-          ctx.shadowColor = badgeColor;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
           ctx.shadowBlur = 6;
         } else {
           ctx.shadowBlur = 0;
         }
-        ctx.fillText(displayLabel, pillX + 6 * scale, pillY + fontSize);
+        ctx.fillText(pose.targetAngle.label, jointPos.x + 10 * scale, jointPos.y - 8 * scale);
         ctx.restore();
       }
 

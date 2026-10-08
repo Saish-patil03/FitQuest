@@ -1203,47 +1203,24 @@ RETURN ONLY A RAW JSON OBJECT with this schema:
                     img_data = img_data.split(",", 1)[1]
                 image_bytes = base64.b64decode(img_data)
 
-                prompt = f"""You are a professional nutritionist and AI food vision analyzer.
-TASK: Analyze this image and determine if it contains consumable food, cooked meals, snacks, or beverages.
+                prompt = f"""Analyze this food image in detail:
+1. Identify the food item or dish name.
+2. Estimate the approximate portion size and nutrition: calories, protein (g), carbs (g), fat (g).
+3. List all detected ingredients.
+4. Check for potential allergen warnings against declared user allergies: {', '.join(allergies) if allergies else 'None'}.
+5. Provide a brief 1-line fitness coaching recommendation.
 
-MANDATORY ACCURACY & VALIDATION RULES:
-1. NON-FOOD OBJECT CHECK:
-If the image shows a non-food item, unknown object, animal, person, face, room, wall, desk, chair, electronics, laptop, screen, furniture, clothing, or general household object:
-You MUST classify it as NOT FOOD and return:
+RETURN ONLY RAW JSON:
 {{
-  "is_food": false,
-  "food_name": "No Food Detected",
-  "estimated_calories": 0,
-  "protein_g": 0.0,
-  "carbs_g": 0.0,
-  "fat_g": 0.0,
-  "confidence": 0.0,
-  "detected_items": [],
-  "allergen_warnings": [],
-  "recommendations": "No recognizable food item detected in this image. Please upload a clear photo of an edible meal or ingredients."
-}}
-
-2. REAL FOOD ITEM:
-If and ONLY if the image contains real edible food or drinks:
-- Identify the specific food item or dish name.
-- Estimate realistic portions and nutrition: calories, protein (g), carbs (g), fat (g).
-- List detected ingredients.
-- Check allergen warnings against declared user allergies: {', '.join(allergies) if allergies else 'None'}.
-- Provide a brief 1-line fitness coaching recommendation.
-- Set "is_food": true.
-
-RETURN ONLY RAW VALID JSON:
-{{
-  "is_food": true,
   "food_name": "Identified Food Name",
-  "estimated_calories": 450,
-  "protein_g": 30.0,
-  "carbs_g": 45.0,
-  "fat_g": 12.0,
-  "confidence": 0.90,
+  "estimated_calories": 480,
+  "protein_g": 32.0,
+  "carbs_g": 50.0,
+  "fat_g": 14.0,
+  "confidence": 0.92,
   "detected_items": ["Ingredient 1", "Ingredient 2"],
-  "allergen_warnings": [],
-  "recommendations": "Solid nutritional balance to support your active training."
+  "allergen_warnings": ["Warning if any allergen detected"],
+  "recommendations": "Great post-workout protein meal."
 }}"""
 
                 config = self.types.GenerateContentConfig(
@@ -1269,90 +1246,30 @@ RETURN ONLY RAW VALID JSON:
                         cleaned = cleaned[:-3]
                     res = json.loads(cleaned.strip())
                     res["provider"] = "Gemini Vision AI"
-
-                    # If model returned non-food, ensure clean 0 values
-                    if res.get("is_food") is False or res.get("food_name", "").lower() in ["no food detected", "not food", "non-food", "unknown"]:
-                        res["is_food"] = False
-                        res["food_name"] = "No Food Detected"
-                        res["estimated_calories"] = 0
-                        res["protein_g"] = 0.0
-                        res["carbs_g"] = 0.0
-                        res["fat_g"] = 0.0
-                        res["confidence"] = 0.0
-                        res["detected_items"] = []
                     return res
             except Exception as e:
-                print(f"[NUTRITION SERVICE] Vision analysis error: {e}. Reverting to fallback.")
+                print(f"[NUTRITION SERVICE] Vision analysis error: {e}. Reverting to text fallback.")
 
-        # Fallback estimation: NEVER assume an image is a "Mixed Balanced Meal"!
-        if image_base64 and not text_description:
-            # An image was uploaded but couldn't be confirmed as food: return 0 values
-            return {
-                "is_food": False,
-                "food_name": "No Food Detected",
-                "estimated_calories": 0,
-                "protein_g": 0.0,
-                "carbs_g": 0.0,
-                "fat_g": 0.0,
-                "confidence": 0.0,
-                "detected_items": [],
-                "allergen_warnings": [],
-                "recommendations": "No recognizable food detected in image. Please upload a clear photo of your meal or ingredients.",
-                "provider": "FitQuest Vision Guard"
-            }
+        # Fallback estimation
+        query_text = text_description or "Mixed Balanced Meal"
+        cal, p, c, f = self.estimate_nutrients_from_text(query_text)
 
-        # Text-based estimation when text_description is explicitly provided
-        if text_description and text_description.strip():
-            query_text = text_description.strip()
-            non_food_terms = ["nothing", "unknown", "object", "laptop", "phone", "wall", "person", "face", "chair", "table", "random", "none"]
-            if query_text.lower() in non_food_terms or "not food" in query_text.lower():
-                return {
-                    "is_food": False,
-                    "food_name": "No Food Detected",
-                    "estimated_calories": 0,
-                    "protein_g": 0.0,
-                    "carbs_g": 0.0,
-                    "fat_g": 0.0,
-                    "confidence": 0.0,
-                    "detected_items": [],
-                    "allergen_warnings": [],
-                    "recommendations": "No recognizable food in description. Please enter an edible food item.",
-                    "provider": "FitQuest Nutrient Estimator"
-                }
+        warnings = []
+        for a in allergies:
+            if a.lower() in query_text.lower():
+                warnings.append(f"Declared allergen '{a}' matched in food description.")
 
-            cal, p, c, f = self.estimate_nutrients_from_text(query_text)
-            warnings = []
-            for a in allergies:
-                if a.lower() in query_text.lower():
-                    warnings.append(f"Declared allergen '{a}' matched in food description.")
-
-            return {
-                "is_food": True,
-                "food_name": query_text.title(),
-                "estimated_calories": cal,
-                "protein_g": p,
-                "carbs_g": c,
-                "fat_g": f,
-                "confidence": 0.85,
-                "detected_items": [item.strip() for item in query_text.split("+") if item.strip()] or [query_text],
-                "allergen_warnings": warnings,
-                "recommendations": "Solid nutritional balance to support your active training.",
-                "provider": "FitQuest Nutrient Estimator"
-            }
-
-        # Default fallback when empty input
         return {
-            "is_food": False,
-            "food_name": "No Food Detected",
-            "estimated_calories": 0,
-            "protein_g": 0.0,
-            "carbs_g": 0.0,
-            "fat_g": 0.0,
-            "confidence": 0.0,
-            "detected_items": [],
-            "allergen_warnings": [],
-            "recommendations": "Please take a photo of your meal or type a food description to analyze.",
-            "provider": "FitQuest Vision Guard"
+            "food_name": query_text.title(),
+            "estimated_calories": cal,
+            "protein_g": p,
+            "carbs_g": c,
+            "fat_g": f,
+            "confidence": 0.85,
+            "detected_items": [item.strip() for item in query_text.split("+") if item.strip()] or [query_text],
+            "allergen_warnings": warnings,
+            "recommendations": "Solid nutritional balance to support your active training.",
+            "provider": "FitQuest Nutrient Estimator"
         }
 
 

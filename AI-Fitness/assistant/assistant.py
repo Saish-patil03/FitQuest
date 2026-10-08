@@ -102,46 +102,24 @@ class AIFitnessAssistant:
 
         return self._rule_based_form_explanation(exercise_name, form_score, feedback_events)
 
-    def answer_fitness_question(
-        self,
-        question: str,
-        user_profile: Optional[UserProfile] = None,
-        recent_workouts: Optional[List[Dict[str, Any]]] = None
-    ) -> str:
+    def answer_fitness_question(self, question: str, user_profile: Optional[UserProfile] = None) -> str:
         """
-        Answers user fitness, workout technique, diet, or recovery questions using AI Assistant,
-        grounded with context from the athlete's previous workouts.
+        Answers user fitness, workout technique, diet, or recovery questions using AI Assistant.
         Falls back seamlessly to a category-aware rule-based engine when LLM is unavailable.
         """
         profile = user_profile or UserProfile()
 
-        # Format historical workouts context if available
-        history_context = ""
-        if recent_workouts and len(recent_workouts) > 0:
-            history_lines = []
-            for w in recent_workouts[:5]:
-                dt = w.get("date", "Recent")
-                ex = w.get("exercise_name", "Workout")
-                reps = w.get("reps", 0)
-                score = w.get("form_score", 0)
-                dur = w.get("duration_sec", 0)
-                history_lines.append(f"- {dt}: {ex} — {reps} reps ({score}% form score, {dur}s duration)")
-            history_context = "\n".join(history_lines)
-
         if self.genai_client:
             try:
-                base_prompt = FITNESS_QA_PROMPT.format(
+                prompt = FITNESS_QA_PROMPT.format(
                     question=question,
                     fitness_goal=profile.fitness_goal,
                     experience_level=profile.experience_level
                 )
-                if history_context:
-                    base_prompt += f"\n\nATHLETE'S ACTUAL RECENT WORKOUT LOGS:\n{history_context}\n\nNote: If the user asks about their form, rep counts, past workouts, or progress, quote these specific session numbers and exercises in your response."
-
                 config = self.types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT) if self.types else None
                 response = self.genai_client.models.generate_content(
                     model=self.model_name,
-                    contents=base_prompt,
+                    contents=prompt,
                     config=config
                 )
                 if response and response.text:
@@ -149,48 +127,14 @@ class AIFitnessAssistant:
             except Exception as e:
                 print(f"[WARNING] Q&A LLM inquiry failed: {e}")
 
-        return self._rule_based_fitness_qa(question, profile, recent_workouts=recent_workouts)
+        return self._rule_based_fitness_qa(question, profile)
 
-    def _rule_based_fitness_qa(
-        self,
-        question: str,
-        profile: UserProfile,
-        recent_workouts: Optional[List[Dict[str, Any]]] = None
-    ) -> str:
+    def _rule_based_fitness_qa(self, question: str, profile: UserProfile) -> str:
         """
         Intelligent offline fallback engine that categorizes user questions and provides
-        rich, structured, and specialized fitness coaching guidance grounded in actual workout logs.
+        rich, structured, and specialized fitness coaching guidance.
         """
         q_lower = question.lower().strip()
-
-        # 0. Check if question is asking about previous workouts, reps, form scores, or history
-        workout_query_patterns = [
-            "how was my", "my form", "my last workout", "my previous workout", "previous workout", "last session",
-            "how many reps", "how did i do", "what did i do", "my workouts", "past workout", "my progress", "last workout"
-        ]
-        if any(p in q_lower for p in workout_query_patterns):
-            if recent_workouts and len(recent_workouts) > 0:
-                summary_lines = []
-                for w in recent_workouts[:4]:
-                    dt = w.get("date", "Recent")
-                    ex = w.get("exercise_name", "Exercise")
-                    reps = w.get("reps", 0)
-                    score = w.get("form_score", 0)
-                    note = w.get("coaching") or ("Solid execution with strong control." if score >= 80 else "Good effort, focus on steady tempo.")
-                    summary_lines.append(f"• **{ex}** ({dt}): **{reps} reps** with **{score}% Form Score** — {note}")
-
-                return (
-                    f"### 📊 Your Previous Workout Performance\n\n"
-                    f"Here is your recorded training summary from your recent sessions:\n\n"
-                    + "\n".join(summary_lines)
-                    + f"\n\n**Coach's Recommendation:** Your movement consistency is actively progressing toward your **{profile.fitness_goal}** goal! Keep focusing on full range of motion and steady cadence."
-                )
-            else:
-                return (
-                    f"You don't have any recorded workout sessions yet! "
-                    f"Head to the **Workout** tab and start a session with your webcam enabled. "
-                    f"I'll analyze your joint angles, count your reps, and score your biomechanical form in real time."
-                )
 
         # Fitness domain keywords check
         fitness_keywords = [

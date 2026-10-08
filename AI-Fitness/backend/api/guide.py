@@ -15,7 +15,6 @@ class GuideChatRequestPayload(BaseModel):
     message: str = Field(..., min_length=1, description="User question or query about FitQuest platform")
     current_view: Optional[str] = Field(None, description="Active view panel ID (e.g. movementDnaView, bodySimView)")
     conversation_history: Optional[List[Dict[str, str]]] = Field(None, description="Recent conversation messages")
-    recent_workouts: Optional[List[Dict[str, Any]]] = Field(None, description="Recent workout history context")
 
 class GuideChatResponsePayload(BaseModel):
     status: str
@@ -35,8 +34,7 @@ def guide_chat(payload: GuideChatRequestPayload):
     result = fitquest_guide_service.process_guide_query(
         message=payload.message,
         current_view=payload.current_view,
-        conversation_history=payload.conversation_history,
-        recent_workouts=payload.recent_workouts
+        conversation_history=payload.conversation_history
     )
     return {
         "status": "success",

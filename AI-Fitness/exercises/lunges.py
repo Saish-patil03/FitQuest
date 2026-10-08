@@ -35,8 +35,8 @@ class LungesTracker(BaseExerciseTracker):
         self.state = "STANDING"
         self.last_rep_time = 0.0
 
-        self.left_knee_smoother = AngleSmoother(alpha=0.65)
-        self.right_knee_smoother = AngleSmoother(alpha=0.65)
+        self.left_knee_smoother = AngleSmoother(alpha=0.35)
+        self.right_knee_smoother = AngleSmoother(alpha=0.35)
         self.min_knee_angle_in_rep = 180.0
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_hip", "right_hip", "left_knee", "right_knee"]

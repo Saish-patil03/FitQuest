@@ -73,9 +73,8 @@ class AngleSmoother:
     Combines 3-frame Median Pre-filter + Deadband Noise Gate + Bounded EMA Smoothing.
     Dampens camera keypoint jitter and single-frame tracking spikes while preserving fast physical motion.
     """
-    def __init__(self, alpha: float = 0.45, deadband_deg: float = 0.8, max_step_deg: float = 90.0, window_size: int = 3):
-        # Adaptive stabilization: clamp alpha to 0.48 to guarantee silky smooth angle transitions
-        self.alpha = min(alpha, 0.48) if alpha > 0.48 else alpha
+    def __init__(self, alpha: float = 0.35, deadband_deg: float = 0.5, max_step_deg: float = 180.0, window_size: int = 3):
+        self.alpha = alpha
         self.deadband_deg = deadband_deg
         self.max_step_deg = max_step_deg
         self.window_size = window_size
@@ -86,7 +85,7 @@ class AngleSmoother:
 
     def update(self, new_value):
         """
-        Updates smoothed angle cleanly with 3-frame median pre-filter and responsive EMA.
+        Updates smoothed angle cleanly. Returns float angle in degrees or None.
         Safely handles None, NaN, or non-numeric inputs.
         """
         if new_value is None or not isinstance(new_value, (int, float)) or math.isnan(new_value):
@@ -121,7 +120,7 @@ class AngleSmoother:
         else:
             target = median_val
 
-        # 5. Responsive EMA Update
+        # 5. EMA Update
         self.smoothed_value = (self.alpha * target) + ((1.0 - self.alpha) * self.smoothed_value)
         return round(self.smoothed_value, 2)
 

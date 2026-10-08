@@ -36,8 +36,8 @@ class TricepExtensionTracker(BaseExerciseTracker):
         self.state = "BENT"
         self.last_rep_time = 0.0
 
-        self.left_elbow_smoother = AngleSmoother(alpha=0.65)
-        self.right_elbow_smoother = AngleSmoother(alpha=0.65)
+        self.left_elbow_smoother = AngleSmoother(alpha=0.35)
+        self.right_elbow_smoother = AngleSmoother(alpha=0.35)
         self.max_angle_in_rep = 0.0
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_wrist", "right_wrist"]

@@ -37,8 +37,8 @@ class JumpingJacksTracker(BaseExerciseTracker):
         self.state = "CLOSED"
         self.last_rep_time = 0.0
 
-        self.left_arm_smoother = AngleSmoother(alpha=0.65)
-        self.right_arm_smoother = AngleSmoother(alpha=0.65)
+        self.left_arm_smoother = AngleSmoother(alpha=0.35)
+        self.right_arm_smoother = AngleSmoother(alpha=0.35)
         self.displacement_tracker = MovementDisplacementTracker(
             ["left_wrist", "right_wrist", "left_ankle", "right_ankle"]
         )
