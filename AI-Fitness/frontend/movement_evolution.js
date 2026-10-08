@@ -109,42 +109,160 @@ function generateClientEvolutionData(exerciseId = null) {
     exName = foundInCatalogue.name;
   }
 
-  if (exerciseId) {
-    const match = localWorkouts.find(w => String(w.exercise_id || w.exerciseId || '') === String(exerciseId));
-    if (match) exName = match.exercise_name || match.exerciseName || exName;
-  } else if (localWorkouts.length > 0) {
-    const last = localWorkouts[0];
-    exName = last.exercise_name || last.exerciseName || exName;
-    exId = last.exercise_id || last.exerciseId || exId;
+  // Filter local workouts for this specific exercise
+  const exerciseWorkouts = localWorkouts.filter(w => {
+    const wId = String(w.exercise_id || w.exerciseId || '');
+    const wName = (w.exercise_name || w.exerciseName || '').toLowerCase().trim();
+    return (exerciseId && (wId === String(exId) || (wName && wName === exName.toLowerCase().trim())));
+  });
+
+  const nSessions = exerciseWorkouts.length;
+
+  // Zero-session honest empty state
+  if (nSessions === 0) {
+    return {
+      exercise_id: exId,
+      exercise_name: exName,
+      sessions_analyzed: 0,
+      baseline_signature: {
+        range_of_motion: 0,
+        movement_stability: 0,
+        tempo_control: 0,
+        repetition_consistency: 0,
+        bilateral_symmetry: 0
+      },
+      current_signature: {
+        range_of_motion: 0,
+        movement_stability: 0,
+        tempo_control: 0,
+        repetition_consistency: 0,
+        bilateral_symmetry: 0
+      },
+      overall: {
+        baseline: 0,
+        latest: 0,
+        score: null,
+        change: 0,
+        delta: 0,
+        change_pct: 0,
+        pct_change: 0,
+        trend: 'none'
+      },
+      metrics: {
+        rom: { available: false, latest: null, initial: null, change: 0, change_pct: 0, trend: 'none' },
+        stability: { available: false, latest: null, initial: null, change: 0, change_pct: 0, trend: 'none' },
+        tempo: { available: false, latest: null, initial: null, change: 0, change_pct: 0, trend: 'none' },
+        consistency: { available: false, latest: null, initial: null, change: 0, change_pct: 0, trend: 'none' },
+        symmetry: { available: false, latest: null, initial: null, change: 0, change_pct: 0, trend: 'none' }
+      },
+      dimension_breakdown: [],
+      timeline: [],
+      ai_insight: `No workout sessions recorded for ${exName} yet. Complete your first workout session to establish your baseline Movement Fingerprint and begin tracking evolution.`,
+      recommendations: [
+        `Complete a workout session of ${exName} with camera tracking to unlock personalized recommendations.`,
+        'Position your full body in frame with good lighting to ensure high-accuracy biomechanical tracking.'
+      ]
+    };
   }
 
-  const nSessions = Math.max(1, localWorkouts.length);
-  const baselineScore = 76.0;
-  const latestScore = localWorkouts.length > 0
-    ? parseFloat(localWorkouts[0].form_score || localWorkouts[0].formScore || 82.4)
-    : 82.4;
+  // Single session baseline
+  if (nSessions === 1) {
+    const single = exerciseWorkouts[0];
+    const score = parseFloat(single.form_score || single.formScore || 0);
+    return {
+      exercise_id: exId,
+      exercise_name: exName,
+      sessions_analyzed: 1,
+      baseline_signature: {
+        range_of_motion: score,
+        movement_stability: score,
+        tempo_control: score,
+        repetition_consistency: score,
+        bilateral_symmetry: score
+      },
+      current_signature: {
+        range_of_motion: score,
+        movement_stability: score,
+        tempo_control: score,
+        repetition_consistency: score,
+        bilateral_symmetry: score
+      },
+      overall: {
+        baseline: score,
+        latest: score,
+        score: score,
+        change: 0,
+        delta: 0,
+        change_pct: 0,
+        pct_change: 0,
+        trend: 'baseline'
+      },
+      metrics: {
+        rom: { available: true, latest: score, initial: score, change: 0, change_pct: 0, trend: 'baseline' },
+        stability: { available: true, latest: score, initial: score, change: 0, change_pct: 0, trend: 'baseline' },
+        tempo: { available: true, latest: score, initial: score, change: 0, change_pct: 0, trend: 'baseline' },
+        consistency: { available: true, latest: score, initial: score, change: 0, change_pct: 0, trend: 'baseline' },
+        symmetry: { available: true, latest: score, initial: score, change: 0, change_pct: 0, trend: 'baseline' }
+      },
+      dimension_breakdown: [
+        { key: 'range_of_motion', label: 'Range of Motion', baseline: score, latest: score, delta: 0, trend: 'BASELINE' },
+        { key: 'movement_stability', label: 'Movement Stability', baseline: score, latest: score, delta: 0, trend: 'BASELINE' },
+        { key: 'tempo_control', label: 'Tempo Control', baseline: score, latest: score, delta: 0, trend: 'BASELINE' },
+        { key: 'repetition_consistency', label: 'Rep Consistency', baseline: score, latest: score, delta: 0, trend: 'BASELINE' },
+        { key: 'bilateral_symmetry', label: 'Bilateral Symmetry', baseline: score, latest: score, delta: 0, trend: 'BASELINE' }
+      ],
+      timeline: [
+        { session: 1, quality: score, date: 'Baseline' }
+      ],
+      ai_insight: `Baseline movement signature established for ${exName} (${score.toFixed(1)}/100). Complete additional sessions to track longitudinal quality trajectory.`,
+      recommendations: [
+        'Maintain consistent repetition cadence across sets.',
+        'Focus on controlled eccentric movement through full range of motion.'
+      ]
+    };
+  }
+
+  // Multi-session (> 1)
+  const sorted = [...exerciseWorkouts].sort((a, b) => {
+    const tA = new Date(a.timestamp || a.created_at || 0).getTime();
+    const tB = new Date(b.timestamp || b.created_at || 0).getTime();
+    return tA - tB;
+  });
+
+  const baselineW = sorted[0];
+  const latestW = sorted[sorted.length - 1];
+  const baselineScore = parseFloat(baselineW.form_score || baselineW.formScore || 0);
+  const latestScore = parseFloat(latestW.form_score || latestW.formScore || 0);
 
   const delta = Math.round((latestScore - baselineScore) * 10) / 10;
-  const pctChange = Math.round(((latestScore - baselineScore) / baselineScore * 100) * 10) / 10;
+  const pctChange = baselineScore > 0 
+    ? Math.round(((latestScore - baselineScore) / baselineScore * 100) * 10) / 10 
+    : 0;
   const trend = latestScore >= baselineScore ? 'improving' : 'declining';
+
+  const timeline = sorted.slice(-10).map((w, idx) => ({
+    session: idx + 1,
+    quality: parseFloat(w.form_score || w.formScore || 0),
+    date: w.timestamp ? new Date(w.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `S${idx + 1}`
+  }));
 
   return {
     exercise_id: exId,
     exercise_name: exName,
     sessions_analyzed: nSessions,
     baseline_signature: {
-      range_of_motion: 75.0,
-      movement_stability: 74.0,
-      tempo_control: 70.0,
-      repetition_consistency: 78.0,
-      bilateral_symmetry: 75.0
+      range_of_motion: baselineScore,
+      movement_stability: baselineScore,
+      tempo_control: baselineScore,
+      repetition_consistency: baselineScore,
+      bilateral_symmetry: baselineScore
     },
     current_signature: {
-      range_of_motion: Math.min(95, latestScore - 2),
-      movement_stability: Math.min(95, latestScore + 2),
-      tempo_control: Math.min(95, latestScore - 5),
-      repetition_consistency: Math.min(95, latestScore + 3),
-      bilateral_symmetry: Math.min(95, latestScore)
+      range_of_motion: latestScore,
+      movement_stability: latestScore,
+      tempo_control: latestScore,
+      repetition_consistency: latestScore,
+      bilateral_symmetry: latestScore
     },
     overall: {
       baseline: baselineScore,
@@ -157,24 +275,23 @@ function generateClientEvolutionData(exerciseId = null) {
       trend: trend
     },
     metrics: {
-      rom: { available: true, latest: Math.min(95, latestScore - 2), initial: 75.0, change: 3.0, change_pct: 4.0, trend: 'improving' },
-      stability: { available: true, latest: Math.min(95, latestScore + 2), initial: 74.0, change: 4.5, change_pct: 6.1, trend: 'improving' },
-      tempo: { available: true, latest: Math.min(95, latestScore - 5), initial: 70.0, change: 2.0, change_pct: 2.9, trend: 'improving' },
-      consistency: { available: true, latest: Math.min(95, latestScore + 3), initial: 78.0, change: 3.5, change_pct: 4.5, trend: 'improving' },
-      symmetry: { available: true, latest: Math.min(95, latestScore), initial: 75.0, change: 1.5, change_pct: 2.0, trend: 'stable' }
+      rom: { available: true, latest: latestScore, initial: baselineScore, change: delta, change_pct: pctChange, trend: trend },
+      stability: { available: true, latest: latestScore, initial: baselineScore, change: delta, change_pct: pctChange, trend: trend },
+      tempo: { available: true, latest: latestScore, initial: baselineScore, change: delta, change_pct: pctChange, trend: trend },
+      consistency: { available: true, latest: latestScore, initial: baselineScore, change: delta, change_pct: pctChange, trend: trend },
+      symmetry: { available: true, latest: latestScore, initial: baselineScore, change: delta, change_pct: pctChange, trend: trend }
     },
     dimension_breakdown: [
-      { key: 'range_of_motion', label: 'Range of Motion', baseline: 75.0, latest: Math.min(95, latestScore - 2), delta: 3.0, trend: 'IMPROVING' },
-      { key: 'movement_stability', label: 'Movement Stability', baseline: 74.0, latest: Math.min(95, latestScore + 2), delta: 4.5, trend: 'IMPROVING' },
-      { key: 'tempo_control', label: 'Tempo Control', baseline: 70.0, latest: Math.min(95, latestScore - 5), delta: 2.0, trend: 'IMPROVING' },
-      { key: 'repetition_consistency', label: 'Rep Consistency', baseline: 78.0, latest: Math.min(95, latestScore + 3), delta: 3.5, trend: 'IMPROVING' },
-      { key: 'bilateral_symmetry', label: 'Bilateral Symmetry', baseline: 75.0, latest: Math.min(95, latestScore), delta: 1.5, trend: 'STABLE' }
+      { key: 'range_of_motion', label: 'Range of Motion', baseline: baselineScore, latest: latestScore, delta: delta, trend: trend.toUpperCase() },
+      { key: 'movement_stability', label: 'Movement Stability', baseline: baselineScore, latest: latestScore, delta: delta, trend: trend.toUpperCase() },
+      { key: 'tempo_control', label: 'Tempo Control', baseline: baselineScore, latest: latestScore, delta: delta, trend: trend.toUpperCase() },
+      { key: 'repetition_consistency', label: 'Rep Consistency', baseline: baselineScore, latest: latestScore, delta: delta, trend: trend.toUpperCase() },
+      { key: 'bilateral_symmetry', label: 'Bilateral Symmetry', baseline: baselineScore, latest: latestScore, delta: delta, trend: trend.toUpperCase() }
     ],
-    timeline: [
-      { session: 1, quality: baselineScore, date: 'Baseline' },
-      { session: nSessions, quality: latestScore, date: 'Latest' }
-    ],
-    ai_insight: 'Your kinematic trajectory shows consistent stability improvement across sessions. Maintain steady cadence on peak contraction holds.',
+    timeline: timeline,
+    ai_insight: trend === 'improving'
+      ? `Movement quality for ${exName} has improved by +${delta.toFixed(1)} pts (+${pctChange.toFixed(1)}%) across ${nSessions} sessions.`
+      : `Movement quality for ${exName} is ${latestScore.toFixed(1)}/100 across ${nSessions} sessions. Maintain focus on steady tempo.`,
     recommendations: [
       'Maintain smooth cadence during the eccentric lowering phase.',
       'Hold full range of motion for 0.5s at peak contraction.'
@@ -229,25 +346,78 @@ async function populateEvolutionExerciseSelector() {
 function renderMovementEvolutionDashboard(data) {
   if (!data) return;
 
+  const exName = data.exercise_name || 'Movement Evolution';
+
   // 1. Header & Quality Banner
   const exNameEl = document.getElementById('evoExerciseTitle');
-  if (exNameEl) exNameEl.innerText = data.exercise_name || 'Movement Evolution';
+  if (exNameEl) exNameEl.innerText = exName;
+
+  const nSessions = (typeof data.sessions_analyzed === 'number') ? data.sessions_analyzed : 0;
 
   const sessionsCountEl = document.getElementById('evoSessionsCount');
   if (sessionsCountEl) {
-    sessionsCountEl.innerText = `${data.sessions_analyzed || 0} ${data.sessions_analyzed === 1 ? 'Session' : 'Sessions'} Analyzed`;
+    sessionsCountEl.innerText = `${nSessions} ${nSessions === 1 ? 'Session' : 'Sessions'} Analyzed`;
   }
 
   const qualityScoreEl = document.getElementById('evoCurrentQualityScore');
-  if (qualityScoreEl) {
-    qualityScoreEl.innerText = data.overall ? `${data.overall.latest.toFixed(1)}` : '0.0';
+  const qualityChangeEl = document.getElementById('evoQualityChangePill');
+
+  // Handle 0-sessions clean empty state
+  if (nSessions === 0) {
+    if (qualityScoreEl) qualityScoreEl.innerText = '--';
+
+    if (qualityChangeEl) {
+      qualityChangeEl.className = 'evo-change-pill pill-neutral';
+      qualityChangeEl.innerHTML = `<span>No Sessions Yet</span>`;
+    }
+
+    const insightEl = document.getElementById('evoAIInsightText');
+    if (insightEl) {
+      insightEl.innerHTML = `<i class="fa-solid fa-circle-info" style="color: var(--accent-cyan); margin-right: 6px;"></i> ${escapeHTML(data.ai_insight || `No workout sessions recorded for ${exName} yet. Complete your first workout session to establish your baseline Movement Fingerprint and track your progress.`)}`;
+    }
+
+    const recsContainer = document.getElementById('evoRecommendationsList');
+    if (recsContainer) {
+      const recs = (data.recommendations && data.recommendations.length > 0)
+        ? data.recommendations
+        : [
+            `Complete a workout session of ${exName} with camera tracking to unlock personalized recommendations.`,
+            'Position your full body in frame with good lighting to ensure high-accuracy biomechanical tracking.'
+          ];
+      recsContainer.innerHTML = recs.map(rec => `
+        <div class="evo-rec-item">
+          <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan); margin-top: 3px;"></i>
+          <span>${escapeHTML(rec)}</span>
+        </div>
+      `).join('');
+    }
+
+    renderEvolutionEmptyState(`No movement data recorded for ${exName} yet. Complete a workout session to analyze your biomechanical trajectory.`);
+
+    const radarCanvas = document.getElementById('evolutionRadarCanvas');
+    if (radarCanvas) {
+      drawDualFingerprintRadar(radarCanvas, null, null);
+    }
+
+    const historyCanvas = document.getElementById('evolutionHistoryCanvas');
+    if (historyCanvas) {
+      drawEvolutionHistoryCanvas(historyCanvas, []);
+    }
+    return;
   }
 
-  const qualityChangeEl = document.getElementById('evoQualityChangePill');
+  // When sessions exist (> 0):
+  if (qualityScoreEl) {
+    const rawVal = data.overall && data.overall.latest !== null && data.overall.latest !== undefined
+      ? data.overall.latest
+      : (data.overall && data.overall.score !== null ? data.overall.score : null);
+    qualityScoreEl.innerText = rawVal !== null ? `${Number(rawVal).toFixed(1)}` : '--';
+  }
+
   if (qualityChangeEl && data.overall) {
     const change = data.overall.change || 0.0;
     const changePct = data.overall.change_pct || 0.0;
-    const isBaseline = data.overall.trend === 'baseline';
+    const isBaseline = nSessions === 1 || data.overall.trend === 'baseline';
 
     if (isBaseline) {
       qualityChangeEl.className = 'evo-change-pill pill-neutral';
@@ -393,15 +563,26 @@ function drawDualFingerprintRadar(canvas, baseSig, curSig) {
   const maxRadius = 100;
 
   // Determine axes
-  const hasSymmetry = curSig && curSig.symmetry_score !== null;
+  const getSigVal = (sig, k1, k2) => {
+    if (!sig) return 0;
+    const v1 = sig[k1];
+    if (typeof v1 === 'number' && !isNaN(v1)) return v1;
+    const v2 = sig[k2];
+    if (typeof v2 === 'number' && !isNaN(v2)) return v2;
+    return 0;
+  };
+
+  const hasSymmetry = (curSig && curSig.symmetry_score !== null && curSig.symmetry_score !== undefined) ||
+                      (curSig && curSig.bilateral_symmetry !== null && curSig.bilateral_symmetry !== undefined);
+
   const axes = [
-    { key: 'rom_score', label: 'ROM' },
-    { key: 'stability_score', label: 'STABILITY' },
-    { key: 'tempo_score', label: 'TEMPO' },
-    { key: 'consistency_score', label: 'CONSIST' }
+    { key: 'rom_score', altKey: 'range_of_motion', label: 'ROM' },
+    { key: 'stability_score', altKey: 'movement_stability', label: 'STABILITY' },
+    { key: 'tempo_score', altKey: 'tempo_control', label: 'TEMPO' },
+    { key: 'consistency_score', altKey: 'repetition_consistency', label: 'CONSIST' }
   ];
   if (hasSymmetry) {
-    axes.push({ key: 'symmetry_score', label: 'SYMMETRY' });
+    axes.push({ key: 'symmetry_score', altKey: 'bilateral_symmetry', label: 'SYMMETRY' });
   }
 
   const numAxes = axes.length;
@@ -450,13 +631,26 @@ function drawDualFingerprintRadar(canvas, baseSig, curSig) {
     ctx.fillText(axis.label, lx, ly);
   });
 
+  const hasBaseData = baseSig && axes.some(a => getSigVal(baseSig, a.key, a.altKey) > 0);
+  const hasCurData = curSig && axes.some(a => getSigVal(curSig, a.key, a.altKey) > 0);
+
+  if (!hasBaseData && !hasCurData) {
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 11px "Outfit", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Awaiting baseline workout session', cx, cy);
+    return;
+  }
+
   // 1. Draw Baseline Polygon (Dashed Amber)
-  if (baseSig) {
+  if (hasBaseData) {
     ctx.save();
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     axes.forEach((axis, i) => {
-      const val = Math.max(8, Math.min(100, baseSig[axis.key] || 0));
+      const rawVal = getSigVal(baseSig, axis.key, axis.altKey);
+      const val = Math.max(8, Math.min(100, rawVal));
       const r = maxRadius * (val / 100);
       const angle = startAngle + i * angleStep;
       const x = cx + r * Math.cos(angle);
@@ -474,9 +668,10 @@ function drawDualFingerprintRadar(canvas, baseSig, curSig) {
   }
 
   // 2. Draw Current Polygon (Cyan / Lime)
-  if (curSig) {
+  if (hasCurData) {
     const curPoints = axes.map((axis, i) => {
-      const val = Math.max(8, Math.min(100, curSig[axis.key] || 0));
+      const rawVal = getSigVal(curSig, axis.key, axis.altKey);
+      const val = Math.max(8, Math.min(100, rawVal));
       const r = maxRadius * (val / 100);
       const angle = startAngle + i * angleStep;
       return {

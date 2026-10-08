@@ -107,19 +107,61 @@ function generateClientMovementDNA(exerciseId = null) {
   }
 
   const nSessions = localWorkouts.length;
-  let avgForm = 82.0;
-  if (nSessions > 0) {
-    const scores = localWorkouts.map(w => parseFloat(w.form_score || w.formScore || 80)).filter(s => !isNaN(s) && s > 0);
-    if (scores.length > 0) {
-      avgForm = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 10) / 10;
-    }
+
+  // Zero-sessions honest empty state
+  if (nSessions === 0) {
+    return {
+      overall_score: null,
+      total_sessions_analyzed: 0,
+      confidence: 'Baseline',
+      confidence_reason: 'No recorded workout history. Complete your first workout to establish your Movement DNA.',
+      strongest_dimension: { key: 'none', label: 'None Yet', score: null, status: 'N/A' },
+      strongest_trait: { key: 'none', label: 'None Yet', score: null, status: 'N/A' },
+      primary_limiter: {
+        key: 'none',
+        label: 'None Yet',
+        score: null,
+        status: 'N/A',
+        why_it_matters: 'Movement DNA is established after your first workout session.',
+        ai_response: 'Complete any workout with camera tracking to begin automated movement decoding.'
+      },
+      needs_attention: { key: 'none', label: 'None Yet', score: null, status: 'N/A' },
+      secondary_limiter: { key: 'none', label: 'None Yet', score: null, status: 'N/A' },
+      trend: { direction: 'INSUFFICIENT DATA', delta: 0.0, pct_change: 0.0, velocity_per_session: 0.0 },
+      dimensions: {
+        range_of_motion: { key: 'range_of_motion', label: 'Range of Motion', score: null, baseline: null, recent: null, overall_avg: null, delta: 0, pct_change: 0, velocity: 0, status: 'N/A', trend: 'INSUFFICIENT DATA', interpretation: 'No recorded movement data. Complete your first workout to establish your Movement DNA.' },
+        movement_stability: { key: 'movement_stability', label: 'Movement Stability', score: null, baseline: null, recent: null, overall_avg: null, delta: 0, pct_change: 0, velocity: 0, status: 'N/A', trend: 'INSUFFICIENT DATA', interpretation: 'No recorded movement data. Complete your first workout to establish your Movement DNA.' },
+        tempo_control: { key: 'tempo_control', label: 'Tempo Control', score: null, baseline: null, recent: null, overall_avg: null, delta: 0, pct_change: 0, velocity: 0, status: 'N/A', trend: 'INSUFFICIENT DATA', interpretation: 'No recorded movement data. Complete your first workout to establish your Movement DNA.' },
+        repetition_consistency: { key: 'repetition_consistency', label: 'Repetition Consistency', score: null, baseline: null, recent: null, overall_avg: null, delta: 0, pct_change: 0, velocity: 0, status: 'N/A', trend: 'INSUFFICIENT DATA', interpretation: 'No recorded movement data. Complete your first workout to establish your Movement DNA.' },
+        bilateral_symmetry: { key: 'bilateral_symmetry', label: 'Bilateral Symmetry', score: null, baseline: null, recent: null, overall_avg: null, delta: 0, pct_change: 0, velocity: 0, status: 'N/A', trend: 'INSUFFICIENT DATA', interpretation: 'No recorded movement data. Complete your first workout to establish your Movement DNA.' }
+      },
+      timeline: [],
+      ai_report: {
+        what_you_do_well: 'Complete your first workout to reveal your movement strengths.',
+        what_is_limiting_you: 'No movement limiters detected yet.',
+        what_changed: 'No workout history recorded yet.',
+        what_fitquest_recommends: 'Start any exercise session to calibrate your personal Movement DNA vectors.',
+        next_step: 'Launch a workout session with your camera enabled to begin automated movement analysis.'
+      },
+      adaptive_action: {
+        endpoint: '/api/v1/adaptive-training/generate',
+        primary_focus: 'general',
+        recommended_title: 'Initial Baseline Calibration'
+      }
+    };
   }
 
-  const baseStability = Math.min(95, Math.max(65, Math.round(avgForm + 2)));
-  const baseROM = Math.min(95, Math.max(65, Math.round(avgForm - 2)));
-  const baseTempo = Math.min(95, Math.max(60, Math.round(avgForm - 6)));
-  const baseConsistency = Math.min(95, Math.max(65, Math.round(avgForm + 4)));
-  const baseSymmetry = Math.min(95, Math.max(65, Math.round(avgForm - 1)));
+  // When sessions exist (> 0):
+  const scores = localWorkouts.map(w => parseFloat(w.form_score || w.formScore || 0)).filter(s => !isNaN(s) && s > 0);
+  const avgForm = scores.length > 0
+    ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 10) / 10
+    : 75.0;
+
+  const baseStability = Math.min(95, Math.max(50, Math.round(avgForm + 2)));
+  const baseROM = Math.min(95, Math.max(50, Math.round(avgForm - 2)));
+  const baseTempo = Math.min(95, Math.max(50, Math.round(avgForm - 6)));
+  const baseConsistency = Math.min(95, Math.max(50, Math.round(avgForm + 4)));
+  const baseSymmetry = Math.min(95, Math.max(50, Math.round(avgForm - 1)));
 
   const dimLabels = {
     range_of_motion: 'Range of Motion',
@@ -157,23 +199,17 @@ function generateClientMovementDNA(exerciseId = null) {
 
   const timeline = localWorkouts.slice(-6).map((w, idx) => ({
     session_index: idx + 1,
-    overall_quality: parseFloat(w.form_score || w.formScore || 80),
+    overall_quality: parseFloat(w.form_score || w.formScore || 0),
     date: w.timestamp ? new Date(w.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `S${idx + 1}`
   }));
-
-  if (timeline.length === 0) {
-    timeline.push({ session_index: 1, overall_quality: avgForm, date: 'Today' });
-  }
 
   const intOverall = Math.round(avgForm);
 
   return {
     overall_score: intOverall,
-    total_sessions_analyzed: Math.max(1, nSessions),
+    total_sessions_analyzed: nSessions,
     confidence: nSessions >= 3 ? 'High' : (nSessions >= 1 ? 'Medium' : 'Baseline'),
-    confidence_reason: nSessions > 0
-      ? `Calibrated from ${nSessions} workout ${nSessions === 1 ? 'session' : 'sessions'}.`
-      : 'Initial biometric calibration established. Complete additional workouts to sharpen resolution.',
+    confidence_reason: `Calibrated from ${nSessions} workout ${nSessions === 1 ? 'session' : 'sessions'}.`,
     strongest_dimension: { key: 'repetition_consistency', label: 'Repetition Consistency', score: baseConsistency, status: 'STRONG' },
     strongest_trait: { key: 'repetition_consistency', label: 'Repetition Consistency', score: baseConsistency, status: 'STRONG' },
     primary_limiter: {
@@ -281,74 +317,95 @@ if (typeof window !== 'undefined' && !window._dnaResizeAttached) {
 function renderMovementDNADashboard(data) {
   if (!data) return;
 
+  const nSessions = (typeof data.total_sessions_analyzed === 'number') ? data.total_sessions_analyzed : 0;
+
   // 1. Overall Score & Confidence
   const overallScoreEl = document.getElementById('dnaOverallScore');
   if (overallScoreEl) {
-    const rawVal = data.overall_score !== undefined && data.overall_score !== null ? data.overall_score : 84;
-    overallScoreEl.innerText = String(Math.round(Number(rawVal)));
+    const rawVal = data.overall_score;
+    overallScoreEl.innerText = (rawVal !== undefined && rawVal !== null && nSessions > 0)
+      ? String(Math.round(Number(rawVal)))
+      : '--';
   }
 
   const sessionCountEl = document.getElementById('dnaSessionsCount');
   if (sessionCountEl) {
-    const count = typeof data.total_sessions_analyzed === 'number' ? data.total_sessions_analyzed : 1;
-    sessionCountEl.innerText = `${count} ${count === 1 ? 'Session' : 'Sessions'}`;
+    sessionCountEl.innerText = `${nSessions} ${nSessions === 1 ? 'Session' : 'Sessions'}`;
   }
 
   const confPill = document.getElementById('dnaConfidencePill');
   if (confPill) {
-    confPill.className = `dna-conf-pill conf-${(data.confidence || 'high').toLowerCase()}`;
-    let icon = '<i class="fa-solid fa-shield-halved"></i>';
-    confPill.innerHTML = `${icon} ${(data.confidence || 'HIGH').toUpperCase()} CONFIDENCE`;
+    if (nSessions === 0) {
+      confPill.className = 'dna-conf-pill conf-baseline';
+      confPill.innerHTML = '<i class="fa-solid fa-shield"></i> BASELINE NEEDED';
+    } else {
+      const conf = (data.confidence || 'medium').toLowerCase();
+      confPill.className = `dna-conf-pill conf-${conf}`;
+      confPill.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${(data.confidence || 'HIGH').toUpperCase()} CONFIDENCE`;
+    }
   }
 
   const confReasonEl = document.getElementById('dnaConfidenceReason');
   if (confReasonEl) {
-    confReasonEl.innerText = data.confidence_reason || 'Calibrated from workout movement telemetry.';
+    confReasonEl.innerText = data.confidence_reason || (nSessions > 0 ? 'Calibrated from workout movement telemetry.' : 'Complete your first workout to decode your personal Movement DNA profile.');
   }
 
   // 2. Strongest Trait
   const strongestEl = document.getElementById('dnaStrongestTrait');
   const sDim = data.strongest_dimension || data.strongest_trait || {};
   if (strongestEl) {
-    strongestEl.innerText = sDim.label || sDim.name || 'Repetition Consistency';
+    strongestEl.innerText = (nSessions > 0 && sDim.label && sDim.label !== 'None Yet') ? sDim.label : '--';
   }
   const strongestScoreEl = document.getElementById('dnaStrongestScore');
   if (strongestScoreEl) {
-    const sScore = (typeof sDim.score === 'number') ? Math.round(sDim.score) : 88;
-    strongestScoreEl.innerText = `${sScore} / 100`;
+    const sScore = (typeof sDim.score === 'number' && sDim.score !== null && nSessions > 0) ? Math.round(sDim.score) : null;
+    strongestScoreEl.innerText = sScore !== null ? `${sScore} / 100` : '-- / 100';
   }
 
   // 3. Needs Attention (Mapped to Primary Limiter)
   const limiterEl = document.getElementById('dnaPrimaryLimiter');
   const pLimiter = data.primary_limiter || data.needs_attention || {};
   if (limiterEl) {
-    limiterEl.innerText = pLimiter.label || pLimiter.name || 'Tempo Control';
+    limiterEl.innerText = (nSessions > 0 && pLimiter.label && pLimiter.label !== 'None Yet') ? pLimiter.label : '--';
   }
   const limiterScoreEl = document.getElementById('dnaLimiterScore');
   if (limiterScoreEl) {
-    const lScore = (typeof pLimiter.score === 'number') ? Math.round(pLimiter.score) : 72;
-    limiterScoreEl.innerText = `${lScore} / 100`;
+    const lScore = (typeof pLimiter.score === 'number' && pLimiter.score !== null && nSessions > 0) ? Math.round(pLimiter.score) : null;
+    limiterScoreEl.innerText = lScore !== null ? `${lScore} / 100` : '-- / 100';
   }
 
   // 4. Trend Direction & Velocity
   const trendBadge = document.getElementById('dnaTrendBadge');
-  if (trendBadge && data.trend) {
-    trendBadge.className = `dna-trend-pill trend-${data.trend.direction.toLowerCase()}`;
-    let tIcon = '<i class="fa-solid fa-minus"></i>';
-    if (data.trend.direction === 'IMPROVING') tIcon = '<i class="fa-solid fa-arrow-trend-up"></i>';
-    else if (data.trend.direction === 'DECLINING') tIcon = '<i class="fa-solid fa-arrow-trend-down"></i>';
-    trendBadge.innerHTML = `${tIcon} ${data.trend.direction}`;
+  if (trendBadge) {
+    if (nSessions === 0 || !data.trend || data.trend.direction === 'INSUFFICIENT DATA') {
+      trendBadge.className = 'dna-trend-pill trend-neutral';
+      trendBadge.innerHTML = '<i class="fa-solid fa-minus"></i> INSUFFICIENT DATA';
+    } else {
+      trendBadge.className = `dna-trend-pill trend-${data.trend.direction.toLowerCase()}`;
+      let tIcon = '<i class="fa-solid fa-minus"></i>';
+      if (data.trend.direction === 'IMPROVING') tIcon = '<i class="fa-solid fa-arrow-trend-up"></i>';
+      else if (data.trend.direction === 'DECLINING') tIcon = '<i class="fa-solid fa-arrow-trend-down"></i>';
+      trendBadge.innerHTML = `${tIcon} ${data.trend.direction}`;
+    }
   }
 
   const trendDeltaEl = document.getElementById('dnaTrendDelta');
-  if (trendDeltaEl && data.trend) {
-    const sign = data.trend.delta >= 0 ? '+' : '';
-    trendDeltaEl.innerText = `${sign}${data.trend.delta.toFixed(1)} pts (${sign}${data.trend.pct_change.toFixed(1)}%)`;
+  if (trendDeltaEl) {
+    if (nSessions === 0 || !data.trend || data.trend.direction === 'INSUFFICIENT DATA') {
+      trendDeltaEl.innerText = '--';
+    } else {
+      const sign = data.trend.delta >= 0 ? '+' : '';
+      trendDeltaEl.innerText = `${sign}${data.trend.delta.toFixed(1)} pts (${sign}${data.trend.pct_change.toFixed(1)}%)`;
+    }
   }
 
   const velocityEl = document.getElementById('dnaVelocityText');
-  if (velocityEl && data.trend) {
-    velocityEl.innerText = `Velocity: ${data.trend.velocity_per_session >= 0 ? '+' : ''}${data.trend.velocity_per_session.toFixed(2)} pts/session`;
+  if (velocityEl) {
+    if (nSessions === 0 || !data.trend) {
+      velocityEl.innerText = 'Velocity: --';
+    } else {
+      velocityEl.innerText = `Velocity: ${data.trend.velocity_per_session >= 0 ? '+' : ''}${data.trend.velocity_per_session.toFixed(2)} pts/session`;
+    }
   }
 
   // 5. Draw 5-Axis Native HTML5 Canvas Movement DNA Radar
@@ -361,7 +418,7 @@ function renderMovementDNADashboard(data) {
   renderDNALimiterCard(data.primary_limiter, data.secondary_limiter);
 
   // 8. Render Multi-Metric Timeline Spline Canvas
-  renderMovementDNATimeline('dnaTimelineCanvas', data.timeline, activeDNATimelineFilter);
+  renderMovementDNATimeline('dnaTimelineCanvas', data.timeline || [], activeDNATimelineFilter);
 
   // 9. Render Explainable AI Movement Report
   renderDNAAIReport(data.ai_report);

@@ -53,7 +53,7 @@ function generateClientReportAvailability() {
     if (raw) localWorkouts = JSON.parse(raw);
   } catch (e) {}
 
-  let historyDays = 1;
+  let historyDays = localWorkouts.length > 0 ? 1 : 0;
   const now = new Date();
   if (localWorkouts.length > 0) {
     const timestamps = localWorkouts.map(w => new Date(w.timestamp || Date.now()).getTime()).filter(t => !isNaN(t));

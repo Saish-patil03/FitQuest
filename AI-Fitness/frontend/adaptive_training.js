@@ -43,22 +43,42 @@ function generateClientAdaptiveProfile() {
   } catch (e) {}
 
   const nSessions = localWorkouts.length;
-  let avgForm = 82;
-  if (nSessions > 0) {
-    const scores = localWorkouts.map(w => parseFloat(w.form_score || w.formScore || 80)).filter(s => !isNaN(s) && s > 0);
-    if (scores.length > 0) {
-      avgForm = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    }
+
+  if (nSessions === 0) {
+    return {
+      primary_focus_label: 'Baseline Needed',
+      secondary_focus_label: 'No Data Yet',
+      total_sessions_analyzed: 0,
+      confidence: 'Baseline',
+      confidence_reason: 'No recorded workout sessions yet. Complete your first workout to establish adaptive volume regulation.',
+      summary_insight: 'Complete your first workout with live camera tracking to establish your baseline movement vectors.',
+      fitquest_response: 'Perform an initial baseline workout to begin tracking your biomechanical adaptations.',
+      metric_averages: {
+        range_of_motion: null,
+        movement_stability: null,
+        tempo_control: null,
+        repetition_consistency: null,
+        bilateral_symmetry: null
+      },
+      metric_status: {
+        range_of_motion: 'AWAITING DATA',
+        movement_stability: 'AWAITING DATA',
+        tempo_control: 'AWAITING DATA',
+        repetition_consistency: 'AWAITING DATA',
+        bilateral_symmetry: 'AWAITING DATA'
+      }
+    };
   }
+
+  const scores = localWorkouts.map(w => parseFloat(w.form_score || w.formScore || 0)).filter(s => !isNaN(s) && s > 0);
+  const avgForm = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 75;
 
   return {
     primary_focus_label: 'Movement Stability',
     secondary_focus_label: 'Tempo Control',
-    total_sessions_analyzed: Math.max(1, nSessions),
+    total_sessions_analyzed: nSessions,
     confidence: nSessions >= 3 ? 'High' : (nSessions >= 1 ? 'Medium' : 'Baseline'),
-    confidence_reason: nSessions > 0
-      ? `Calibrated from ${nSessions} active workout ${nSessions === 1 ? 'session' : 'sessions'}.`
-      : 'Initial kinetic calibration active. Complete workouts to auto-regulate volume.',
+    confidence_reason: `Calibrated from ${nSessions} active workout ${nSessions === 1 ? 'session' : 'sessions'}.`,
     summary_insight: 'Kinematic stability is consistent across concentric movements. Eccentric tempo pacing can be dialed in for maximal hypertrophy and tendon resilience.',
     fitquest_response: 'Adaptive prescription auto-regulates cadence to 2-1-2 tempo with target lockout holds.',
     metric_averages: {

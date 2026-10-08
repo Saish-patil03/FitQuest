@@ -88,8 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const level = (profile && profile.experience_level) || 'Intermediate';
 
     if (q.includes('why') && (q.includes('change') || q.includes('workout') || q.includes('today') || q.includes('adaptive'))) {
-      const recentScore = (recentWorkouts && recentWorkouts.length > 0 && recentWorkouts[0].form_score) ? recentWorkouts[0].form_score : 82;
-      return `### Today's Workout Adaptation 🔄\n\nYour session was dynamically adjusted based on your recent kinematic data and neuromuscular readiness.\n\n* **Biomechanical Readiness:** Your latest form score (${recentScore}/100) and movement tempo indicated minor fatigue accumulation in secondary stabilizer muscle groups.\n* **Adaptive Adjustment:** Volume was moderated slightly to emphasize eccentric control and joint stability rather than maximal overload.\n* **Objective:** This protects connective tissue while preserving motor unit recruitment and maintaining your streak toward **${goal}**.\n\nStay focused on controlled cadence on every rep!`;
+      const hasRecent = recentWorkouts && recentWorkouts.length > 0;
+      const recentScore = hasRecent ? (recentWorkouts[0].form_score || recentWorkouts[0].formScore || null) : null;
+      const readinessText = recentScore !== null 
+        ? `* **Biomechanical Readiness:** Your latest form score (${recentScore}/100) and movement tempo indicated minor fatigue accumulation in secondary stabilizer muscle groups.\n`
+        : `* **Biomechanical Readiness:** Baseline calibration initialized based on your current physical readiness profile.\n`;
+      return `### Today's Workout Adaptation 🔄\n\nYour session was dynamically adjusted based on your kinematic data and neuromuscular readiness.\n\n${readinessText}* **Adaptive Adjustment:** Volume was moderated slightly to emphasize eccentric control and joint stability rather than maximal overload.\n* **Objective:** This protects connective tissue while preserving motor unit recruitment and maintaining your streak toward **${goal}**.\n\nStay focused on controlled cadence on every rep!`;
     }
 
     if (q.includes('squat')) {
