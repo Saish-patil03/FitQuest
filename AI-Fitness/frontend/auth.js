@@ -120,7 +120,10 @@ function initAuthUI() {
 
         showAuthSuccess(data.message || 'If an account exists for this email, password reset instructions have been sent.');
       } catch (err) {
-        showAuthError(err.message);
+        const msg = (err && err.message && (err.message.includes('fetch') || err.message.includes('Failed')))
+          ? 'Cloud server is currently offline. Password reset emails require an active cloud backend.'
+          : (err.message || 'Failed to process request.');
+        showAuthError(msg);
       } finally {
         setAuthBtnLoading('forgotBtn', false, 'Send Reset Link');
       }
@@ -224,7 +227,7 @@ function initAuthUI() {
             lastErrorMsg = errData.detail || 'Login failed. Please check your credentials.';
           }
         } catch (netErr) {
-          lastErrorMsg = netErr.message || 'Server connection failed.';
+          lastErrorMsg = 'Cloud server is currently offline or unreachable.';
         }
 
         // 2. Resilient Local Account Fallback (if serverless backend is cold, offline, or disabled)
@@ -254,7 +257,7 @@ function initAuthUI() {
           return;
         }
 
-        throw new Error(lastErrorMsg || 'Account not found for this email. Please register to create an account.');
+        throw new Error('No local account found for this email. Since the cloud backend is currently offline, please switch to the "Create Account" tab above to register and start training immediately!');
 
       } catch (err) {
         showAuthError(err.message);
